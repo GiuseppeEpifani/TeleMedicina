@@ -15,15 +15,14 @@ export const InfoPatient = ({navigation}) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     return (
-        <KeyboardScrollView scrollEnabled={false} extraHeight={200} barColor={PRIMARY} backgroundColor={WHITE}>
-         
+        <KeyboardScrollView scrollEnabled={false} extraHeight={200} barColor={PRIMARY} backgroundColor={WHITE}>  
             <ModalAttencion setModalVisible={setModalVisible} modalVisible={modalVisible} navigation={navigation}/>
             <View style={{flex: 1}}>
-                <View style={{flex: 1.6, padding: 30}}>
+                <View style={{flex: 1}}>
                     <View style={{flex: 0.3}}>
                         <ArrowBack navigation={navigation}/>
                     </View>
-                    <View style={{flex: 2}}>
+                    <View style={{flex: 2, paddingHorizontal: 30}}>
                         <CardInfoPatient/>
                     </View>
                 </View>            
@@ -42,13 +41,15 @@ export const InfoPatient = ({navigation}) => {
                             title="Crear atención"
                             onPress={() => setModalVisible(true)}
                         />   
-                    </View>   
-                    <ScrollView style={{flex: 3}}>
-                        <View style={{paddingHorizontal: 30, marginVertical: 10}}>
-                            <CardAttention/>
-                            <CardAttention/>   
-                        </View>     
-                    </ScrollView>
+                    </View>
+                    <View style={{flex: 1}}>
+                        <ScrollView>
+                            <View style={{paddingHorizontal: 30, marginVertical: 10}}>
+                                <CardAttention/>
+                                <CardAttention/>   
+                            </View>     
+                        </ScrollView>
+                    </View>
                 </View>
                 <View style={{flex: 0.4}}/>
             </View>

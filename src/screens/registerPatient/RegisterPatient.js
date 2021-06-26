@@ -24,11 +24,11 @@ export const RegisterPatient = ({navigation}) => {
 
     return (
         <KeyboardScrollView scrollEnabled={false} extraHeight={50} barColor={PRIMARY} backgroundColor={WHITE}>
-            <View style={{flex: 1, padding: 30}}>
-                <View style={{flex: 0.3, marginBottom: 26}}>
+            <View style={{flex: 1}}>
+                <View style={{flex: 0.1, marginBottom: 26}}>
                     <ArrowBack navigation={navigation}/>
                 </View>
-                <View style={{flex: 5}}>
+                <View style={{flex: 5, padding: 30}}>
                     <Card header title={'Registrar datos paciente'}>
                         <View style={{height: '90.8%', padding: 12}}>
                             <ScrollView style={{padding: 8}}>

@@ -25,32 +25,32 @@ export const Dimensions = ({navigation}) => {
                 <View style={{flex: 0.3, paddingHorizontal: 30, paddingBottom: 10}}>
                     <CardInfoPatient onlyDate/>
                 </View>
+                <View style={{flex: 0.05}}/>
                 <View style={{flex: 1}}>
                     <ScrollView>
                         <View style={{paddingHorizontal: 30, alignItems: 'center'}}>
                             <ButtonWithShadow text={'Dolor'} onPress={() => {navigation.navigate('Pain')}}/>
-                            <ButtonWithShadow text={'Problemas comportamiento'} onPress={() => {navigation.navigate('Pain')}}/>
-                            <ButtonWithShadow text={'Problemas respiratorios'} onPress={() => {}}/>
+                            <ButtonWithShadow text={'Problemas comportamiento'} onPress={() => {navigation.navigate('BehaviorProblems')}}/>
+                            <ButtonWithShadow text={'Problemas respiratorios'} onPress={() => {navigation.navigate('BehaviorProblems')}}/>
                             <ButtonWithShadow text={'Problemas digestivos'} onPress={() => {}}/>
                             <ButtonWithShadow text={'Problemas urinarios'} onPress={() => {}}/>
                             <ButtonWithShadow text={'Caídas y golpes'} onPress={() => {}}/>
                         </View>
                     </ScrollView>
                 </View>
-            </View>
-            <View style={{flex: 0.18}}>
-                <Button title="Finalizar" buttonStyle={{height: 70, backgroundColor: PRIMARY}} titleStyle={{fontSize: 32, fontWeight: 'bold', marginLeft: 10}} 
-                    icon={
-                        <Icon
-                            name="content-save"
-                            size={36}
-                            color="white"
-                        />
-                    }
-                    onPress={() => {}}
+                <View style={{height: 80, marginBottom: 70}}>
+                    <Button title="Finalizar" buttonStyle={{height: 70, backgroundColor: PRIMARY}} titleStyle={{fontSize: 32, fontWeight: 'bold', marginLeft: 10}} 
+                        icon={
+                            <Icon
+                                name="content-save"
+                                size={36}
+                                color="white"
+                            />
+                        }
+                        onPress={() => {}}
                     />
+                </View>
             </View>
-            
         </KeyboardScrollView>
     )
 }

@@ -1,6 +1,6 @@
-import React, { useContext, useState }  from 'react'
+import React, { useContext, useState, useEffect }  from 'react'
 import { Button, CheckBox } from 'react-native-elements';
-import { View, Text, Keyboard, Image } from 'react-native';
+import { View, Text, Keyboard, Image, Alert } from 'react-native';
 import { AuthContext } from '../../context/Auth/AuthContext'
 import Card from '../../UI/Card';
 import KeyboardScrollView from '../../UI/KeyboardScrollView';
@@ -13,16 +13,35 @@ import { PRIMARY } from '../../const/Colors';
 export const SignIn = ({ navigation }) => {
 
     const [cheked, setChecked] = useState(false)
-    const { authState, signIn, logout} = useContext(AuthContext)
-    const [ formValues, handleInputChange, validateForm, setValidateForm, isSubmit ] = useForm({ fields: { email: { value: '', isValid: false, isComplete: false }, password: { value: '', isValid: false, isComplete: false }}, validate: false });
+    const { authState, signIn, logout, errorMessage, removeError} = useContext(AuthContext)
+    const [ isValidEmail, setisValidEmail ] = useState(null)
+    const [ formValues, handleInputChange ] = useForm({ email: { value: '', isComplete: false }, password: { value: '', isComplete: false }});
+    const [ validField, setValidField ] = useState(false)
     const { email, password } = formValues;
-    
-    const handleSubmit = () => {
-        setValidateForm(true);
 
-        if (isSubmit) {
-            signIn();
-            Keyboard.dismiss();
+    useEffect(() => {
+        if (errorMessage.length === 0) return;
+
+        Alert.alert(
+            'Login incorrecto', errorMessage, [ { text: 'Esta bien', onPress: removeError } ]
+        );
+
+    }, [errorMessage])
+ 
+    const handleSubmit = () => {
+        setValidField(true);
+        if (email.isComplete && password.isComplete) {
+            const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+            let isValid = emailRegex.test(email.value);
+
+            if (!isValid) {
+                setisValidEmail(false); 
+                return
+            }
+
+            setisValidEmail(true);
+            signIn({email, password});
+            Keyboard.dismiss(); 
         }
     }
 
@@ -30,17 +49,17 @@ export const SignIn = ({ navigation }) => {
         <KeyboardScrollView scrollEnabled={false} extraHeight={200} barColor={PRIMARY}>
             <View style={{flex: 1,  padding: 30}}>
                 <View style={{ alignItems: 'center', marginBottom: 20, flex: 1}}>
-                    <Image style={styles.logo} source={require('../../assets/logo_telemedicina.png')}/>
+                    <Image style={styles.logo} source={require('../../assets/logo_telemedicina.png')} />
                 </View>
                 <View style={{ flex: 1.2 }}>
                     <Card header={false} padding={15}>
                             <Text style={styles.title}>Bienvenido a TeleMedicina</Text>
 
-                            <InputText 
+                            <InputText
                                 label="Correo electrónico"
-                                labelError={validateForm ? (!email.isComplete ? FIELD_COMPLETE : !email.isValid ? EMAIL_INVALID : '') : false}
                                 onChangeText={text => handleInputChange(text, 'email')}
-                                value={email.value} 
+                                labelError={ validField ? email.value ? !isValidEmail ? EMAIL_INVALID : false : FIELD_COMPLETE : false}
+                                value={email.value}
                                 placeholder={'Ingrese su correo electrónico'} 
                                 keyboardType={'default'} 
                                 nameIcon={"email"} 
@@ -48,11 +67,12 @@ export const SignIn = ({ navigation }) => {
 
                             <InputText 
                                 label="Contraseña"
-                                labelError={validateForm ? (!password.isComplete ? FIELD_COMPLETE : '') : false}
                                 onChangeText={text => handleInputChange(text, 'password')}
+                                labelError={ validField ? password.value ? false : FIELD_COMPLETE : false }
                                 value={password.value} 
                                 placeholder={'*********************'} 
-                                keyboardType={'default'} 
+                                keyboardType={'default'}
+                                secureTextEntry={true}
                                 nameIcon={"lock"} 
                             />
 
@@ -61,7 +81,7 @@ export const SignIn = ({ navigation }) => {
                                 onPress={ () => setChecked(!cheked)}
                                 checked={cheked}
                             />
-                            
+
                             <Button
                                 containerStyle={{ borderRadius: 15, marginTop: 10 }}
                                 buttonStyle={{backgroundColor: PRIMARY}}
@@ -73,8 +93,8 @@ export const SignIn = ({ navigation }) => {
                             <Text style={styles.textRecovery} onPress={() => navigation.navigate('PasswordRecovery')}>Recuperar contraseña</Text>
                     </Card>
                 </View>
+                <View style={{flex: 0.08}}/>
             </View>
         </KeyboardScrollView>
     )
 }
-

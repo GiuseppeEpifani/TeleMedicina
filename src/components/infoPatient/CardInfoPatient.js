@@ -7,8 +7,8 @@ import { SECONDARY } from '../../const/Colors';
 
 export const CardInfoPatient = (props) => {
     return (
-        <View style={(props.onlyDate) ? {height: 180} : {height: 290}}>
-            <View style={(props.onlyDate) ? {flex: 0.4} : {flex: 0.2}}>
+        <View style={{height: 180}}>
+            <View style={{flex: 0.4}}>
                 <Text style={styles.title}>Paciente clínico</Text>
             </View>
             <View style={{flex: 1}}>
@@ -19,22 +19,6 @@ export const CardInfoPatient = (props) => {
                             <Icon name="calendar-range" size={35} color={SECONDARY}/>
                             <Text style={styles.textInfoBold}>Fecha de nacimiento: <Text style={styles.textInfo}>21-07-1998</Text></Text>
                         </View>
-                        { !props.onlyDate &&
-                        <View>
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <Icon name="phone" size={35} color={SECONDARY}/>
-                                <Text style={styles.textInfoBold}>Teléfono: <Text style={styles.textInfo}>999081586</Text></Text>
-                            </View>
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <Icon name="map-marker" size={35} color={SECONDARY}/>
-                                <Text style={styles.textInfoBold}>Dirección: <Text style={styles.textInfo}>Olivar bajo</Text></Text>
-                            </View>
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <Icon name="email" size={35} color={SECONDARY}/>
-                                <Text style={styles.textInfoBold}>Correo: <Text style={styles.textInfo}>contacto@gmail.com</Text></Text>
-                            </View>
-                        </View>
-                        }
                     </View>
                 </Card>
             </View>

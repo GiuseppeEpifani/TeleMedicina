@@ -1,36 +1,76 @@
-import React, { createContext, useReducer } from 'react'
+import React, { createContext, useEffect, useReducer } from 'react'
+import teleMedicinaApi from '../../api/teleMedicinaApi';
+import teleMedicinaLogin from '../../api/baseURL';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authReducer } from './AuthReducer';
 
 // Estado inicial
 const authInitialState = {
     isLoggedIn: false,
-    username: 'undefined',
-    errorMesagge: 'undefined',
+    username: {},
+    errorMessage: '',
     token: null,
-    status: ''
+    status: 'checking',
+    loading: false
 }
 
 // Crear el contexto
-export const AuthContext = createContext(null);
+export const AuthContext = createContext(authInitialState);
 
 // Componente proveedor del estado
 export const AuthProvider = ({ children }) => {
 
     const [authState, dispatch] = useReducer(authReducer, authInitialState)
 
-    const signIn = () => {
-        dispatch({ type: 'signIn' });
+    useEffect(() => {
+        checkToken();
+    }, [])
+
+    const checkToken = async () => {
+        const token = await AsyncStorage.getItem('token');
+
+        try {
+            if (token) {
+                const { data } = await teleMedicinaApi.post('/auth/refresh');
+                await AsyncStorage.setItem('token', data.access_token); 
+                dispatch({type: 'refreshToken', payLoad: data.access_token });
+            } else {
+                return dispatch({type: 'notAuthenticated'});
+            }
+    
+        } catch (error) {
+            dispatch({type: 'notAuthenticated'});
+        }
     }
 
-    const logout = () => {
+    const signIn = async ({email, password}) => {
+        try {
+            dispatch({ type: 'setLoading' });
+            const { data } = await teleMedicinaLogin.post('/auth/login', { email: email.value.toLowerCase() , password: password.value });
+            dispatch({ type: 'signIn', payLoad: { username: data.email, token: data.token} });
+            await AsyncStorage.setItem('token', data.token);
+
+        } catch (error) {
+            dispatch({ type: 'addError', payLoad: 'Algo salio mal, credenciales incorrectas o error de respuesta' });
+            console.log(error)
+        }
+    }
+
+    const logout = async () => {
+        await AsyncStorage.removeItem('token');
         dispatch({ type: 'logout' });
+    }
+
+    const removeError = () => {
+        dispatch({ type: 'removeError' });
     }
 
     return (
         <AuthContext.Provider value={{
-            authState,
+            ...authState,
             signIn,
-            logout
+            logout,
+            removeError
         }}>
             { children }
         </AuthContext.Provider>

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { Button, ListItem, Avatar, Text } from 'react-native-elements';
+import React, { useEffect, useState } from 'react';
+import { FlatList, TouchableOpacity, View } from 'react-native';
+import { Button, ListItem, Avatar } from 'react-native-elements';
 import Card from '../../UI/Card';
 import InputText from '../../UI/InputText';
 import KeyboardScrollView from '../../UI/KeyboardScrollView';
@@ -9,38 +9,71 @@ import PatientReview from '../../components/home/PatientReview';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, WHITE } from '../../const/Colors';
 import { styles } from './style';
+import teleMedicinaApi from '../../api/teleMedicinaApi';
+import { LoadingScreen } from '../../UI/LoadingScreen';
 
 export const Home = ({navigation}) => {
 
-	const list = [
-		{
-		  name: 'Giuseppe Epifani',
-		  select: true,
-		  run: '19.869.835-0'
-		},
-		{
-			name: 'Caleb Epifani',
-			select: false,
-			run: '20.546.286-4'
-		},
-		{
-			name: 'Jose Epifani',
-			select: false,
-			run: '8.841.885-9'
-		}
-	]
+	const [listPatient, setListPatient] = useState([]);
+	const [patient, setPatient] = useState(listPatient[0]);
 
-	const [patient, setPatient] = useState(list[0]);
-	const [listPatient, setListPatient] = useState(list);
+	useEffect(() => {
+		getPatient();
+	}, [])
+
+	const getPatient = async () => {
+		try {
+			const { data: {patients} } = await teleMedicinaApi.post('/auth/get.pager_patients');
+			let arrayPatient = [];
+			patients.forEach((patient, index) => {
+				if (index === 0) {
+					setPatient({...patient, select: true});
+					arrayPatient =  [...arrayPatient, {...patient, select: true}];
+				} else {
+					arrayPatient =  [...arrayPatient, {...patient, select: false}];
+				}
+			});
+
+			setListPatient(arrayPatient);
+
+		} catch (error) {
+			console.log(error)
+		}
+	}
 
 	const handleSelectPatient = (selectPatient) => {
-		if (patient.run != selectPatient.run) {
+		if (patient.rbd != selectPatient.rbd) {
 			setListPatient(listPatient.map(patient => {
-				return (patient.run == selectPatient.run) ? {...patient, select: true} : {...patient, select: false} 
+				return (patient.rbd == selectPatient.rbd) ? {...patient, select: true} : {...patient, select: false} 
 			}));
 			setPatient(selectPatient);
 		}
 	}
+
+	const renderListPatient = ({item: patientRender}) => {
+		return (
+			<TouchableOpacity onPress={() => {handleSelectPatient(patientRender)}} key={patientRender._id}>	
+				<ListItem key={patientRender._id} bottomDivider containerStyle={ patientRender.select && { backgroundColor: PRIMARY} }>
+					<Avatar 
+						key={patientRender._id}
+						rounded
+						title={patientRender.name.charAt(0)}
+						size="medium"
+						containerStyle={{
+							backgroundColor: "silver",
+						}}
+					/>
+					<ListItem.Content>
+						<ListItem.Title style={ patientRender.select && styles.textSelectList || {fontSize: 12} }>{patientRender.name} {patientRender.lastname}</ListItem.Title>
+						<ListItem.Subtitle style={ patientRender.select && styles.textSelectList || {fontSize: 12}}>{patientRender.rbd}</ListItem.Subtitle>
+					</ListItem.Content>
+					{ patientRender.select && <MaterialCommunityIcons name="chevron-right" color={WHITE} size={35} style={{ position: 'absolute', right: 0 }}/> }
+				</ListItem>
+			</TouchableOpacity>
+		)
+	}
+
+	if (listPatient.length == 0) return <LoadingScreen text={'Cargando pacíentes'}/>
 
     return (
 		<KeyboardScrollView scrollEnabled={false} extraHeight={200} barColor={PRIMARY} backgroundColor={WHITE}>
@@ -49,14 +82,14 @@ export const Home = ({navigation}) => {
 					<Card header={true} title={'Ficha clinica'} padding={15}>
 						<View style={{alignItems: 'center'}}>
 							<InputText 
-							labelError={false}
-							onChangeText={() => {}} 
-							placeholder={'Ingrese run o nombre'} 
-							keyboardType={'default'} 
-							nameIcon={"account-search"} 
-							styleWidth={{width: 500}}
-							buttonText
-							buttonTitle={'Buscar'}
+								labelError={false}
+								onChangeText={() => {}} 
+								placeholder={'Ingrese run o nombre'} 
+								keyboardType={'default'} 
+								nameIcon={"account-search"} 
+								styleWidth={{width: '70%'}}
+								buttonText
+								buttonTitle={'Buscar'}
 							/>						
 						</View>
 					</Card>
@@ -65,29 +98,11 @@ export const Home = ({navigation}) => {
 					<Card header title={'Lista de pacientes'}>
 						<View style={{flexDirection: 'row', height: '96.5%'}}>
 							<View style={{flex: 1}}>
-								<ScrollView>							
-									{
-										listPatient.map((patient, i) => (
-											<TouchableOpacity onPress={() => {handleSelectPatient(patient)}} key={i}>	
-												<ListItem key={i} bottomDivider containerStyle={ patient.select && { backgroundColor: PRIMARY} }>
-													<Avatar  key={i}
-														rounded
-														title={'Giuseppe Epifani'.charAt(0)}
-														size="medium"
-														containerStyle={{
-															backgroundColor: "silver",
-														}}
-													/>
-													<ListItem.Content>
-														<ListItem.Title style={ patient.select && styles.textSelectList }>{patient.name}</ListItem.Title>
-														<ListItem.Subtitle style={ patient.select && styles.textSelectList }>{patient.run}</ListItem.Subtitle>
-													</ListItem.Content>
-													{ patient.select && <MaterialCommunityIcons name="chevron-right" color={WHITE} size={35} style={styles.goBack}/> }
-												</ListItem>
-											</TouchableOpacity>
-										))
-									}				
-								</ScrollView>
+								<FlatList 
+									data={listPatient}
+									keyExtractor={ (patientRender) => patientRender._id}
+									renderItem={renderListPatient}
+								/>											
 								<View style={{height: 50}}>
 									<Button
 									containerStyle={{flex: 1, backgroundColor: PRIMARY,}}

@@ -19,6 +19,7 @@ const InputText = (props) => {
                         value={props.value}
                         editable={props.editable} 
                         selectTextOnFocus={props.selectTextOnFocus}
+                        secureTextEntry={props.secureTextEntry}
                     />
                     { props.buttonText &&
                         <Button

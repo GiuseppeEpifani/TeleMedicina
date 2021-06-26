@@ -5,27 +5,60 @@ export const authReducer = ( state, action ) => {
             return {
                 ...state,
                 isLoggedIn: true,
-                username: 'no-username-yet'
+                status: 'authenticated',
+                token: action.payLoad.token,
+                username: action.payLoad.email,
+                loading: false
             }
 
         case 'logout':
-                return {
-                    ...state,
-                    isLoggedIn: false,
-                    username: undefined,
-                    favoriteIcon: undefined
-                }
-    
-        case 'changeFavIcon':
             return {
                 ...state,
-                favoriteIcon: action.payload
+                isLoggedIn: false,
+                status: 'not-authenticated',
+                token: null,
+                username: null,
             }
 
-        case 'changeUsername':
+        case 'refreshToken':
             return {
                 ...state,
-                username: action.payload
+                isLoggedIn: true,
+                status: 'authenticated',
+                token: action.payLoad
+            }
+
+        case 'notAuthenticated':
+            return {
+                ...state,
+                isLoggedIn: false,
+                status: 'not-authenticated',
+                token: null,
+                username: null,
+                loading: false
+            }
+
+        case 'addError':
+            return {
+                ...state,
+                isLoggedIn: false,
+                status: 'not-authenticated',
+                token: null,
+                username: null,
+                loading: false,
+                errorMessage: action.payLoad
+            }
+
+        case 'removeError':
+            return {
+                ...state,
+                errorMessage: ''
+            }
+
+        case 'setLoading':
+            return {
+                ...state,
+                loading: true
             }
 
         default:

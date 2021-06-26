@@ -32,6 +32,7 @@ export const HealthCheck = ({navigation}) => {
                 <View style={{flex: 0.3, paddingHorizontal: 30, paddingBottom: 10}}>
                     <CardInfoPatient onlyDate/>
                 </View>
+                <View  style={{flex: 0.05}}/>
 				<View style={{flex: 1, paddingHorizontal: 30, marginTop: 10}}>
                     <Card padding={10}>
                         <ScrollView>
@@ -160,20 +161,20 @@ export const HealthCheck = ({navigation}) => {
                         </ScrollView>
                     </Card>
                 </View>
-                <View style={{flex: 0.05}}/>            
-            </View>
-            <View style={{flex: 0.18}}>
-                <Button title="Siguiente" buttonStyle={{height: 70, backgroundColor: PRIMARY}} titleStyle={{fontSize: 32, fontWeight: 'bold', marginLeft: 10}} 
-                    icon={
-                        <Icon
-                            name="menu-right"
-                            size={56}
-                            color="white"
-                        />
-                    }
-                    iconRight
-                    onPress={() => navigation.navigate('Dimensions')}
+                <View style={{flex: 0.05}}/>
+                <View style={{height: 80, marginBottom: 70}}>
+                    <Button title="Siguiente" buttonStyle={{height: 70, backgroundColor: PRIMARY}} titleStyle={{fontSize: 32, fontWeight: 'bold', marginLeft: 10}} 
+                        icon={
+                            <Icon
+                                name="menu-right"
+                                size={56}
+                                color="white"
+                            />
+                        }
+                        iconRight
+                        onPress={() => navigation.navigate('Dimensions')}
                     />
+                </View>            
             </View>
         </KeyboardScrollView>
     )

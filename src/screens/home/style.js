@@ -13,6 +13,6 @@ export const styles = StyleSheet.create({
     },
     textSelectList: {
         color: 'white', 
-        fontWeight: 'bold'
+        fontSize: 12
     }
 });
