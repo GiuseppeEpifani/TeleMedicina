@@ -16,6 +16,8 @@ export const Home = ({navigation}) => {
 
 	const [listPatient, setListPatient] = useState([]);
 	const [patient, setPatient] = useState(listPatient[0]);
+	const [numberPage, setNumberPage] = useState(1);
+	const [totalPage, setTotalPage] = useState(0)
 
 	useEffect(() => {
 		getPatient();
@@ -23,7 +25,7 @@ export const Home = ({navigation}) => {
 
 	const getPatient = async () => {
 		try {
-			const { data: {patients} } = await teleMedicinaApi.post('/auth/get.pager_patients');
+			const { data: {patients, lastPage} } = await teleMedicinaApi.post('/auth/get.pager_patients');
 			let arrayPatient = [];
 			patients.forEach((patient, index) => {
 				if (index === 0) {
@@ -35,9 +37,30 @@ export const Home = ({navigation}) => {
 			});
 
 			setListPatient(arrayPatient);
+			setNumberPage(2);
+			setTotalPage(lastPage);
 
 		} catch (error) {
 			console.log(error)
+		}
+	}
+
+	const loadMorePatient = async () => {
+		console.log('cargando mas datos')
+		try {
+			if (numberPage < totalPage) {
+				const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/auth/get.pager_patients?page=${numberPage}`);
+				let arrayPatient = listPatient;
+				patients.forEach((patient) => {
+					arrayPatient =  [...arrayPatient, {...patient, select: false}];
+				});
+	
+				setListPatient(arrayPatient);
+				setNumberPage(numberPage + 1);
+				setTotalPage(lastPage);
+			}
+		} catch (error) {
+			console.log(error);
 		}
 	}
 
@@ -102,21 +125,23 @@ export const Home = ({navigation}) => {
 									data={listPatient}
 									keyExtractor={ (patientRender) => patientRender._id}
 									renderItem={renderListPatient}
+									onEndReached={loadMorePatient}
+									onEndReachedThreshold={0.5}
 								/>											
 								<View style={{height: 50}}>
 									<Button
-									containerStyle={{flex: 1, backgroundColor: PRIMARY,}}
-									buttonStyle={{backgroundColor: PRIMARY, height: '100%'}}
-									icon={
-										<Icon
-											name="account-plus"
-											style={{marginRight: 10}}
-											size={22}
-											color="white"
-										/>
-									}
-									title="Nuevo paciente"
-									onPress={ () => navigation.navigate('RegisterPatient')}
+										containerStyle={{flex: 1, backgroundColor: PRIMARY,}}
+										buttonStyle={{backgroundColor: PRIMARY, height: '100%'}}
+										icon={
+											<Icon
+												name="account-plus"
+												style={{marginRight: 10}}
+												size={22}
+												color="white"
+											/>
+										}
+										title="Nuevo paciente"
+										onPress={ () => navigation.navigate('RegisterPatient')}
 									/>
 								</View>
 							</View>
