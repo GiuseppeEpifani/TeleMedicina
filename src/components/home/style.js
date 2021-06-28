@@ -26,7 +26,6 @@ export const styles = StyleSheet.create({
     },
     containerInfoPatient: {
         paddingHorizontal: 30, 
-        alignItems: 'center',
         flex: 1
     },
     btnEdit: {
@@ -36,5 +35,9 @@ export const styles = StyleSheet.create({
     btnDelete: {
         backgroundColor: '#DC3545', 
         height: '100%'
+    },
+    textSelectList: {
+        color: 'white', 
+        fontSize: 12
     }
 });

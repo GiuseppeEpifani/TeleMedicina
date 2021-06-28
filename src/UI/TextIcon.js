@@ -19,7 +19,6 @@ const TextIcon = (props) => {
 
 const styles = StyleSheet.create({
 	container: {
-		alignItems: 'stretch', 
         width: '100%',
         marginBottom: 10
 	},

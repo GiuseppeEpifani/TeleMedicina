@@ -3,6 +3,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider } from './src/context/Auth/AuthContext';
 import { StacksLogin } from './src/navigator/StacksLogin';
+import { HomeProvider } from './src/context/Home/HomeContext';
 
 export const App = () => {
   return (
@@ -16,8 +17,11 @@ export const App = () => {
 
 const AppState = ({ children }) => {
 	return (
+
 	  <AuthProvider>
-		{ children }
+		<HomeProvider>
+			{ children }
+		</HomeProvider>
 	  </AuthProvider>
 	)
 }

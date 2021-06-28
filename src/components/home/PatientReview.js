@@ -1,14 +1,17 @@
-import React from 'react'
-import { Alert, View, ScrollView } from 'react-native'
+import React, { useContext } from 'react'
+import { Alert, View, ScrollView, Image } from 'react-native'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Button, Text, Avatar } from 'react-native-elements';
+import { Button, Text } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { styles } from './style';
 import { WHITE } from '../../const/Colors';
 import TextIcon from '../../UI/TextIcon';
+import { HomeContext } from '../../context/Home/HomeContext';
 
-const PatientReview = ({navigation, patient}) => {
+const PatientReview = ({navigation}) => {
+
+    const { patient } = useContext(HomeContext)
 
     const createAlertDelete = () => {
 		Alert.alert(
@@ -38,25 +41,22 @@ const PatientReview = ({navigation, patient}) => {
                     </View>
                 </View>
                 <View style={{flex: 1.3}}>
-                    <View style={{flex: 0.2, justifyContent: 'center'}}>
-                        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                            <Avatar
-                                rounded
-                                title={patient.name.charAt(0)}
-                                size="medium"
-                                containerStyle={{
-                                    backgroundColor: "silver",
-                                }}
-                            />
-                            <Text style={styles.titlePatient}>{patient.name} {patient.lastname}</Text>      
-                        </View>
+                    <View style={{flex: 0.8, justifyContent: 'center', alignItems: 'center'}}>
+                    <Image 
+                        style={{
+                            resizeMode: 'stretch', 
+                            width: 220, 
+                            height: 150
+                        }} 
+                        source={require('../../assets/logo_telemedicina.png')}
+                    />
+                        <Text style={styles.titlePatient}>{patient.name} {patient.lastname}</Text>      
                     </View>
                     <View style={styles.containerInfoPatient}>
                         <ScrollView>
                             <TextIcon label={"RUN"} text={patient.rbd} icon={"card-account-details"}/>
                             <TextIcon label={"Género"} text={ (patient.gender == 1) ? 'Masculino' : 'Femenino'} icon={"gender-male-female"}/>
                             <TextIcon label={"Fecha de nacimiento"} text={patient.birthday} icon={"calendar-range"}/>
-                            <TextIcon label={"Dirección"} text={'Olivar bajo, av. estados unidos 1185 - coquimbo'} icon={"map-marker"}/>
                         </ScrollView>
                     </View>
                     <View style={{height: 50, flexDirection: 'row'}}>

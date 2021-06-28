@@ -1,105 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, TouchableOpacity, View } from 'react-native';
-import { Button, ListItem, Avatar } from 'react-native-elements';
+import React, { useEffect, useContext } from 'react';
+import { FlatList, View, ActivityIndicator } from 'react-native';
+import { Button } from 'react-native-elements';
 import Card from '../../UI/Card';
 import InputText from '../../UI/InputText';
-import KeyboardScrollView from '../../UI/KeyboardScrollView';
+import KeyboardView from '../../UI/KeyboardView';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PatientReview from '../../components/home/PatientReview';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import ListItemPatient from '../../components/home/ListItemPatient';
 import { PRIMARY, WHITE } from '../../const/Colors';
-import { styles } from './style';
-import teleMedicinaApi from '../../api/teleMedicinaApi';
 import { LoadingScreen } from '../../UI/LoadingScreen';
+import { HomeContext } from '../../context/Home/HomeContext';
 
 export const Home = ({navigation}) => {
 
-	const [listPatient, setListPatient] = useState([]);
-	const [patient, setPatient] = useState(listPatient[0]);
-	const [numberPage, setNumberPage] = useState(1);
-	const [totalPage, setTotalPage] = useState(0)
+ 	const { getPatient, listPatient, patient, loadMorePatient, loading, handleSelectPatient, disabled } = useContext(HomeContext);
 
 	useEffect(() => {
 		getPatient();
 	}, [])
 
-	const getPatient = async () => {
-		try {
-			const { data: {patients, lastPage} } = await teleMedicinaApi.post('/auth/get.pager_patients');
-			let arrayPatient = [];
-			patients.forEach((patient, index) => {
-				if (index === 0) {
-					setPatient({...patient, select: true});
-					arrayPatient =  [...arrayPatient, {...patient, select: true}];
-				} else {
-					arrayPatient =  [...arrayPatient, {...patient, select: false}];
-				}
-			});
-
-			setListPatient(arrayPatient);
-			setNumberPage(2);
-			setTotalPage(lastPage);
-
-		} catch (error) {
-			console.log(error)
-		}
-	}
-
-	const loadMorePatient = async () => {
-		console.log('cargando mas datos')
-		try {
-			if (numberPage < totalPage) {
-				const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/auth/get.pager_patients?page=${numberPage}`);
-				let arrayPatient = listPatient;
-				patients.forEach((patient) => {
-					arrayPatient =  [...arrayPatient, {...patient, select: false}];
-				});
-	
-				setListPatient(arrayPatient);
-				setNumberPage(numberPage + 1);
-				setTotalPage(lastPage);
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
-
-	const handleSelectPatient = (selectPatient) => {
-		if (patient.rbd != selectPatient.rbd) {
-			setListPatient(listPatient.map(patient => {
-				return (patient.rbd == selectPatient.rbd) ? {...patient, select: true} : {...patient, select: false} 
-			}));
-			setPatient(selectPatient);
-		}
-	}
-
 	const renderListPatient = ({item: patientRender}) => {
 		return (
-			<TouchableOpacity onPress={() => {handleSelectPatient(patientRender)}} key={patientRender._id}>	
-				<ListItem key={patientRender._id} bottomDivider containerStyle={ patientRender.select && { backgroundColor: PRIMARY} }>
-					<Avatar 
-						key={patientRender._id}
-						rounded
-						title={patientRender.name.charAt(0)}
-						size="medium"
-						containerStyle={{
-							backgroundColor: "silver",
-						}}
-					/>
-					<ListItem.Content>
-						<ListItem.Title style={ patientRender.select && styles.textSelectList || {fontSize: 12} }>{patientRender.name} {patientRender.lastname}</ListItem.Title>
-						<ListItem.Subtitle style={ patientRender.select && styles.textSelectList || {fontSize: 12}}>{patientRender.rbd}</ListItem.Subtitle>
-					</ListItem.Content>
-					{ patientRender.select && <MaterialCommunityIcons name="chevron-right" color={WHITE} size={35} style={{ position: 'absolute', right: 0 }}/> }
-				</ListItem>
-			</TouchableOpacity>
+			<View pointerEvents={disabled ? 'none' : 'auto'}>
+				<ListItemPatient patientRender={patientRender} isSelected={patientRender.select} handleSelectPatient={handleSelectPatient} />
+			</View>
 		)
 	}
 
 	if (listPatient.length == 0) return <LoadingScreen text={'Cargando pacíentes'}/>
 
     return (
-		<KeyboardScrollView scrollEnabled={false} extraHeight={200} barColor={PRIMARY} backgroundColor={WHITE}>
+		<KeyboardView scrollEnabled={false} extraHeight={200} barColor={PRIMARY} backgroundColor={WHITE}>
 			<View style={{flex: 1, padding: 20}}>
 				<View style={{flex: 0.9, marginBottom: 30}}>
 					<Card header={true} title={'Ficha clinica'} padding={15}>
@@ -125,9 +56,14 @@ export const Home = ({navigation}) => {
 									data={listPatient}
 									keyExtractor={ (patientRender) => patientRender._id}
 									renderItem={renderListPatient}
-									onEndReached={loadMorePatient}
+									onEndReached={() => loadMorePatient()}
 									onEndReachedThreshold={0.5}
-								/>											
+									removeClippedSubviews={true}
+								/>
+								{ 
+								loading && 
+									<ActivityIndicator size="large" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}}/>
+								}										
 								<View style={{height: 50}}>
 									<Button
 										containerStyle={{flex: 1, backgroundColor: PRIMARY,}}
@@ -153,6 +89,6 @@ export const Home = ({navigation}) => {
 				</View>
 				<View style={{flex: 0.5}} />
 			</View>
-		</KeyboardScrollView>
+		</KeyboardView>
     )
 }

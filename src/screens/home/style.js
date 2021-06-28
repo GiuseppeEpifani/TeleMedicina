@@ -10,9 +10,5 @@ export const styles = StyleSheet.create({
         width: '100%',
         height: 40,
         backgroundColor: '#000'
-    },
-    textSelectList: {
-        color: 'white', 
-        fontSize: 12
     }
 });
