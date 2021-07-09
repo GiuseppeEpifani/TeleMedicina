@@ -16,9 +16,13 @@ export const MorbidHistory = ({navigation}) => {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState(null);
     const [items, setItems] = useState([
-        {label: 'Apple', value: 'apple'},
-        {label: 'Banana', value: 'banana'},
-        {label: 'Apple', value: '1'},
+        {label: 'Sin patologías', value: 'apple'},
+        {label: 'Arritmia', value: 'banana'},
+        {label: 'Asma', value: '1'},
+        {label: 'Diabetes 1', value: '2'},
+        {label: 'Diabetes 2', value: '3'},
+        {label: 'Diabetes 3', value: '4'},
+
     ]);
 
     const handleGetDate = (dateString) => {

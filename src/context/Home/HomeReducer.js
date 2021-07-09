@@ -23,6 +23,19 @@ export const homeReducer = ( state, action ) => {
                 loading: action.payLoad,
                 disabled: action.payLoad
             }
+
+        case 'setLoadingMorePatient':
+            return {
+                ...state,
+                LoadingMorePatient: action.payLoad,
+                disabled: action.payLoad
+            }
+            
+        case 'setMessage':
+            return {
+                ...state,
+                message: action.payLoad
+            }
             
         default:
             return state;

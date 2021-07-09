@@ -4,7 +4,6 @@ import teleMedicinaLogin from '../../api/baseURL';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authReducer } from './AuthReducer';
 
-// Estado inicial
 const authInitialState = {
     isLoggedIn: false,
     username: {},
@@ -14,10 +13,8 @@ const authInitialState = {
     loading: false
 }
 
-// Crear el contexto
 export const AuthContext = createContext(authInitialState);
 
-// Componente proveedor del estado
 export const AuthProvider = ({ children }) => {
 
     const [authState, dispatch] = useReducer(authReducer, authInitialState)
@@ -31,7 +28,7 @@ export const AuthProvider = ({ children }) => {
 
         try {
             if (token) {
-                const { data } = await teleMedicinaApi.post('/auth/refresh');
+                const { data } = await teleMedicinaApi.post('/refresh');
                 await AsyncStorage.setItem('token', data.access_token); 
                 dispatch({type: 'refreshToken', payLoad: data.access_token });
             } else {

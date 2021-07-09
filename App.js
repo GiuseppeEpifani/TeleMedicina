@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider } from './src/context/Auth/AuthContext';
 import { StacksLogin } from './src/navigator/StacksLogin';
 import { HomeProvider } from './src/context/Home/HomeContext';
+import { RecordProvider } from './src/context/RecordFile/RecordContext';
 
 export const App = () => {
   return (
@@ -20,7 +21,9 @@ const AppState = ({ children }) => {
 
 	  <AuthProvider>
 		<HomeProvider>
-			{ children }
+			<RecordProvider>
+				{ children }
+			</RecordProvider>
 		</HomeProvider>
 	  </AuthProvider>
 	)

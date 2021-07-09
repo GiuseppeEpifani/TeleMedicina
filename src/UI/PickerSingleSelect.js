@@ -1,15 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, StyleSheet, Text } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SECONDARY, SUCCESS, VERY_LIGHT, WHITE } from '../const/Colors';
 
 const PickerSingleSelect = (props) => {
 
+    const [open, setOpen] = useState(false);
+
     return (
         <View style={props.labelError && props.labelError.trim().length > 0  ? {...styles.container, ...{marginBottom: 60}} : styles.container}>
             { (props.label) && <Text style={styles.label}>{props.label}</Text> }
             <DropDownPicker
                 style={{borderRadius: 20, borderColor: VERY_LIGHT}}
+                closeAfterSelecting={true}
+                ListEmptyComponent={() => (
+                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text style={{fontSize: 22, fontWeight: 'bold', color: SECONDARY}}>Sin registros</Text>
+                    </View>
+                )}
                 placeholder="Seleccione"
                 listMode="MODAL"
                 mode="BADGE"
@@ -32,12 +40,11 @@ const PickerSingleSelect = (props) => {
                 }}
                 multiple={false}
                 min={1}
-                open={props.open}
+                open={open}
                 value={props.value}
                 items={props.items}
-                setOpen={props.setOpen}
+                setOpen={setOpen}
                 setValue={props.setValue}
-                setItems={props.setItems}
 			/>
             { (props.labelError) && <Text style={styles.labelError}>{props.labelError}</Text> }
         </View>

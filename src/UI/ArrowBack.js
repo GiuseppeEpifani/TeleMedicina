@@ -2,10 +2,10 @@ import React from 'react'
 import { StyleSheet, TouchableOpacity } from 'react-native'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export const ArrowBack = ({navigation}) => {
+export const ArrowBack = ({onPress}) => {
     return (
-        <TouchableOpacity style={{flex: 1}} onPress={ () => navigation.goBack()}>
-            <MaterialCommunityIcons name="arrow-left" size={35} style={styles.goBack} />
+        <TouchableOpacity style={styles.goBack} onPress={onPress}>
+            <MaterialCommunityIcons name="arrow-left" size={46} />
         </TouchableOpacity>
     )
 }
@@ -13,8 +13,9 @@ export const ArrowBack = ({navigation}) => {
 const styles = StyleSheet.create({
     goBack: {
         position: 'absolute',
-        marginTop: 10,
-        marginLeft: 10
+        marginTop: 2,
+        marginLeft: 20,
+        borderRadius: 50
     },
 });
 

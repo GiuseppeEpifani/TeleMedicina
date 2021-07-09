@@ -1,34 +1,36 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { View, TouchableWithoutFeedback } from 'react-native';
 import InputText from './InputText';
 
-const DatePicker = ({handleGetDate, labelError, label}) => {
-    const [date, setDate] = useState(new Date());
+const DatePicker = ({handleGetDate, labelError, label, value}) => {
+    const [date, setDate] = useState((value) ? new Date(value) : new Date());
     const [show, setShow] = useState(false);
-    const [dateString, setdateString] = useState('');
-
-    useEffect(() =>  handleGetDate(dateString), [dateString]);
+    const [dateString, setdateString] = useState((value) ? value : '');
 
     const handleOnChange = (event, selectedDate) => {
         try {
             setShow(false);
-            const currentDate = selectedDate || date;
-            setDate(currentDate);
 
             let day = selectedDate.getDate();
             let month = selectedDate.getMonth() + 1;
             let year = selectedDate.getFullYear();
 
             if (month < 10 && day < 10) {
-                setdateString(`0${day}-0${month}-${year}`);
+                setdateString(`${year}-0${month}-0${day}`);
+                handleGetDate(`${year}-0${month}-0${day}`);
             } else if (month < 10 ) {
-                setdateString(`${day}-0${month}-${year}`);
+                setdateString(`${year}-0${month}-${day}`);
+                handleGetDate(`${year}-0${month}-${day}`);
             } else if (day < 10) {
-                setdateString(`0${day}-${month}-${year}`);
+                setdateString(`${year}-${month}-0${day}`);
+                handleGetDate(`${year}-${month}-0${day}`);
             } else {
-                setdateString(`${day}-${month}-${year}`);
+                setdateString(`${year}-${month}-${day}`);
+                handleGetDate(`${year}-${month}-${day}`);
             }
+            const currentDate = selectedDate || date;
+            setDate(currentDate);
         } catch (e) {
         }   
     };
@@ -39,7 +41,7 @@ const DatePicker = ({handleGetDate, labelError, label}) => {
                 <InputText
                     label={label}
                     labelError={labelError}
-                    placeholder={'DD-MM-AAAA'}
+                    placeholder={'AAAA-DD-MM'}
                     nameIcon={"calendar-range"} 
                     editable={false} 
                     selectTextOnFocus={false}

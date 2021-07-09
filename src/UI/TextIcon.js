@@ -12,7 +12,9 @@ const TextIcon = (props) => {
                 <MaterialCommunityIcons size={36} color={SECONDARY} style={{padding: 4, marginRight: 10}} name={props.icon} />
                 <Text style={styles.text}>{props.text}</Text>
             </View>
-            <Hr/>
+            {
+                props.hr && <Hr/>
+            }
         </View>
     )
 }

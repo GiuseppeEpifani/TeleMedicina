@@ -4,6 +4,7 @@ import { PRIMARY, LIGHT, SUCCESS, DANGER, INFO, SECONDARY, WARNING } from '../..
 export const styles = StyleSheet.create({
     cardBody: {
         height: '100%',
+        justifyContent: 'center',
         borderLeftWidth: 10, 
         borderLeftColor: PRIMARY,
         padding: 20
@@ -25,26 +26,26 @@ export const styles = StyleSheet.create({
     },
     textRun: {
         fontWeight: 'bold',
-        fontSize: 32,
+        fontSize: 22,
         textAlign: 'left',
         color: LIGHT,
         marginBottom: 10
     },
     textName: {
-        fontSize: 30,
+        fontSize: 20,
         textAlign: 'left',
         color: LIGHT,
         fontWeight: 'normal',
     },
     textInfoBold: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: 'bold',
         textAlign: 'left',
         color: LIGHT,
         marginLeft: 5
     },
     textInfo: {
-        fontSize: 22,
+        fontSize: 20,
         textAlign: 'left',
         color: LIGHT,
         fontWeight: 'normal',
@@ -52,7 +53,6 @@ export const styles = StyleSheet.create({
     cardAttention: {
         height: '100%', 
         borderLeftWidth: 10, 
-        borderLeftColor: SUCCESS,
         padding: 20
     },
     textCardAttention: {

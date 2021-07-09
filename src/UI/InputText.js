@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, TextInput, View, Text } from 'react-native'
 import { Button } from 'react-native-elements';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { PRIMARY, SECONDARY, VERY_LIGHT, BLACK } from '../const/Colors';
+import { PRIMARY, SECONDARY, VERY_LIGHT, BLACK, WHITE } from '../const/Colors';
 
 const InputText = (props) => {
     return (
@@ -21,12 +21,18 @@ const InputText = (props) => {
                         selectTextOnFocus={props.selectTextOnFocus}
                         secureTextEntry={props.secureTextEntry}
                     />
-                    { props.buttonText &&
+                    { props.buttonDelete &&
                         <Button
-                            title={props.buttonTitle}
                             containerStyle={{width: 120}}
-                            buttonStyle={{backgroundColor: PRIMARY, height: '100%'}}
-                            onPress={props.onPress}
+                            buttonStyle={{backgroundColor: WHITE, height: '100%'}}                         
+                            onPress={(props.onPress) ? props.onPress : () => {}}
+                            icon={
+                                <MaterialCommunityIcons
+                                    name="delete-forever"
+                                    size={30}
+                                    color={(props.onPress) ? PRIMARY : WHITE}
+                                />
+                            }
                         />
                     }
                 </View>

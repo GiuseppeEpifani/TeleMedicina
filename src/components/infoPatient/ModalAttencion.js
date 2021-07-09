@@ -1,14 +1,35 @@
-import React from 'react'
+import React, { useState, useContext } from 'react'
 import { Modal, Text, View, StyleSheet, TouchableOpacity} from 'react-native'
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, VERY_LIGHT } from '../../const/Colors';
 import { SCREEN_HEIGHT } from '../../const/Dimensions';
+import { FIELD_COMPLETE } from '../../const/Fields';
 import Hr from '../../UI/Hr';
 import RadioButton from '../../UI/RadioButton';
 import TextArea from '../../UI/TextArea';
 
 const ModalAttencion = (props) => {
+
+    const [typeQuery, setTypeQuery] = useState(1);
+    const [reasonForConsultation, setReasonForConsultation] = useState(null);
+    const [validated, setValidated] = useState(false)
+
+    const createAttention = async () => {
+        setValidated(true);
+
+        if (reasonForConsultation) {
+            const typeOfQueryObject = {
+                id: typeQuery,
+                name: (typeQuery === 1) ? 'Urgencia' : (typeQuery === 2) ? 'Control' : 'Terreno'
+            }
+            await props.createRecord(props.patient, reasonForConsultation, typeOfQueryObject);
+            props.setModalVisible(!props.modalVisible);
+            setReasonForConsultation(null);
+            setValidated(false);
+            props.navigation.navigate('CreateClinicalRecord');
+        }
+    }
 
     return (
         <Modal
@@ -17,13 +38,17 @@ const ModalAttencion = (props) => {
             visible={props.modalVisible}
             onRequestClose={() => {
                 props.setModalVisible(!modalVisible);
-        }}
+            }}
         >
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                     <View style={{height: 50, backgroundColor: VERY_LIGHT, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Text style={{color: PRIMARY, fontWeight: 'bold', fontSize: 26, marginLeft: 8}}>Ingreso atención</Text>
-                        <TouchableOpacity onPress={() => props.setModalVisible(!props.modalVisible)}>
+                        <TouchableOpacity onPress={() => {
+                            props.setModalVisible(!props.modalVisible);
+                            setReasonForConsultation(null);
+                            setValidated(false);
+                        }}>
                             <Icon
                                 name="close-circle"
                                 size={35}
@@ -34,17 +59,17 @@ const ModalAttencion = (props) => {
                     </View>
                     <View style={{flex: 3, padding: 30}}>
                         <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginBottom: 6}}>Motivo de consulta y/o síntomas actuales</Text>
-                        <TextArea/>
-                        <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginTop: 40}}>Tipo de consulta</Text>
-                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
-                            <TouchableOpacity onPress={() => {}}>
-                                <RadioButton selected labelRadio={'Urgencia'}/>
+                        <TextArea onChangeText={setReasonForConsultation} value={reasonForConsultation} labelError={(!reasonForConsultation && validated) ? FIELD_COMPLETE : false} />
+                        <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginTop: 20}}>Tipo de consulta</Text>
+                        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginTop: 10}}>
+                            <TouchableOpacity onPress={() => {setTypeQuery(1)}}>
+                                <RadioButton selected={typeQuery == 1} labelRadio={'Urgencia'} />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {}}>
-                                <RadioButton labelRadio={'Control'}/>
+                            <TouchableOpacity onPress={() => {setTypeQuery(2)}}>
+                                <RadioButton selected={typeQuery == 2} labelRadio={'Control'}/>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {}}>
-                                <RadioButton labelRadio={'Terreno'}/>
+                            <TouchableOpacity onPress={() => {setTypeQuery(3)}}>
+                                <RadioButton selected={typeQuery == 3} labelRadio={'Terreno'}/>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -57,16 +82,17 @@ const ModalAttencion = (props) => {
                                     titleStyle={{color: PRIMARY}}
                                     title="Cancelar"
                                     loading={false}
-                                    onPress={ () => props.setModalVisible(!props.modalVisible) }
+                                    onPress={() => {
+                                        props.setModalVisible(!props.modalVisible);
+                                        setReasonForConsultation(null);
+                                        setValidated(false);
+                                    }}
                                 />
                                 <Button
                                     buttonStyle={{backgroundColor: PRIMARY, marginLeft: 5, width: 140}}
                                     title="Guardar"
                                     loading={false}
-                                    onPress={ () => {
-                                        props.setModalVisible(!props.modalVisible);
-                                        props.navigation.navigate('CreateClinicalRecord');
-                                    }}
+                                    onPress={createAttention}
                                 />
                             </View>
                         </View>                       

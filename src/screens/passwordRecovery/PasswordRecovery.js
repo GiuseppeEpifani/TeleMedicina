@@ -12,11 +12,10 @@ import { styles } from './style';
 
 export const PasswordRecovery = ({ navigation }) => {
 
-    const [ formValues, handleInputChange, validateForm, setValidateForm, isSubmit ] = useForm({ fields: { email: { value: '', isValid: false, isComplete: false }}, validate: false});
+    const [ formValues, handleInputChange ] = useForm({  email: { value: '', isComplete: false }});
     const { email } = formValues;
 
     const handleSubmit = () => {
-        setValidateForm(true);
     }
 
     return (
@@ -25,7 +24,7 @@ export const PasswordRecovery = ({ navigation }) => {
                 <ArrowBack navigation={navigation}/>
             </View>
             <View style={{flex: 5}}>
-                <View style={{alignItems: 'center', marginBottom: 40, flex: 1.1}}>
+                <View style={{alignItems: 'center', marginBottom: 40, flex: 1}}>
                     <Image style={styles.logo} source={require('../../assets/logo_telemedicina.png')}/>
                 </View>
                 <View style={{padding: 40, flex: 1}}>
@@ -35,7 +34,7 @@ export const PasswordRecovery = ({ navigation }) => {
 
                         <InputText 
                             label="Correo electrónico"
-                            labelError={validateForm ? (!email.isComplete ? FIELD_COMPLETE : !email.isValid ? EMAIL_INVALID : '') : false}
+                            labelError={(!email.isComplete ? FIELD_COMPLETE : !email.isValid ? EMAIL_INVALID : '')}
                             onChangeText={text => handleInputChange(text, 'email')}
                             value={email.value} 
                             placeholder={'Ingrese su correo electrónico'} 

@@ -78,14 +78,32 @@ export const BehaviorProblems = ({navigation}) => {
                                 <PickerSingleSelect open={openSingle} setOpen={setOpenSingle} value={valueSinglePicker} setValue={setvalueSinglePicker} items={itemsSingle} setItems={setItemsSingle} label={"Respuesta motriz"} />                   
                             </View>
                         </View>
-     
-                        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
-                            <TouchableOpacity onPress={() => {}}>
-                                <RadioButton selected labelRadio={'Si'}/>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {}}>
-                                <RadioButton labelRadio={'No'}/>
-                            </TouchableOpacity>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                            <View>
+                                <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>¿Tiene problemas para movilizar el cuerpo?</Text>
+                                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
+                                    <TouchableOpacity onPress={() => {}}>
+                                        <RadioButton selected labelRadio={'Si'}/>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {}}>
+                                        <RadioButton labelRadio={'No'}/>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                            <View style={{flex: 1}}>
+                                <PickerSingleSelect open={openSingle} setOpen={setOpenSingle} value={valueSinglePicker} setValue={setvalueSinglePicker} items={itemsSingle} setItems={setItemsSingle} label={"¿Le cuesta mover los brazos?"} />                   
+                            </View>
+                            <View style={{flex:0.050}}/>
+                            <View style={{flex: 1}}>
+                                <PickerSingleSelect open={openSingle} setOpen={setOpenSingle} value={valueSinglePicker} setValue={setvalueSinglePicker} items={itemsSingle} setItems={setItemsSingle} label={"¿Le cuesta mover las piernas?"} />                   
+                            </View>
+                        </View>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                            <View style={{flex: 1}}>
+                                <PickerSingleSelect open={openSingle} setOpen={setOpenSingle} value={valueSinglePicker} setValue={setvalueSinglePicker} items={itemsSingle} setItems={setItemsSingle} label={"¿En qué pierna siente esa sensación?"} />                   
+                            </View>
                         </View>
                     </CardWithText>
                 </View>

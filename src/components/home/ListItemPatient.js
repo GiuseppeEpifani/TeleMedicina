@@ -6,7 +6,6 @@ import { PRIMARY, WHITE } from '../../const/Colors';
 import { styles } from './style';
 
 const ListItemPatient = ({patientRender, handleSelectPatient, isSelected}) => {
-    console.log('render list')
 
     return (
         <TouchableOpacity onPress={() => {handleSelectPatient(patientRender)}} key={patientRender._id}>	
@@ -30,14 +29,14 @@ const ListItemPatient = ({patientRender, handleSelectPatient, isSelected}) => {
     )
 };
 
-const areEqual = (prevProps, nextProps) => {
+/* const areEqual = (prevProps, nextProps) => {
     const { isSelected } = nextProps;
     const { isSelected: prevIsSelected } = prevProps;   
     const isSelectedEqual = isSelected === prevIsSelected;
     return isSelectedEqual;
-};
+}; */
 
-export default  React.memo(ListItemPatient, areEqual);
+export default  React.memo(ListItemPatient);
 
 
   
