@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { View, ScrollView } from 'react-native'
 import { Badge, Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -6,8 +6,14 @@ import { PRIMARY, SUCCESS, WHITE } from '../../../const/Colors'
 import KeyboardScrollView from '../../../UI/KeyboardScrollView'
 import { CardInfoPatient } from '../../../components/infoPatient/CardInfoPatient';
 import ButtonWithShadow from '../../../UI/ButtonWithShadow';
+import { HomeContext } from '../../../context/Home/HomeContext';
+import { useGetDimensions } from '../../../hooks/useGetDimensions';
 
 export const Dimensions = ({navigation}) => {
+
+    const { patient } = useContext(HomeContext);
+    const dimensions = useGetDimensions();
+
     return (
         <KeyboardScrollView scrollEnabled={false} extraHeight={50} barColor={PRIMARY} backgroundColor={WHITE}>
             <View style={{flex: 1}}>
@@ -23,7 +29,7 @@ export const Dimensions = ({navigation}) => {
                     </View>
                 </View>
                 <View style={{flex: 0.3, paddingHorizontal: 30, paddingBottom: 10}}>
-                    <CardInfoPatient onlyDate/>
+                    <CardInfoPatient patient={patient} />
                 </View>
                 <View style={{flex: 0.05}}/>
                 <View style={{flex: 1}}>
@@ -47,7 +53,7 @@ export const Dimensions = ({navigation}) => {
                                 color="white"
                             />
                         }
-                        onPress={() => {}}
+                        onPress={() => {navigation.navigate('InfoPatient')}}
                     />
                 </View>
             </View>

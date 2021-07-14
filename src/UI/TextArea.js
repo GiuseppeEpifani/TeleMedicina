@@ -11,6 +11,7 @@ const TextArea = (props) => {
                 <TextInput
                     multiline={true}
                     numberOfLines={10}
+                    keyboardType={props.keyboardType}
                     onChangeText={props.onChangeText}
                     value={props.value}
                     style={{justifyContent: "flex-start", textAlignVertical: 'top'}}                           

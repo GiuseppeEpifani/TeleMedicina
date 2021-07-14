@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Text, View, Alert } from 'react-native'
+import { Text, View, Alert, TouchableHighlight, TouchableOpacity  } from 'react-native'
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Card from '../../UI/Card'
@@ -8,7 +8,7 @@ import { DANGER, SECONDARY, SUCCESS, WARNING, WHITE } from '../../const/Colors';
 import { styles } from './styles';
 import ModalRecordPatient from './ModalRecordPatient';
 
-export const CardAttention = ({navigation, record, deleteRecord}) => {
+export const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord}) => {
 
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -27,10 +27,16 @@ export const CardAttention = ({navigation, record, deleteRecord}) => {
 		);
 	};
 
+    const continueRegister = async () => {
+        setCurrentRecord(record);
+        navigation.navigate('CreateClinicalRecord');
+    }
+
     const status = record.status;
 
     return (
-        <View style={{flex: 1}}>
+        <TouchableHighlight style={{flex: 1}}>
+            <>
             {
                 (!record.deleted_at) &&
                 <View style={{height: 350, marginBottom: 10}}>
@@ -92,9 +98,9 @@ export const CardAttention = ({navigation, record, deleteRecord}) => {
                                             </View>
                                             {
                                                 (record.status != 2) &&
-                                                <View style={{flex: 1, justifyContent: 'center'}}>
+                                                <TouchableOpacity style={{flex: 1, justifyContent: 'center'}} onPress={continueRegister}>
                                                     <Icon name="file-document-edit" size={30} color={WHITE} style={{marginRight: 5, alignSelf: 'flex-end'}}/>
-                                                </View>
+                                                </TouchableOpacity>
                                             }
                                         </View>
                                     </View>
@@ -144,7 +150,7 @@ export const CardAttention = ({navigation, record, deleteRecord}) => {
                                                 buttonStyle={{backgroundColor: SUCCESS, height: 36, width: 200, borderRadius: 20}}
                                                 titleStyle={{fontWeight: 'bold', marginLeft: 5, fontSize: 14}}
                                                 title="Continuar registro"
-                                                onPress={() => {}}
+                                                onPress={continueRegister}
                                             />
                                         }
                                         {
@@ -191,7 +197,7 @@ export const CardAttention = ({navigation, record, deleteRecord}) => {
                             <View style={{flex: 1}}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Icon name="calendar-account" size={35} color={SECONDARY}/>
-                                    <Text style={{fontSize: 22, color: SECONDARY, marginLeft: 5}}>Eliminado el: <Text style={{color: DANGER, fontWeight: 'bold', fontSize: 18}}>{record.created_at}</Text> </Text>
+                                    <Text style={{fontSize: 22, color: SECONDARY, marginLeft: 5}}>Eliminado el: <Text style={{color: DANGER, fontWeight: 'bold', fontSize: 18}}>{record.deleted_at}</Text> </Text>
                                 </View>
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                     <View style={{flexDirection: 'row', flex: 1, alignItems: 'center'}}>
@@ -204,6 +210,7 @@ export const CardAttention = ({navigation, record, deleteRecord}) => {
                     </Card>
                 </View>
             }
-        </View>
+            </>
+        </TouchableHighlight>
     )
 }

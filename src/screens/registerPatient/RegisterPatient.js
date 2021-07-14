@@ -141,7 +141,7 @@ export const RegisterPatient = ({navigation}) => {
         <KeyboardScrollView scrollEnabled={false} extraHeight={50} barColor={PRIMARY} backgroundColor={WHITE}>
             <View style={{flex: 1}}>
                 <View style={{flex: 0.1, marginBottom: 26}}>
-                    <ArrowBack navigation={navigation}/>
+                    <ArrowBack onPress={() => navigation.goBack()} />
                 </View>
                 <View style={{flex: 5, padding: 30}}>
                     <Card header title={'Registrar datos paciente'}>
@@ -154,9 +154,8 @@ export const RegisterPatient = ({navigation}) => {
                                             labelError={ validInputs ? rbd.value ? !isValidRun ? RUN_INVALID : false : FIELD_COMPLETE : false}
                                             onChangeText={(text) => handleInputChange(format(text), 'rbd')}
                                             value={rbd.value}
-                                            keyboardType={'numeric'}
                                             placeholder={'Ingrese su run'}
-                                            keyboardType={'default'} 
+                                            keyboardType={'numeric'}
                                             nameIcon={"card-account-details"}
                                         />
                                     </View>

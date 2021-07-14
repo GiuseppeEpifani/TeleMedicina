@@ -4,13 +4,12 @@ import { SECONDARY } from '../const/Colors';
 
 const SwitchContainer = (props) => {
     return (
-        <View style={props.labelError && props.labelError.trim().length > 0  ? {...styles.container, ...{marginBottom: 60}} : styles.container}>
+        <View style={styles.container}>
             { (props.label) && <Text style={styles.label}>{props.label}</Text> }
             <View style={{alignSelf: 'center'}}>
-                <Switch value={props.value} />
+                <Switch value={props.value} onValueChange={props.onValueChange} />
             </View>                         
-        </View>
-     
+        </View>  
     )
 }
 

@@ -19,6 +19,12 @@ export const recordReducer = ( state, action ) => {
                 ...state,
                 clinicalRecords: []
             }
+
+        case 'setCurrentRecord':
+            return {
+                ...state,
+                currentRecord: action.payLoad
+            }
             
         default:
             return state;

@@ -5,8 +5,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import { Image } from 'react-native-elements';
 import { Text } from 'react-native';
+import { URL } from '../const/Url';
 
-const ContainerCamera = ({setUri, label}) => {
+const ContainerCamera = ({setImages, label, images, audiovisualSupport, handleDeleteVisualSupport, patientId}) => {
 
     const [TempUri, setTempUri] = useState([]);
 
@@ -16,21 +17,23 @@ const ContainerCamera = ({setUri, label}) => {
                 mediaType: 'photo',
                 quality: 0.5,
                 selectionLimit: 0,
+                includeBase64: true            
             }, 
             ({assets, didCancel}) => {
 
                 if (didCancel) return;
-                const {uri} = assets[0];
-                if (!uri) return;
+                const res = assets[0];
+                if (!res.uri) return;
 
-                setUri(uri);
-                setTempUri(TempUri => [uri, ...TempUri]);
+                setImages(Images => [{ base64: `data:image/jpeg;base64,${res.base64}`, urlTemp: res.uri }, ...Images]);
+                setTempUri(TempUri => [res.uri, ...TempUri]);
             }
         );
     }
 
     const handleDeleteImage = (urlTemp) => {
         setTempUri(TempUri.filter( uri => uri !== urlTemp));
+        setImages(images.filter(img => img.urlTemp !== urlTemp));
     }
 
     return (
@@ -48,11 +51,25 @@ const ContainerCamera = ({setUri, label}) => {
                                 source={{ uri: urlTemp }}
                                 style={{ width: 100, height: 100 }}
                             />
-                        </View>   
+                        </View>
+                    ))
+                }
+                                {
+                    (audiovisualSupport.length > 0) &&
+                    audiovisualSupport.map(item => (
+                        <View style={styles.containerImage} key={item.file}>
+                            <TouchableOpacity onPress={() => handleDeleteVisualSupport(item.file)} style={{position: 'absolute', right: 0, top: 0, zIndex: 1, marginRight: 5, marginTop: 5}}>
+                                <MaterialCommunityIcons name="close-circle" size={22} color={'red'}/>
+                            </TouchableOpacity>
+                            <Image
+                                source={{ uri: `${URL}/storage/clinical_record/${patientId}/health_checks/${item.file}` }}
+                                style={{ width: 100, height: 100 }}
+                            />
+                        </View>
                     ))
                 }
                 {
-                    (TempUri.length < 5) &&
+                    ((TempUri.length + audiovisualSupport.length) < 4) &&
                     <TouchableOpacity onPress={takePhoto}>
                         <View style={styles.container}>
                             <View style={styles.subContainer}>

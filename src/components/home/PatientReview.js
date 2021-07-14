@@ -8,6 +8,7 @@ import { styles } from './style';
 import { WHITE } from '../../const/Colors';
 import TextIcon from '../../UI/TextIcon';
 import { HomeContext } from '../../context/Home/HomeContext';
+import { formatDate } from '../../helper/formatDate';
 
 const PatientReview = ({navigation}) => {
 
@@ -56,7 +57,7 @@ const PatientReview = ({navigation}) => {
                         <ScrollView>
                             <TextIcon label={"RUN"} text={patient.rbd} icon={"card-account-details"} hr/>
                             <TextIcon label={"Género"} text={ (patient.gender == 1) ? 'Masculino' : 'Femenino'} icon={"gender-male-female"} hr/>
-                            <TextIcon label={"Fecha de nacimiento"} text={patient.birthday} icon={"calendar-range"} hr/>
+                            <TextIcon label={"Fecha de nacimiento"} text={formatDate(new Date(`${patient.birthday}T12:00:00Z`))} icon={"calendar-range"} hr/>
                         </ScrollView>
                     </View>
                     <View style={{height: 50, flexDirection: 'row'}}>

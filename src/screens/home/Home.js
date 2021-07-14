@@ -92,7 +92,7 @@ export const Home = ({navigation}) => {
 						{
 							loadingPatients &&
 							<View style={{height: '96.5%', justifyContent: 'center', alignItems: 'center'}}>
-								<ActivityIndicator size="large" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}}/>
+                                <ActivityIndicator size="large" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}} />
 							</View>
 						}
 						{

@@ -14,7 +14,7 @@ export const SignIn = ({ navigation }) => {
 
     const [cheked, setChecked] = useState(false)
     const { authState, signIn, logout, errorMessage, removeError} = useContext(AuthContext)
-    const [ isValidEmail, setisValidEmail ] = useState(null)
+    const [ isValidEmail, setisValidEmail ] = useState(true)
     const [ formValues, handleInputChange ] = useForm({ email: { value: '', isComplete: false }, password: { value: '', isComplete: false }});
     const [ validField, setValidField ] = useState(false)
     const { email, password } = formValues;

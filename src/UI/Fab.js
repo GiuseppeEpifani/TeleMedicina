@@ -1,13 +1,13 @@
 import React from 'react'
-import { TouchableOpacity, StyleSheet} from 'react-native';
+import { TouchableHighlight, StyleSheet} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, WHITE } from '../const/Colors';
 
 const Fab = (props) => {
     return (
-        <TouchableOpacity style={styles.container} onPress={props.onPress}>
+        <TouchableHighlight style={styles.container} onPress={props.onPress} activeOpacity={0.6} underlayColor="#DDDDDD">
             <MaterialCommunityIcons size={36} color={WHITE} name={props.icon} />
-        </TouchableOpacity>
+        </TouchableHighlight>
     )
 }
 

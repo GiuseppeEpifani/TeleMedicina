@@ -1,12 +1,12 @@
 import React from 'react'
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import { StyleSheet, TouchableHighlight } from 'react-native'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export const ArrowBack = ({onPress}) => {
     return (
-        <TouchableOpacity style={styles.goBack} onPress={onPress}>
+        <TouchableHighlight style={styles.goBack} onPress={onPress} activeOpacity={0.6} underlayColor="#DDDDDD">
             <MaterialCommunityIcons name="arrow-left" size={46} />
-        </TouchableOpacity>
+        </TouchableHighlight>
     )
 }
 

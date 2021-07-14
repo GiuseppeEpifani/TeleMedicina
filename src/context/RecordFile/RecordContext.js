@@ -4,6 +4,7 @@ import { recordReducer } from './RecordReducer';
 
 const initialState = {
     clinicalRecords: [],
+    currentRecord: {},
 	loading: false,
 	message: ''
 }
@@ -14,7 +15,7 @@ export const RecordContext = createContext(initialState);
 export const RecordProvider = ({ children }) => {
 
     const [recordState, dispatch] = useReducer(recordReducer, initialState);
-	const { clinicalRecords } = recordState;
+	const { clinicalRecords, currentRecord } = recordState;
 
     const getRecords = async (id) => {
         try {
@@ -75,10 +76,114 @@ export const RecordProvider = ({ children }) => {
             }
         try {
             const { data } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', record);
-            console.log(data);
+            const newRecordClinical = [ data.clinical_records,  ...clinicalRecords ];
+            dispatch({type: 'setRecords', payLoad: newRecordClinical});
+            dispatch({type: 'setCurrentRecord', payLoad: data.clinical_records});
         } catch (error) {
             console.log(error)
         }
+    }
+
+    const updatedRecordMorbidAntecedent = async (patientId, morbid_antecedent) => {
+        let recordToUpdated =
+            {
+                clinical_patients_id: patientId,
+                clinical_record_new:
+                    {
+                        clinical_interview: [],
+                        diagnosis:
+                            {
+                                observation: "",
+                                indication: "",
+                                digitador: {}
+                            },
+                        health_check: currentRecord.health_check,
+                        morbid_antecedent,
+                        patient: currentRecord.patient,
+                        reason_for_consultation: currentRecord.reason_for_consultation,
+                        status: 0,
+                        type_of_query: currentRecord.type_of_query,
+                        _id: currentRecord._id
+                    }
+            };
+        try {
+            const { data } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', recordToUpdated);
+            let newRecordClinical = clinicalRecords.map(record => {
+                if (record._id == data.clinical_records._id) {
+                    return data.clinical_records;
+                } else {
+                    return record;
+                }
+            });
+            dispatch({type: 'setRecords', payLoad: newRecordClinical});
+            dispatch({type: 'setCurrentRecord', payLoad: data.clinical_records});
+        } catch (error) {
+            console.log(error)
+        } 
+    }
+
+    const updatedRecordHealthCheck = async (patientId, health_check) => {
+        let recordToUpdated =
+            {
+                clinical_patients_id: patientId,
+                clinical_record_new:
+                    {
+                        clinical_interview: [],
+                        diagnosis:
+                            {
+                                observation: "",
+                                indication: "",
+                                digitador: {}
+                            },
+                        health_check,
+                        morbid_antecedent: currentRecord.morbid_antecedent,
+                        patient: currentRecord.patient,
+                        reason_for_consultation: currentRecord.reason_for_consultation,
+                        status: 0,
+                        type_of_query: currentRecord.type_of_query,
+                        _id: currentRecord._id
+                    }
+            };
+        try {
+            const { data } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', recordToUpdated);
+            let newRecordClinical = clinicalRecords.map(record => {
+                if (record._id == data.clinical_records._id) {
+                    return data.clinical_records;
+                } else {
+                    return record;
+                }
+            });
+            dispatch({type: 'setRecords', payLoad: newRecordClinical});
+            dispatch({type: 'setCurrentRecord', payLoad: data.clinical_records});
+        } catch (error) {
+            console.log(error)
+        } 
+    }
+
+    const uploadImages = async (imgs, patientId) => {
+        let audiovisualSupport = [];
+        
+        for (let i = 0; i < imgs.length; i++) {
+
+            let image = {
+                file: imgs[i].base64,
+                route_name: `clinical_record/${patientId}/health_checks`,
+                file_name: `${patientId}_${new Date()}.jpeg`
+            }
+    
+            try {
+                const { data } = await teleMedicinaApi.post('/set.update_file_base_64', image);
+                audiovisualSupport.push({...data, ...{extension: 'jpeg'}});
+            } catch (error) {
+                console.log(error)
+            } 
+        };
+
+        return audiovisualSupport;
+    }
+
+    const setCurrentRecord = async (record) => {
+        await dispatch({type: 'setCurrentRecord', payLoad: record});
     }
 
     const cleanData = () => {
@@ -91,7 +196,11 @@ export const RecordProvider = ({ children }) => {
             getRecords,
             deleteRecord,
             createAttention,
-            cleanData
+            cleanData,
+            setCurrentRecord,
+            updatedRecordMorbidAntecedent,
+            updatedRecordHealthCheck,
+            uploadImages
         }}>
             { children }
         </RecordContext.Provider>

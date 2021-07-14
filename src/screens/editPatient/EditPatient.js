@@ -161,7 +161,7 @@ export const EditPatient = ({navigation}) => {
         <KeyboardScrollView scrollEnabled={false} extraHeight={50} barColor={PRIMARY} backgroundColor={WHITE}>
             <View style={{flex: 1}}>
                 <View style={{flex: 0.1, marginBottom: 26}}>
-                    <ArrowBack navigation={navigation}/>
+                    <ArrowBack onPress={() => navigation.goBack()} />
                 </View>
                 <View style={{flex: 5, padding: 30}}>
                     <Card header title={`Pacíente run: ${patient.rbd}`}>

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react'
-import { Modal, Text, View, StyleSheet, TouchableOpacity} from 'react-native'
+import { Modal, Text, View, StyleSheet, TouchableOpacity, Keyboard} from 'react-native'
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, VERY_LIGHT } from '../../const/Colors';
@@ -13,12 +13,15 @@ const ModalAttencion = (props) => {
 
     const [typeQuery, setTypeQuery] = useState(1);
     const [reasonForConsultation, setReasonForConsultation] = useState(null);
-    const [validated, setValidated] = useState(false)
+    const [validated, setValidated] = useState(false);
+    const [btnDisabled, setBtnDisabled] = useState(false);
 
     const createAttention = async () => {
         setValidated(true);
 
         if (reasonForConsultation) {
+            Keyboard.dismiss();
+            setBtnDisabled(true);
             const typeOfQueryObject = {
                 id: typeQuery,
                 name: (typeQuery === 1) ? 'Urgencia' : (typeQuery === 2) ? 'Control' : 'Terreno'
@@ -27,6 +30,7 @@ const ModalAttencion = (props) => {
             props.setModalVisible(!props.modalVisible);
             setReasonForConsultation(null);
             setValidated(false);
+            setBtnDisabled(false);
             props.navigation.navigate('CreateClinicalRecord');
         }
     }
@@ -37,7 +41,9 @@ const ModalAttencion = (props) => {
             transparent={true}
             visible={props.modalVisible}
             onRequestClose={() => {
-                props.setModalVisible(!modalVisible);
+                props.setModalVisible(!props.modalVisible);
+                setReasonForConsultation(null);
+                setValidated(false);    
             }}
         >
             <View style={styles.centeredView}>
@@ -81,7 +87,6 @@ const ModalAttencion = (props) => {
                                     buttonStyle={{backgroundColor: VERY_LIGHT, width: 140}}
                                     titleStyle={{color: PRIMARY}}
                                     title="Cancelar"
-                                    loading={false}
                                     onPress={() => {
                                         props.setModalVisible(!props.modalVisible);
                                         setReasonForConsultation(null);
@@ -90,8 +95,9 @@ const ModalAttencion = (props) => {
                                 />
                                 <Button
                                     buttonStyle={{backgroundColor: PRIMARY, marginLeft: 5, width: 140}}
+                                    disabled={btnDisabled}
+                                    loading={btnDisabled}
                                     title="Guardar"
-                                    loading={false}
                                     onPress={createAttention}
                                 />
                             </View>

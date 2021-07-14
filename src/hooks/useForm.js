@@ -6,7 +6,7 @@ export const useForm = ( fields ) => {
 
     const handleInputChange = ( value, name ) => {
         
-        let isComplete = (value.trim().length > 0) ? true : false
+        let isComplete = (value.trim().length > 1) ? true : false
      
         setValues({
             ...values,
@@ -15,5 +15,5 @@ export const useForm = ( fields ) => {
 
     }
 
-    return [ values, handleInputChange];
+    return [values, handleInputChange];
 }

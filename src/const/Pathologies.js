@@ -1,0 +1,23 @@
+export const PATHOLOGIES = [
+    { value: JSON.stringify({ _id: "000000000000000000000001", name: "Sin patologías" }), label: "Sin patologías" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000002", name: "Accidente cerebro vascular hemorrágico" }), label: "Accidente cerebro vascular hemorrágico" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000003", name: "Accidente cerebro vascular isquémico" }), label: "Accidente cerebro vascular isquémico" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000004", name: "Alzheimer" }), label: "Alzheimer" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000005", name: "Arritmia" }), label: "Arritmia" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000006", name: "Asma" }), label: "Asma" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000007", name: "Bronquitis crónica" }), label: "Bronquitis crónica" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000008", name: "Diabetes 1" }), label: "Diabetes 1" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000009", name: "Diabetes 2" }), label: "Diabetes 2" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000010", name: "Dislipidemia" }), label: "Dislipidemia" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000011", name: "Enfisema pulmonar" }), label: "Enfisema pulmonar" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000012", name: "Epilepsia" }), label: "Epilepsia" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000013", name: "Hipertensión" }), label: "Hipertensión" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000014", name: "Hipertiroidismo" }), label: "Hipertiroidismo" },
+    { value: JSON.stringify({ _id: "000000000000000000000015", name: "Hipotiroirismo" }), label: "Hipotiroirismo" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000016", name: "Infarto corazón" }), label: "Infarto corazón" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000017", name: "Marcapasos" }), label: "Marcapasos" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000018", name: "Parkinson" }), label: "Parkinson" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000019", name: "Tromboembolismo pulmonar" }), label: "Tromboembolismo pulmonar" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000020", name: "Trombosis venosa profunda" }), label: "Trombosis venosa profunda" }, 
+    { value: JSON.stringify({ _id: "000000000000000000000021", name: "Úlceras por presión" }), label: "Úlceras por presión" }
+];

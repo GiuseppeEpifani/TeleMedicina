@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, StyleSheet, Text } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SECONDARY, SUCCESS, VERY_LIGHT, WHITE } from '../const/Colors';
 
 const PickerMultiSelect = (props) => {
+
+    const [open, setOpen] = useState(false);
 
     return (
         <View style={props.labelError && props.labelError.trim().length > 0  ? {...styles.container, ...{marginBottom: 60}} : styles.container}>
@@ -32,10 +34,11 @@ const PickerMultiSelect = (props) => {
                 }}
                 multiple={true}
                 min={0}
-                open={props.open}
+                max={props.max}
+                open={open}
                 value={props.value}
                 items={props.items}
-                setOpen={props.setOpen}
+                setOpen={setOpen}
                 setValue={props.setValue}
                 setItems={props.setItems}
 			/>
