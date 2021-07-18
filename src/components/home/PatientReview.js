@@ -8,7 +8,7 @@ import { styles } from './style';
 import { WHITE } from '../../const/Colors';
 import TextIcon from '../../UI/TextIcon';
 import { HomeContext } from '../../context/Home/HomeContext';
-import { formatDate } from '../../helper/formatDate';
+import { formatDate } from '../../helpers/formatDate';
 
 const PatientReview = ({navigation}) => {
 
@@ -45,7 +45,7 @@ const PatientReview = ({navigation}) => {
                     <View style={{flex: 0.8, justifyContent: 'center', alignItems: 'center'}}>
                     <Image 
                         style={{
-                            resizeMode: 'stretch', 
+                            resizeMode: 'stretch',
                             width: 220, 
                             height: 150
                         }} 

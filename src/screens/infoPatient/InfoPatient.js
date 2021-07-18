@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { View, ActivityIndicator, Text } from 'react-native'
+import { View, ActivityIndicator, Text, FlatList } from 'react-native'
 import { PRIMARY, SUCCESS, WHITE } from '../../const/Colors'
 import ArrowBack from '../../UI/ArrowBack'
 import KeyboardView from '../../UI/KeyboardView';
-import { OptimizedFlatList } from 'react-native-optimized-flatlist'
-import { styles } from './style';
-import { CardAttention } from '../../components/infoPatient/CardAttention'
+import CardAttention from '../../components/infoPatient/CardAttention'
 import { CardInfoPatient } from '../../components/infoPatient/CardInfoPatient'
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -17,7 +15,7 @@ import Card from '../../UI/Card';
 
 export const InfoPatient = ({navigation}) => {
 
-    const { getRecords, deleteRecord, createAttention, clinicalRecords, loading, cleanData, setCurrentRecord, currentRecord } = useContext(RecordContext);
+    const { getRecords, deleteRecord, createAttention, clinicalRecords, loading, cleanData, setCurrentRecord, finallyRecordPatient } = useContext(RecordContext);
     const { patient } = useContext(HomeContext);
     const [loadingData, setLoadingData] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
@@ -31,10 +29,16 @@ export const InfoPatient = ({navigation}) => {
         setLoadingData(false);
     }
 
+    const finallyAttention = async ({recordId, observation, indication}) => {
+        setLoadingData(true);
+        await finallyRecordPatient({patientId: patient._id, recordId, observation, indication});
+        setLoadingData(false);
+    }
+
     const renderListRecord = ({item: record}) => {
 		return (
             <View style={{paddingHorizontal: 30}}>
-                <CardAttention navigation={navigation} record={record} deleteRecord={deleteRecord} setCurrentRecord={setCurrentRecord} />
+                <CardAttention navigation={navigation} record={record} deleteRecord={deleteRecord} setCurrentRecord={setCurrentRecord} finallyAttention={finallyAttention}/>
             </View>
 		)
 	}
@@ -97,9 +101,9 @@ export const InfoPatient = ({navigation}) => {
                         }
                         {
                             (clinicalRecords.length > 0 && !loadingData) &&
-                            <OptimizedFlatList
+                            <FlatList
                                 data={clinicalRecords}
-                                keyExtractor={ (recordRender) => recordRender._id}
+                                keyExtractor={(recordRender) => recordRender._id}
                                 renderItem={renderListRecord}
                             />	
                         }

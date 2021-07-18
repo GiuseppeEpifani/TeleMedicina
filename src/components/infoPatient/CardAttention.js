@@ -7,10 +7,13 @@ import Hr from '../../UI/Hr';
 import { DANGER, SECONDARY, SUCCESS, WARNING, WHITE } from '../../const/Colors';
 import { styles } from './styles';
 import ModalRecordPatient from './ModalRecordPatient';
+import ModalFinallyAttention from './ModalFinallyAttention';
+import { formatDateHuman } from '../../helpers/formatDateHuman';
 
-export const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord}) => {
-
+const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, finallyAttention}) => {
+    console.log('render');
     const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisibleFinallyAttention, setModalVisibleFinallyAttention] = useState(false);
 
     const createAlertDelete = () => {
 		Alert.alert(
@@ -40,14 +43,15 @@ export const CardAttention = ({navigation, record, deleteRecord, setCurrentRecor
             {
                 (!record.deleted_at) &&
                 <View style={{height: 350, marginBottom: 10}}>
-                    <ModalRecordPatient setModalVisible={setModalVisible} modalVisible={modalVisible} navigation={navigation}/>
+                    <ModalRecordPatient setModalVisible={setModalVisible} modalVisible={modalVisible} navigation={navigation} />
+                    <ModalFinallyAttention setModalVisible={setModalVisibleFinallyAttention} modalVisible={modalVisibleFinallyAttention} record={record} finallyAttentionPatient={finallyAttention} />
                     <Card>
                         <View style={{...styles.cardAttention, borderLeftColor: (status == 1) ? WARNING : (status == 2) ? SUCCESS : SECONDARY}}>
                             <View style={{flexDirection: 'row', flex: 0.5}}>
                                 <View style={{flex: 2}}>
                                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                         <Icon name="calendar-account" size={35} color={SECONDARY}/>
-                                        <Text style={{fontSize: 22, color: SECONDARY, marginLeft: 5}}>Creado el: <Text style={{color: SUCCESS, fontWeight: 'bold', fontSize: 18}}>{record.created_at}</Text> </Text>
+                                        <Text style={{fontSize: 18, color: SECONDARY, marginLeft: 5}}>Creado el: <Text style={{color: SUCCESS, fontWeight: 'bold', fontSize: 16}}>{formatDateHuman(record.created_at, 'YYYY-MM-DD HH:mm:ss', 'HH:mm a, DD MMMM - YYYY')}</Text> </Text>
                                     </View>
                                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                         <View style={{flexDirection: 'row', flex: 1, alignItems: 'center'}}>
@@ -98,7 +102,7 @@ export const CardAttention = ({navigation, record, deleteRecord, setCurrentRecor
                                             </View>
                                             {
                                                 (record.status != 2) &&
-                                                <TouchableOpacity style={{flex: 1, justifyContent: 'center'}} onPress={continueRegister}>
+                                                <TouchableOpacity style={{flex: 0.1, justifyContent: 'center'}} onPress={continueRegister}>
                                                     <Icon name="file-document-edit" size={30} color={WHITE} style={{marginRight: 5, alignSelf: 'flex-end'}}/>
                                                 </TouchableOpacity>
                                             }
@@ -130,9 +134,9 @@ export const CardAttention = ({navigation, record, deleteRecord, setCurrentRecor
                                             </View>
                                             {
                                                 (status == 2) &&
-                                                <View style={{flex: 1, justifyContent: 'center'}}>
+                                                <TouchableOpacity style={{flex: 0.1, justifyContent: 'center'}} onPress={() => {setModalVisibleFinallyAttention(true)}}>
                                                     <Icon name="file-document-edit" size={30} color={WHITE} style={{marginRight: 5, alignSelf: 'flex-end'}}/>
-                                                </View>
+                                                </TouchableOpacity>
                                             }
                                         </View>
                                     </View>
@@ -159,14 +163,14 @@ export const CardAttention = ({navigation, record, deleteRecord, setCurrentRecor
                                                 buttonStyle={{backgroundColor: SUCCESS, height: 36, width: 200, borderRadius: 20}}
                                                 titleStyle={{fontWeight: 'bold', marginLeft: 5, fontSize: 14}}
                                                 title="Finalizar atención"
-                                                onPress={() => {}}
+                                                onPress={() => {setModalVisibleFinallyAttention(true)}}
                                             />
                                         }
                                         {
                                             (status == 2) &&
                                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                                 <Icon name="checkbox-marked-circle-outline" size={30} color={SUCCESS} style={{marginLeft: 5}}/>
-                                                <Text style={styles.textBackgroundSuccess}>Cerrado - {record.updated_at}</Text>
+                                                <Text style={styles.textBackgroundSuccess}>Cerrado - {formatDateHuman(record.updated_at, 'YYYY-MM-DD HH:mm:ss', 'HH:mm a, DD MMMM - YYYY')}</Text>
                                             </View>
                                         }
                                     </View>
@@ -184,7 +188,7 @@ export const CardAttention = ({navigation, record, deleteRecord, setCurrentRecor
                             <View style={{flex: 1}}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Icon name="calendar-account" size={35} color={SECONDARY}/>
-                                    <Text style={{fontSize: 22, color: SECONDARY, marginLeft: 5}}>Creado el: <Text style={{color: SUCCESS, fontWeight: 'bold', fontSize: 18}}>{record.created_at}</Text> </Text>
+                                    <Text style={{fontSize: 22, color: SECONDARY, marginLeft: 5}}>Creado el: <Text style={{color: SUCCESS, fontWeight: 'bold', fontSize: 18}}>{formatDateHuman(record.created_at, 'YYYY-MM-DD HH:mm:ss', 'HH:mm a, DD MMMM - YYYY')}</Text> </Text>
                                 </View>
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                     <View style={{flexDirection: 'row', flex: 1, alignItems: 'center'}}>
@@ -197,7 +201,7 @@ export const CardAttention = ({navigation, record, deleteRecord, setCurrentRecor
                             <View style={{flex: 1}}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Icon name="calendar-account" size={35} color={SECONDARY}/>
-                                    <Text style={{fontSize: 22, color: SECONDARY, marginLeft: 5}}>Eliminado el: <Text style={{color: DANGER, fontWeight: 'bold', fontSize: 18}}>{record.deleted_at}</Text> </Text>
+                                    <Text style={{fontSize: 22, color: SECONDARY, marginLeft: 5}}>Eliminado el: <Text style={{color: DANGER, fontWeight: 'bold', fontSize: 18}}>{formatDateHuman(record.deleted_at, 'YYYY-MM-DD HH:mm:ss', 'HH:mm a, DD MMMM - YYYY')}</Text> </Text>
                                 </View>
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                     <View style={{flexDirection: 'row', flex: 1, alignItems: 'center'}}>
@@ -214,3 +218,10 @@ export const CardAttention = ({navigation, record, deleteRecord, setCurrentRecor
         </TouchableHighlight>
     )
 }
+
+const areEqual = (prevProps, nextProps) => {
+    const isEqual = prevProps.record === nextProps.record;
+    return isEqual;
+};
+
+export default React.memo(CardAttention, areEqual);

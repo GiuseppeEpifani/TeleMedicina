@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect }  from 'react'
-import { Button, CheckBox } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import { View, Text, Keyboard, Image, Alert } from 'react-native';
 import { AuthContext } from '../../context/Auth/AuthContext'
 import Card from '../../UI/Card';
@@ -12,11 +12,10 @@ import { PRIMARY } from '../../const/Colors';
 
 export const SignIn = ({ navigation }) => {
 
-    const [cheked, setChecked] = useState(false)
-    const { authState, signIn, logout, errorMessage, removeError} = useContext(AuthContext)
-    const [ isValidEmail, setisValidEmail ] = useState(true)
-    const [ formValues, handleInputChange ] = useForm({ email: { value: '', isComplete: false }, password: { value: '', isComplete: false }});
-    const [ validField, setValidField ] = useState(false)
+    const { signIn,errorMessage, removeError} = useContext(AuthContext)
+    const [isValidEmail, setisValidEmail] = useState(true)
+    const [formValues, handleInputChange] = useForm({ email: { value: '', isComplete: false }, password: { value: '', isComplete: false }});
+    const [validField, setValidField] = useState(false)
     const { email, password } = formValues;
 
     useEffect(() => {
@@ -74,12 +73,6 @@ export const SignIn = ({ navigation }) => {
                                 keyboardType={'default'}
                                 secureTextEntry={true}
                                 nameIcon={"lock"} 
-                            />
-
-                            <CheckBox
-                                title='Recuerdame'
-                                onPress={ () => setChecked(!cheked)}
-                                checked={cheked}
                             />
 
                             <Button

@@ -5,9 +5,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, SECONDARY, VERY_LIGHT } from '../../const/Colors';
 import { SCREEN_HEIGHT } from '../../const/Dimensions';
 import Hr from '../../UI/Hr';
-import RadioButton from '../../UI/RadioButton';
-import TextArea from '../../UI/TextArea';
-import TextIcon from '../../UI/TextIcon';
 
 const ModalRecordPatient = (props) => {
 

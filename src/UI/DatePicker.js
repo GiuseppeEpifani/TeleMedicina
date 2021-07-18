@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { View, TouchableWithoutFeedback } from 'react-native';
 import InputText from './InputText';
-import { formatDate } from '../helper/formatDate';
+import { formatDate } from '../helpers/formatDate';
 
 const DatePicker = ({handleGetDate, labelError, label, value}) => {
     const [date, setDate] = useState((value) ? new Date(`${value}T12:00:00Z`) : new Date());

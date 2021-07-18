@@ -4,6 +4,7 @@ import Card from '../../UI/Card'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { styles } from './styles';
 import { SECONDARY } from '../../const/Colors';
+import { formatDate } from '../../helpers/formatDate';
 
 export const CardInfoPatient = ({patient}) => {
     return (
@@ -17,7 +18,7 @@ export const CardInfoPatient = ({patient}) => {
                         <Text style={styles.textRun}>{patient.rbd} - <Text style={styles.textName}>{patient.name} {patient.lastname}</Text></Text>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <Icon name="calendar-range" size={35} color={SECONDARY}/>
-                            <Text style={styles.textInfoBold}>Fecha de nacimiento: <Text style={styles.textInfo}>{patient.birthday}</Text></Text>
+                            <Text style={styles.textInfoBold}>Fecha de nacimiento: <Text style={styles.textInfo}>{formatDate(new Date(patient.birthday))}</Text></Text>
                         </View>
                     </View>
                 </Card>

@@ -7,12 +7,17 @@ import KeyboardScrollView from '../../../UI/KeyboardScrollView'
 import { CardInfoPatient } from '../../../components/infoPatient/CardInfoPatient';
 import ButtonWithShadow from '../../../UI/ButtonWithShadow';
 import { HomeContext } from '../../../context/Home/HomeContext';
-import { useGetDimensions } from '../../../hooks/useGetDimensions';
+import { RecordContext } from '../../../context/RecordFile/RecordContext';
 
 export const Dimensions = ({navigation}) => {
 
     const { patient } = useContext(HomeContext);
-    const dimensions = useGetDimensions();
+    const { updatedRecordClinicalInterview } = useContext(RecordContext);
+
+    const handleEndTest = async () => {
+        updatedRecordClinicalInterview(patient._id);
+        navigation.navigate('InfoPatient');
+    }
 
     return (
         <KeyboardScrollView scrollEnabled={false} extraHeight={50} barColor={PRIMARY} backgroundColor={WHITE}>
@@ -53,7 +58,7 @@ export const Dimensions = ({navigation}) => {
                                 color="white"
                             />
                         }
-                        onPress={() => {navigation.navigate('InfoPatient')}}
+                        onPress={handleEndTest}
                     />
                 </View>
             </View>

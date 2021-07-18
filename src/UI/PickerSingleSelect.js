@@ -42,9 +42,10 @@ const PickerSingleSelect = (props) => {
                 min={1}
                 open={open}
                 value={props.value}
-                items={props.items}
-                setOpen={setOpen}
                 setValue={props.setValue}
+                items={props.items}
+                setItems={props.setItems}
+                setOpen={setOpen}
 			/>
             { (props.labelError) && <Text style={styles.labelError}>{props.labelError}</Text> }
         </View>

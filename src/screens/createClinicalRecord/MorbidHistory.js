@@ -25,10 +25,10 @@ export const MorbidHistory = ({navigation}) => {
     const [loading, setLoading] = useState(false);
     const [loadingInit, setLoadingInit] = useState(true)
     const [validated, setValidated] = useState(false);
-    const [isAllergies, setIsAllergies] = useState((!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.allergies) ? currentRecord.morbid_antecedent.allergies :  false);
+    const [isAllergies, setIsAllergies] = useState((!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.allergies) ? currentRecord.morbid_antecedent.allergies : false);
     const [homeOxygen, setHomeOxygen] = useState((!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.home_oxygen) ? currentRecord.morbid_antecedent.home_oxygen : false);
     const [postrate, setPostrate] = useState((!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.prostrate) ? currentRecord.morbid_antecedent.prostrate : false);
-    const [lastRuleDate, setLastRuleDate] = useState(!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.last_rule_date ? currentRecord.morbid_antecedent.last_rule_date : null);
+    const [lastRuleDate, setLastRuleDate] = useState(!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.last_rule_date ? currentRecord.morbid_antecedent.last_rule_date.substr(0, 10) : null);
     const [previousPregnancies, setPreviousPregnancies] = useState((!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.previous_pregnancies) ? currentRecord.morbid_antecedent.previous_pregnancies : null);
     const [abortion, setAbortion] = useState((!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.abortion) ? currentRecord.morbid_antecedent.abortion : null);
     const [drugs, setDrugs] = useState((!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.drugs) ? currentRecord.morbid_antecedent.drugs : null);
@@ -41,7 +41,7 @@ export const MorbidHistory = ({navigation}) => {
     useEffect(() => {
 
         if ((!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.pathology.length > 0)) {
-            const pathologiesFormated = currentRecord.morbid_antecedent.pathology.map(item => JSON.stringify(item));
+            const pathologiesFormated = currentRecord.morbid_antecedent.pathology.map(item => JSON.stringify(item));+
             setPathologiesSelected(pathologiesFormated);
         }
 
@@ -76,7 +76,7 @@ export const MorbidHistory = ({navigation}) => {
                     home_oxygen: homeOxygen,
                     allergies: isAllergies, 
                     allergies_array: allergiesFormated,
-                    last_rule_date: `${lastRuleDate} 00:00:00`,
+                    last_rule_date: (lastRuleDate) ? `${lastRuleDate} 00:00:00` : null,
                     previous_pregnancies: previousPregnancies, 
                     abortion: abortion
                 };

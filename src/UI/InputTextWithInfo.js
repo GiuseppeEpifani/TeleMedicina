@@ -1,12 +1,12 @@
 import React from 'react'
 import { StyleSheet, TextInput, View, Text } from 'react-native'
-import { SECONDARY, VERY_LIGHT, BLACK } from '../const/Colors';
+import { SECONDARY, VERY_LIGHT, BLACK, DANGER } from '../const/Colors';
 
 const InputTextWithInfo = (props) => {
     return (
         <View style={props.labelError && props.labelError.trim().length > 0  ? {...styles.container, ...{marginBottom: 60}} : styles.container}>
             { (props.label) && <Text style={styles.label}>{props.label}</Text> }
-            <View style={{...styles.containerInput, ...props.containerStyle}}>
+            <View style={(props.labelError) ? {...styles.containerInputError, ...props.containerStyle} : {...styles.containerInput, ...props.containerStyle}}>
                 <View style={{flex: 1, flexDirection: 'row'}}>
                     <TextInput
                         style={{...styles.input, ...props.styleWidth}}
@@ -34,6 +34,13 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 40,
         borderColor: VERY_LIGHT,
+        borderWidth: 1,
+        overflow: 'hidden'
+    },
+    containerInputError: {
+        height: 50,
+        borderRadius: 40,
+        borderColor: DANGER,
         borderWidth: 1,
         overflow: 'hidden'
     },

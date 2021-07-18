@@ -90,7 +90,7 @@ export const RecordProvider = ({ children }) => {
                 clinical_patients_id: patientId,
                 clinical_record_new:
                     {
-                        clinical_interview: [],
+                        clinical_interview: currentRecord.clinical_interview,
                         diagnosis:
                             {
                                 observation: "",
@@ -101,7 +101,7 @@ export const RecordProvider = ({ children }) => {
                         morbid_antecedent,
                         patient: currentRecord.patient,
                         reason_for_consultation: currentRecord.reason_for_consultation,
-                        status: 0,
+                        status: currentRecord.status,
                         type_of_query: currentRecord.type_of_query,
                         _id: currentRecord._id
                     }
@@ -128,7 +128,7 @@ export const RecordProvider = ({ children }) => {
                 clinical_patients_id: patientId,
                 clinical_record_new:
                     {
-                        clinical_interview: [],
+                        clinical_interview: currentRecord.clinical_interview,
                         diagnosis:
                             {
                                 observation: "",
@@ -139,7 +139,7 @@ export const RecordProvider = ({ children }) => {
                         morbid_antecedent: currentRecord.morbid_antecedent,
                         patient: currentRecord.patient,
                         reason_for_consultation: currentRecord.reason_for_consultation,
-                        status: 0,
+                        status: currentRecord.status,
                         type_of_query: currentRecord.type_of_query,
                         _id: currentRecord._id
                     }
@@ -158,6 +158,67 @@ export const RecordProvider = ({ children }) => {
         } catch (error) {
             console.log(error)
         } 
+    }
+
+    const updatedRecordClinicalInterview = async (patientId) => {
+        console.log(currentRecord.clinical_interview)
+        let recordToUpdated =
+            {
+                clinical_patients_id: patientId,
+                clinical_record_new:
+                    {
+                        clinical_interview: currentRecord.clinical_interview,
+                        diagnosis:
+                            {
+                                observation: "",
+                                indication: "",
+                                digitador: {}
+                            },
+                        health_check: currentRecord.health_check,
+                        morbid_antecedent: currentRecord.morbid_antecedent,
+                        patient: currentRecord.patient,
+                        reason_for_consultation: currentRecord.reason_for_consultation,
+                        status: 1,
+                        type_of_query: currentRecord.type_of_query,
+                        _id: currentRecord._id
+                    }
+            };
+        try {
+            const { data } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', recordToUpdated);
+            let newRecordClinical = clinicalRecords.map(record => {
+                if (record._id == data.clinical_records._id) {
+                    return data.clinical_records;
+                } else {
+                    return record;
+                }
+            });
+            dispatch({type: 'setRecords', payLoad: newRecordClinical});
+            dispatch({type: 'setCurrentRecord', payLoad: data.clinical_records});
+        } catch (error) {
+            console.log(error)
+        } 
+    }
+
+    const finallyRecordPatient = async ({patientId, recordId, observation, indication}) => {
+        try {
+            const { data } = await teleMedicinaApi.post('/set.update_diagnosis_clinical_record', {
+                clinical_patients_id: patientId,
+                id: recordId,
+                indication,
+                observation,
+                status: 2
+            });
+            let newRecordClinical = clinicalRecords.map(record => {
+                if (record._id == data._id) {
+                    return data;
+                } else {
+                    return record;
+                }
+            });
+            dispatch({type: 'setRecords', payLoad: newRecordClinical});
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const uploadImages = async (imgs, patientId) => {
@@ -182,8 +243,12 @@ export const RecordProvider = ({ children }) => {
         return audiovisualSupport;
     }
 
-    const setCurrentRecord = async (record) => {
-        await dispatch({type: 'setCurrentRecord', payLoad: record});
+    const saveDimension = (dimension) => {
+        dispatch({type: 'setDimension', payLoad: dimension});
+    }
+
+    const setCurrentRecord = (record) => {
+        dispatch({type: 'setCurrentRecord', payLoad: record});
     }
 
     const cleanData = () => {
@@ -200,7 +265,10 @@ export const RecordProvider = ({ children }) => {
             setCurrentRecord,
             updatedRecordMorbidAntecedent,
             updatedRecordHealthCheck,
-            uploadImages
+            updatedRecordClinicalInterview,
+            uploadImages,
+            saveDimension,
+            finallyRecordPatient
         }}>
             { children }
         </RecordContext.Provider>
