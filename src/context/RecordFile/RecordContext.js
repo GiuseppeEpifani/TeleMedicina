@@ -182,7 +182,6 @@ export const RecordProvider = ({ children }) => {
                         _id: currentRecord._id
                     }
             };
-        console.log(recordToUpdated)
         try {
             const { data } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', recordToUpdated);
             let newRecordClinical = clinicalRecords.map(record => {
