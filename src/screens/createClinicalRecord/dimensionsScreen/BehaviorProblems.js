@@ -333,11 +333,8 @@ export const BehaviorProblems = ({navigation}) => {
                     <CardWithText padding={10} title={'Problemas comportamiento'}>
                         <ScrollView>
                             <Text style={{fontSize: 22, fontWeight: 'bold', color: SECONDARY, marginLeft: 10, marginBottom: 10}}>Encuesta de problemas de comportamiento</Text>
-                            
                             <PickerSingleSelect setItems={setConsciousnessLevel} items={consciousnessLevel} setValue={setConsciousnessLevelSelected} value={consciousnessLevelSelected} label={"¿cual es tu nivel de consciencia?"} />                   
-
                             <Text style={{fontSize: 22, fontWeight: 'bold', color: SECONDARY, marginLeft: 10, marginBottom: 10}}>Escala de cincinnati</Text>
-
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <View style={{flex: 1}}>
                                     <PickerSingleSelect setItems={setSmile} items={smile} setValue={setSmileSelected} value={smileSelected} label={"Sonrisa"} />                   
@@ -347,16 +344,12 @@ export const BehaviorProblems = ({navigation}) => {
                                     <PickerSingleSelect setItems={setArmMobility} items={armMobility} setValue={setArmMobilitySelected} value={armMobilitySelected} label={"Movilidad brazos"} />                   
                                 </View>
                             </View>
-                            <View style={{flex: 1}}>
-                                <PickerSingleSelect setItems={setWords} items={words} setValue={setWordsSelected} value={wordsSelected} label={"Palabras"} />                   
-                            </View>
+                            <PickerSingleSelect setItems={setWords} items={words} setValue={setWordsSelected} value={wordsSelected} label={"Palabras"} />                   
                             {
                                 (errorCincinnati) &&
                                 <Text style={{fontSize: 14, color: 'red', marginLeft: 10}}>Debe seleccionar todas las alternativas de escala de cincinnati</Text>
                             }
-
                             <Text style={{fontSize: 22, fontWeight: 'bold', color: SECONDARY, marginLeft: 10, marginBottom: 10}}>Escala coma de glasgow</Text>
-
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <View style={{flex: 1}}>
                                     <PickerSingleSelect setItems={setEyeAperture} items={eyeAperture} setValue={setEyeApertureSelected} value={eyeApertureSelected} label={"Apertura ocular"} />                   
@@ -402,15 +395,9 @@ export const BehaviorProblems = ({navigation}) => {
                                     <RadioButton selected={limbSensation == 'No'} labelRadio={'No'}/>
                                 </TouchableOpacity>
                             </View>
-                            <View style={{flex: 1}}>
-                                <PickerSingleSelect setItems={setWhatLimbSensation} items={whatLimbSensation} setValue={setWhatLimbSensationSelected} value={whatLimbSensationSelected} label={"¿Que sensación extraña?"} />                   
-                            </View>
-                            <View style={{flex: 1}}>
-                                <PickerSingleSelect setItems={setWhatArmFeels} items={whatArmFeels} setValue={setWhatArmFeelsSelected} value={whatArmFeelsSelected} label={"¿En qué brazo siente esa sensación?"} />                   
-                            </View>
-                            <View style={{flex: 1}}>
-                                <PickerSingleSelect setItems={setWhatLegsFeels} items={whatLegsFeels} setValue={setWhatLegsFeelsSelected} value={whatLegsFeelsSelected} label={"¿En qué pierna siente esa sensación?"} />                   
-                            </View>
+                            <PickerSingleSelect setItems={setWhatLimbSensation} items={whatLimbSensation} setValue={setWhatLimbSensationSelected} value={whatLimbSensationSelected} label={"¿Que sensación extraña?"} />                   
+                            <PickerSingleSelect setItems={setWhatArmFeels} items={whatArmFeels} setValue={setWhatArmFeelsSelected} value={whatArmFeelsSelected} label={"¿En qué brazo siente esa sensación?"} />                   
+                            <PickerSingleSelect setItems={setWhatLegsFeels} items={whatLegsFeels} setValue={setWhatLegsFeelsSelected} value={whatLegsFeelsSelected} label={"¿En qué pierna siente esa sensación?"} />                   
                             <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>¿Algún lado de la cara se ve caído?</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setSomeSideOfTheFaceLooksDown('Si')}}>
@@ -420,9 +407,7 @@ export const BehaviorProblems = ({navigation}) => {
                                     <RadioButton selected={someSideOfTheFaceLooksDown == 'No'} labelRadio={'No'}/>
                                 </TouchableOpacity>
                             </View>
-                            <View style={{flex: 1}}>
-                                <PickerSingleSelect setItems={setWhichSideOfTheFace} items={whichSideOfTheFace} setValue={setWhichSideOfTheFaceSelected} value={whichSideOfTheFaceSelected} label={"¿Qué lado de la cara se ve distinto o extraño?"} />                   
-                            </View>
+                            <PickerSingleSelect setItems={setWhichSideOfTheFace} items={whichSideOfTheFace} setValue={setWhichSideOfTheFaceSelected} value={whichSideOfTheFaceSelected} label={"¿Qué lado de la cara se ve distinto o extraño?"} />                   
                             <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>¿Le cuesta pronunciar las palabras?</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setHardPronunceWords('Si')}}>
@@ -432,12 +417,8 @@ export const BehaviorProblems = ({navigation}) => {
                                     <RadioButton selected={hardPronunceWords == 'No'} labelRadio={'No'}/>
                                 </TouchableOpacity>
                             </View>
-                            <View style={{flex: 1}}>
-                                <PickerSingleSelect setItems={setWhichProblemHave} items={whichProblemHave} setValue={setWhichProblemHaveSelected} value={whichProblemHaveSelected} label={"¿Qué problema tiene?"} />                   
-                            </View>
-                            <View style={{flex: 1}}>
-                                <PickerSingleSelect setItems={setBehaviour} items={behaviour} setValue={setBehaviourSelected} value={behaviourSelected} label={"¿Cómo es su comportamiento o conducta?"} />                   
-                            </View>
+                            <PickerSingleSelect setItems={setWhichProblemHave} items={whichProblemHave} setValue={setWhichProblemHaveSelected} value={whichProblemHaveSelected} label={"¿Qué problema tiene?"} />                   
+                            <PickerSingleSelect setItems={setBehaviour} items={behaviour} setValue={setBehaviourSelected} value={behaviourSelected} label={"¿Cómo es su comportamiento o conducta?"} />                   
                             <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>¿Es capaz de reconocer a las personas?</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setRecognizePeople('Si')}}>

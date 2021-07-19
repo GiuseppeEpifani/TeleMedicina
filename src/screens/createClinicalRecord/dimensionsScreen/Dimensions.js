@@ -42,10 +42,10 @@ export const Dimensions = ({navigation}) => {
                         <View style={{paddingHorizontal: 30, alignItems: 'center'}}>
                             <ButtonWithShadow text={'Dolor'} onPress={() => {navigation.navigate('Pain')}}/>
                             <ButtonWithShadow text={'Problemas comportamiento'} onPress={() => {navigation.navigate('BehaviorProblems')}}/>
-                            <ButtonWithShadow text={'Problemas respiratorios'} onPress={() => {navigation.navigate('BehaviorProblems')}}/>
-                            <ButtonWithShadow text={'Problemas digestivos'} onPress={() => {}}/>
-                            <ButtonWithShadow text={'Problemas urinarios'} onPress={() => {}}/>
-                            <ButtonWithShadow text={'Caídas y golpes'} onPress={() => {}}/>
+                            <ButtonWithShadow text={'Problemas respiratorios'} onPress={() => {navigation.navigate('RespiratoryProblems')}}/>
+                            <ButtonWithShadow text={'Problemas digestivos'} onPress={() => {navigation.navigate('DigestiveProblems')}}/>
+                            <ButtonWithShadow text={'Problemas urinarios'} onPress={() => {navigation.navigate('UrinaryProblems')}}/>
+                            <ButtonWithShadow text={'Caídas y golpes'} onPress={() => {navigation.navigate('FallsAndBumps')}}/>
                         </View>
                     </ScrollView>
                 </View>

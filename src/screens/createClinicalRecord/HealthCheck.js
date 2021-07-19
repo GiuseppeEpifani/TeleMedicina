@@ -71,22 +71,27 @@ export const HealthCheck = ({navigation}) => {
             audiovisualSupportLength = audiovisualSupportArray.length;
         }
 
-        let health_check = 
-            {
-                audiovisual_support: (images.length > 0) ? audiovisualSupportArray : audiovisualSupport,
-                audiovisual_support_length: audiovisualSupportLength,
-                blood_glucose: bloodGlucose.value,
-                blood_glucose_type: bloodGlucoseType.value,
-                blood_pressure_diastolic: bloodPressureDiastolic.value,
-                blood_pressure_systolic: bloodPressureSystolic.value,
-                breathing_frequency: breathingFrequency.value,
-                current_health_status: currentHealthStatus.value,
-                heart_rate: heartRate.value,
-                height: height.value,
-                o2_saturation: o2Saturation.value, 
-                temperature: temperature.value,
-                weight: weight.value
-            };
+        let health_check = [];
+
+        if (audiovisualSupportLength > 0 || audiovisualSupportArray.length > 0 || bloodPressureSystolic.value || bloodPressureDiastolic.value || heartRate.value ||
+            breathingFrequency.value || bloodGlucose.value || o2Saturation.value || temperature.value || weight.value || height.value) {
+            health_check = 
+                {
+                    audiovisual_support: (images.length > 0) ? audiovisualSupportArray : audiovisualSupport,
+                    audiovisual_support_length: audiovisualSupportLength,
+                    blood_glucose: bloodGlucose.value,
+                    blood_glucose_type: bloodGlucoseType.value,
+                    blood_pressure_diastolic: bloodPressureDiastolic.value,
+                    blood_pressure_systolic: bloodPressureSystolic.value,
+                    breathing_frequency: breathingFrequency.value,
+                    current_health_status: currentHealthStatus.value,
+                    heart_rate: heartRate.value,
+                    height: height.value,
+                    o2_saturation: o2Saturation.value, 
+                    temperature: temperature.value,
+                    weight: weight.value
+                };
+        }
             
         await updatedRecordHealthCheck(patient._id, health_check)
         navigation.navigate('Dimensions');

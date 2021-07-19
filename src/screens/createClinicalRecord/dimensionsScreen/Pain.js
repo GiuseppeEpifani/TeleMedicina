@@ -125,8 +125,10 @@ export const Pain = ({navigation}) => {
 
             <View style={{flex: 1}}>
                 <View style={{flex: 1, paddingHorizontal: 30, marginTop: 10}}>
-                    <CardWithText padding={10} title={'Encuesta de dolor'}>
+                    <CardWithText padding={10} title={'Dolor'}>
                         <ScrollView>
+                            <Text style={{fontSize: 22, fontWeight: 'bold', color: SECONDARY, marginLeft: 10, marginBottom: 10}}>Encuesta de problemas de comportamiento</Text>
+
                             <Text style={{fontSize: 16, fontWeight: 'bold', color: SECONDARY, marginLeft: 10, marginBottom: 6}}>Tiene algun dolor</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setHavePain('Si')}}>

@@ -1,0 +1,146 @@
+import React, { useState, useContext } from 'react'
+import { View, Text } from 'react-native';
+import { Badge } from 'react-native-elements'
+import { PRIMARY, SECONDARY, SUCCESS, WHITE } from '../../../const/Colors';
+import Fab from '../../../UI/Fab';
+import CardWithText from '../../../UI/CardWithText';
+import PickerSingleSelect from '../../../UI/PickerSingleSelect';
+import { ScrollView } from 'react-native';
+import { RecordContext } from '../../../context/RecordFile/RecordContext';
+import PickerMultiSelect from '../../../UI/PickerMultiSelect';
+
+export const FallsAndBumps = ({navigation}) => {
+
+    const { saveDimension, currentRecord } = useContext(RecordContext);
+    const thereIsDimension = currentRecord.clinical_interview.length > 0 && currentRecord.clinical_interview.some(item => item._id === '000000000000000000000006');
+    const currentDimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000006');
+
+    const [fallsOrBumps, setFallsOrBumps] = useState([{ label: "Caída", value: "Caída" }, { label: "Golpe", value: "Golpe" }, { label: "Caída y golpe", value: "Caída y golpe" }]);
+    const [fallsOrBumpsSelected, setFallsOrBumpsSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '6052652ae56a0a32731ff8a3')?.answer : null);
+    const [asStep, setAsStep] = useState([{ label: "Cayó desde la cama", value: "Cayó desde la cama" }, { label: "Cayó mientras caminaba", value: "Cayó mientras caminaba" }, { label: "Cayó en la ducha o tina", value: "Cayó en la ducha o tina" }, { label: "Cayó desde menos de un metro de altura", value: "Cayó desde menos de un metro de altura" }, { label: "Cayó desde más de un metro de altura", value: "Cayó desde más de un metro de altura" }, { label: "Cayó desde más de 2 metros de altura", value: "Cayó desde más de 2 metros de altura" }]);
+    const [asStepSelected, setAsStepSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60526597bd99de221332c174')?.answer : null);
+    const [woundSite, setWoundSite] = useState([{ label: "La cabeza", value: "La cabeza" }, { label: "El tórax o espalda", value: "El tórax o espalda" }, { label: "El abdomen", value: "El abdomen" }, { label: "Las piernas", value: "Las piernas" }, { label: "Los brazos", value: "Los brazos" }]);
+    const [woundSiteSelected, setWoundSiteSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '605265f605651e70c874f5d8')?.answer : []);
+    const [bleedingOrInjury, setBleedingOrInjury] = useState([{ label: "La cabeza", value: "La cabeza" }, { label: "El tórax o espalda", value: "El tórax o espalda" }, { label: "El abdomen", value: "El abdomen" }, { label: "Las piernas", value: "Las piernas" }, { label: "Los brazos", value: "Los brazos" }]);
+    const [bleedingOrInjurySelected, setBleedingOrInjurySelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '6052664fe56a0a32731ff8a4')?.answer : []);
+    const [painSwellingDeformity, setPainSwellingDeformity] = useState([{ label: "La cabeza", value: "La cabeza" }, { label: "El tórax o espalda", value: "El tórax o espalda" }, { label: "El abdomen", value: "El abdomen" }, { label: "Las piernas", value: "Las piernas" }, { label: "Los brazos", value: "Los brazos" }]);
+    const [painSwellingDeformitySelected, setPainSwellingDeformitySelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '6052669dbd99de221332c175')?.answer : []);
+    const [conscienceLevel, setConscienceLevel] = useState([{ label: "igual que siempre", value: "igual que siempre" }, { label: "Más agitado o confuso que lo habitual", value: "Más agitado o confuso que lo habitual" }, { label: "Más tranquilo o quieto que lo habitual", value: "Más tranquilo o quieto que lo habitual" }]);
+    const [conscienceLevelSelected, setConscienceLevelSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '605266f8e56a0a32731ff8a5')?.answer : null);
+
+    const handleSaveDimension = () => {
+        if (fallsOrBumpsSelected || asStepSelected || woundSiteSelected || bleedingOrInjurySelected || painSwellingDeformitySelected || conscienceLevelSelected) {
+            
+            let dimension = 
+                {
+                    _id: "000000000000000000000006",
+                    active: 1,
+                    description: "Encuesta de caídas y  golpes",
+                    name: "Caídas y gopes",
+                    question: []
+                }
+            
+            if (fallsOrBumpsSelected) {
+                dimension.question.push(
+                    {
+                        text_question: "<p>¿Ha sufrido alguna caída o golpe?</p>",
+                        answer: fallsOrBumpsSelected,
+                        question_id: "6052652ae56a0a32731ff8a3",
+                        question_type: 1
+                    }
+                );
+            }
+
+            if (asStepSelected) {
+                dimension.question.push(
+                    {
+                        text_question: "<p>¿En caso de caída, cómo ocurrió?</p>",
+                        answer: asStepSelected,
+                        question_id: "60526597bd99de221332c174",
+                        question_type: 1
+                    }
+                );
+            }
+
+            if (woundSiteSelected) {
+                dimension.question.push(
+                    {
+                        text_question: "<p>¿El golpe fue en?</p>",
+                        answer: woundSiteSelected,
+                        question_id: "605265f605651e70c874f5d8",
+                        question_type: 1
+                    }
+                );
+            }
+
+            if (bleedingOrInjurySelected) {
+                dimension.question.push(
+                    {
+                        text_question: "<p>¿Tiene algún sangra-miento o herida en ?</p>",
+                        answer: bleedingOrInjurySelected,
+                        question_id: "6052664fe56a0a32731ff8a4",
+                        question_type: 1
+                    }
+                );
+            }
+
+            if (painSwellingDeformitySelected) {
+                dimension.question.push(
+                    {
+                        text_question: "<p>Presenta dolor, deformidad o inflamación en.. </p>",
+                        answer: painSwellingDeformitySelected,
+                        question_id: "6052669dbd99de221332c175",
+                        question_type: 1
+                    }
+                );
+            }
+
+            if (conscienceLevelSelected) {
+                dimension.question.push(
+                    {
+                        text_question: "<p>¿Cómo es el nivel de consciencia luego de la caída o golpe?</p>",
+                        answer: conscienceLevelSelected,
+                        question_id: "605266f8e56a0a32731ff8a5",
+                        question_type: 1
+                    }
+                );
+            }
+
+            saveDimension(dimension);
+        }
+        navigation.navigate('DimensionsInto');
+    }
+
+    return (
+        <View style={{flex: 1}}>
+            <View style={{height: 26, width: '100%', flexDirection: 'row'}}>
+                <View style={{flex: 1, justifyContent: 'center', width: '33.33%', backgroundColor: SUCCESS}}>
+                    <Badge value="1" badgeStyle={{backgroundColor: WHITE}} textStyle={{color: PRIMARY}} />
+                </View>
+                <View style={{flex: 1, justifyContent: 'center', width: '33.33%', backgroundColor: SUCCESS}}>
+                    <Badge value="2" badgeStyle={{backgroundColor: WHITE}} textStyle={{color: PRIMARY}} />
+                </View>
+                <View style={{flex: 1, justifyContent: 'center', width: '33.33%', backgroundColor: SUCCESS}}>
+                    <Badge value="3" badgeStyle={{backgroundColor: WHITE}} textStyle={{color: PRIMARY}} />
+                </View>
+            </View>
+            <View style={{flex: 1}}>
+                <View style={{flex: 1, paddingHorizontal: 30, marginTop: 10}}>
+                    <CardWithText padding={10} title={'Caídas y golpes'}>
+                        <ScrollView>
+                            <Text style={{fontSize: 22, fontWeight: 'bold', color: SECONDARY, marginLeft: 10, marginBottom: 10}}>Encuesta de caídas y golpes</Text>
+                            <PickerSingleSelect setItems={setFallsOrBumps} items={fallsOrBumps} setValue={setFallsOrBumpsSelected} value={fallsOrBumpsSelected} label={"¿Ha sufrido alguna caída o golpe?"} />
+                            <PickerSingleSelect setItems={setAsStep} items={asStep} setValue={setAsStepSelected} value={asStepSelected} label={"¿En caso de caída, cómo ocurrió?"} />
+                            <PickerMultiSelect value={woundSiteSelected} setValue={setWoundSiteSelected} items={woundSite} setItems={setWoundSite} max={5} label={'¿El golpe fue en?'}/>
+                            <PickerMultiSelect value={bleedingOrInjurySelected} setValue={setBleedingOrInjurySelected} items={bleedingOrInjury} setItems={setBleedingOrInjury} max={5} label={'¿Tiene algún sangra-miento o herida en?'}/>
+                            <PickerMultiSelect value={painSwellingDeformitySelected} setValue={setPainSwellingDeformitySelected} items={painSwellingDeformity} setItems={setPainSwellingDeformity} max={5} label={'Presenta dolor, deformidad o inflamación en..'}/>
+                            <PickerSingleSelect setItems={setConscienceLevel} items={conscienceLevel} setValue={setConscienceLevelSelected} value={conscienceLevelSelected} label={"¿Cómo es el nivel de consciencia luego de la caída o golpe?"} />
+                        </ScrollView>
+                    </CardWithText>
+                </View>
+                <View style={{flex: 0.05}}/>
+            </View>
+            <Fab icon={"text-box-check"} onPress={handleSaveDimension}/> 
+        </View>
+    )
+}
