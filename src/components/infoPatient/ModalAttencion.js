@@ -9,7 +9,7 @@ import Hr from '../../UI/Hr';
 import RadioButton from '../../UI/RadioButton';
 import TextArea from '../../UI/TextArea';
 
-const ModalAttencion = (props) => {
+const ModalAttencion = ({createRecord, patient, modalVisible, setModalVisible, navigation}) => {
 
     const [typeQuery, setTypeQuery] = useState(1);
     const [reasonForConsultation, setReasonForConsultation] = useState(null);
@@ -26,12 +26,12 @@ const ModalAttencion = (props) => {
                 id: typeQuery,
                 name: (typeQuery === 1) ? 'Urgencia' : (typeQuery === 2) ? 'Control' : 'Terreno'
             }
-            await props.createRecord(props.patient, reasonForConsultation, typeOfQueryObject);
-            props.setModalVisible(!props.modalVisible);
+            await createRecord(patient, reasonForConsultation, typeOfQueryObject);
+            setModalVisible(!modalVisible);
             setReasonForConsultation(null);
             setValidated(false);
             setBtnDisabled(false);
-            props.navigation.navigate('CreateClinicalRecord');
+            navigation.navigate('CreateClinicalRecord');
         }
     }
 
@@ -39,9 +39,9 @@ const ModalAttencion = (props) => {
         <Modal
             animationType="fade"
             transparent={true}
-            visible={props.modalVisible}
+            visible={modalVisible}
             onRequestClose={() => {
-                props.setModalVisible(!props.modalVisible);
+                setModalVisible(!modalVisible);
                 setReasonForConsultation(null);
                 setValidated(false);    
             }}
@@ -51,7 +51,7 @@ const ModalAttencion = (props) => {
                     <View style={{height: 50, backgroundColor: VERY_LIGHT, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Text style={{color: PRIMARY, fontWeight: 'bold', fontSize: 26, marginLeft: 8}}>Ingreso atención</Text>
                         <TouchableOpacity onPress={() => {
-                            props.setModalVisible(!props.modalVisible);
+                            setModalVisible(!modalVisible);
                             setReasonForConsultation(null);
                             setValidated(false);
                         }}>
@@ -88,7 +88,7 @@ const ModalAttencion = (props) => {
                                     titleStyle={{color: PRIMARY}}
                                     title="Cancelar"
                                     onPress={() => {
-                                        props.setModalVisible(!props.modalVisible);
+                                        setModalVisible(!modalVisible);
                                         setReasonForConsultation(null);
                                         setValidated(false);
                                     }}

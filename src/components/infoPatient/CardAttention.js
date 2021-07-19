@@ -11,7 +11,7 @@ import ModalFinallyAttention from './ModalFinallyAttention';
 import { formatDateHuman } from '../../helpers/formatDateHuman';
 
 const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, finallyAttention}) => {
-    console.log('render');
+
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisibleFinallyAttention, setModalVisibleFinallyAttention] = useState(false);
 
@@ -43,7 +43,7 @@ const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, fina
             {
                 (!record.deleted_at) &&
                 <View style={{height: 350, marginBottom: 10}}>
-                    <ModalRecordPatient setModalVisible={setModalVisible} modalVisible={modalVisible} navigation={navigation} />
+                    <ModalRecordPatient setModalVisible={setModalVisible} modalVisible={modalVisible} navigation={navigation} record={record} />
                     <ModalFinallyAttention setModalVisible={setModalVisibleFinallyAttention} modalVisible={modalVisibleFinallyAttention} record={record} finallyAttentionPatient={finallyAttention} />
                     <Card>
                         <View style={{...styles.cardAttention, borderLeftColor: (status == 1) ? WARNING : (status == 2) ? SUCCESS : SECONDARY}}>

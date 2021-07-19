@@ -30,7 +30,7 @@ export const FallsAndBumps = ({navigation}) => {
     const [loading, setloading] = useState(false);
 
     const handleSaveDimension = () => {
-        if (fallsOrBumpsSelected || asStepSelected || woundSiteSelected || bleedingOrInjurySelected || painSwellingDeformitySelected || conscienceLevelSelected) {
+        if (fallsOrBumpsSelected || asStepSelected || woundSiteSelected.length > 0 || bleedingOrInjurySelected.length > 0 || painSwellingDeformitySelected.length > 0 || conscienceLevelSelected) {
             
             let dimension = 
                 {
@@ -63,7 +63,7 @@ export const FallsAndBumps = ({navigation}) => {
                 );
             }
 
-            if (woundSiteSelected) {
+            if (woundSiteSelected.length > 0) {
                 dimension.question.push(
                     {
                         text_question: "<p>¿El golpe fue en?</p>",
@@ -74,7 +74,7 @@ export const FallsAndBumps = ({navigation}) => {
                 );
             }
 
-            if (bleedingOrInjurySelected) {
+            if (bleedingOrInjurySelected.length > 0) {
                 dimension.question.push(
                     {
                         text_question: "<p>¿Tiene algún sangra-miento o herida en ?</p>",
@@ -85,7 +85,7 @@ export const FallsAndBumps = ({navigation}) => {
                 );
             }
 
-            if (painSwellingDeformitySelected) {
+            if (painSwellingDeformitySelected.length > 0) {
                 dimension.question.push(
                     {
                         text_question: "<p>Presenta dolor, deformidad o inflamación en.. </p>",

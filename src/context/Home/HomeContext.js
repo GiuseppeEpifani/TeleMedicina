@@ -62,7 +62,6 @@ export const HomeProvider = ({ children }) => {
 	const loadMorePatientWithRbd = async (rbd) => {
 		try {
 			if (numberPage < totalPage && totalPage) {
-				console.log('loarmore')
 				const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/get.pager_patients?page=${numberPage}`, { rbd });
 				let arrayPatient = listPatient;
 				patients.forEach((patient) => {
@@ -79,7 +78,6 @@ export const HomeProvider = ({ children }) => {
 	const loadMorePatient = async () => {
 		try {
 			if (numberPage < totalPage && totalPage) {
-				console.log('loarmore')
 				const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/get.pager_patients?page=${numberPage}`);
 				let arrayPatient = listPatient;
 				patients.forEach((patient) => {
@@ -94,7 +92,6 @@ export const HomeProvider = ({ children }) => {
 	}
 
 	const handleSelectPatient = (selectPatient) => {
-		console.log('change')
 		if (patient.rbd != selectPatient.rbd) {
 			let arrayPatient = listPatient.map(patientFound => (selectPatient.rbd == patientFound.rbd) ? {...patientFound, ...patientFound.select = true} : {...patientFound, ...patientFound.select = false});
 			dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage, totalPage}});

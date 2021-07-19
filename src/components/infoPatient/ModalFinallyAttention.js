@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, SECONDARY, VERY_LIGHT, WHITE } from '../../const/Colors';
 import { SCREEN_HEIGHT } from '../../const/Dimensions';
 import { FIELD_COMPLETE } from '../../const/Fields';
+import { formatDateHuman } from '../../helpers/formatDateHuman';
 import Hr from '../../UI/Hr';
 import TextArea from '../../UI/TextArea';
 
@@ -60,7 +61,7 @@ const ModalFinallyAttention = ({setModalVisible, modalVisible, record, finallyAt
                                     color={SECONDARY}
                                 />
                                 <Text style={{fontSize: 30, marginVertical: 2, color: SECONDARY}}>CREADO EL:</Text>
-                                <Text style={{fontSize: 20, marginLeft: 6, color: PRIMARY, fontWeight: 'bold'}}>{record.created_at}</Text>
+                                <Text style={{fontSize: 20, marginLeft: 6, color: PRIMARY, fontWeight: 'bold'}}>{formatDateHuman(record.created_at, 'YYYY-MM-DD HH:mm:ss', 'HH:mm a, DD MMMM - YYYY')}</Text>
                             </View>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <Icon
