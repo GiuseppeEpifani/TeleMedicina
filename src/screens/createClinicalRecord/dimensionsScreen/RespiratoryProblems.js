@@ -31,6 +31,7 @@ export const RespiratoryProblems = ({navigation}) => {
     const [lipColor, setLipColor] = useState([{ label: "Normales", value: "Normales" }, { label: "Azulados", value: "Azulados" }]);
     const [lipColorSelected, setLipColorSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60525c21bd99de221332c169')?.answer : null);
     const [lungSecretions, setLungSecretions] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60525c4505651e70c874f5cb')?.answer : null);
+    const [loading, setloading] = useState(false);
 
     const handleSaveDimension = () => {
 
@@ -167,6 +168,7 @@ export const RespiratoryProblems = ({navigation}) => {
                 );
             }
 
+            setloading(true);
             saveDimension(dimension);
         }
         navigation.navigate('DimensionsInto');
@@ -254,7 +256,7 @@ export const RespiratoryProblems = ({navigation}) => {
                 </View>
                 <View style={{flex: 0.05}}/>
             </View>
-            <Fab icon={"text-box-check"} onPress={handleSaveDimension}/> 
+            <Fab icon={"text-box-check"} onPress={() => !loading && handleSaveDimension()} /> 
         </View>
     )
 }

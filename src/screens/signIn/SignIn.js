@@ -50,7 +50,7 @@ export const SignIn = ({ navigation }) => {
                 <View style={{ alignItems: 'center', marginBottom: 20, flex: 1}}>
                     <Image style={styles.logo} source={require('../../assets/logo_telemedicina.png')} />
                 </View>
-                <View style={{ flex: 1.3 }}>
+                <View style={{ flex: 1 }}>
                     <Card header={false} padding={15}>
                             <Text style={styles.title}>Bienvenido a TeleMedicina</Text>
 

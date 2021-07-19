@@ -12,10 +12,12 @@ import { RecordContext } from '../../../context/RecordFile/RecordContext';
 export const Dimensions = ({navigation}) => {
 
     const { patient } = useContext(HomeContext);
-    const { updatedRecordClinicalInterview } = useContext(RecordContext);
+    const { updatedRecordClinicalInterview, currentRecord } = useContext(RecordContext);
+    const [loading, setloading] = useState(false);
 
     const handleEndTest = async () => {
-        updatedRecordClinicalInterview(patient._id);
+        setloading(true);
+        await updatedRecordClinicalInterview(patient._id);
         navigation.navigate('InfoPatient');
     }
 
@@ -34,18 +36,30 @@ export const Dimensions = ({navigation}) => {
                     </View>
                 </View>
                 <View style={{flex: 0.3, paddingHorizontal: 30, paddingBottom: 10}}>
-                    <CardInfoPatient patient={patient} />
+                    <View style={{position: 'absolute', right: 30, marginTop: 5, height: 50, zIndex: 10 }}>
+                        <Button title="Volver" buttonStyle={{height: 40, width: 120, backgroundColor: PRIMARY, borderRadius: 20, zIndex: 10}} titleStyle={{fontSize: 18, fontWeight: 'bold', marginLeft: 10}} 
+                            icon={
+                                <Icon
+                                    name="clipboard-arrow-left"
+                                    size={22}
+                                    color="white"
+                                />
+                            }
+                            onPress={() => {navigation.navigate('InfoPatient')}}
+                        />
+                    </View>
+                    <CardInfoPatient patient={patient} navigation={navigation} />
                 </View>
                 <View style={{flex: 0.05}}/>
                 <View style={{flex: 1}}>
                     <ScrollView>
                         <View style={{paddingHorizontal: 30, alignItems: 'center'}}>
-                            <ButtonWithShadow text={'Dolor'} onPress={() => {navigation.navigate('Pain')}}/>
-                            <ButtonWithShadow text={'Problemas comportamiento'} onPress={() => {navigation.navigate('BehaviorProblems')}}/>
-                            <ButtonWithShadow text={'Problemas respiratorios'} onPress={() => {navigation.navigate('RespiratoryProblems')}}/>
-                            <ButtonWithShadow text={'Problemas digestivos'} onPress={() => {navigation.navigate('DigestiveProblems')}}/>
-                            <ButtonWithShadow text={'Problemas urinarios'} onPress={() => {navigation.navigate('UrinaryProblems')}}/>
-                            <ButtonWithShadow text={'Caídas y golpes'} onPress={() => {navigation.navigate('FallsAndBumps')}}/>
+                            <ButtonWithShadow text={'Dolor'} onPress={() => {navigation.navigate('Pain')}} thereAre={currentRecord.clinical_interview.some(item => item._id === '000000000000000000000001')} />
+                            <ButtonWithShadow text={'Problemas comportamiento'} onPress={() => {navigation.navigate('BehaviorProblems')}} thereAre={currentRecord.clinical_interview.some(item => item._id === '000000000000000000000002')} />
+                            <ButtonWithShadow text={'Problemas respiratorios'} onPress={() => {navigation.navigate('RespiratoryProblems')}} thereAre={currentRecord.clinical_interview.some(item => item._id === '000000000000000000000003')} />
+                            <ButtonWithShadow text={'Problemas digestivos'} onPress={() => {navigation.navigate('DigestiveProblems')}} thereAre={currentRecord.clinical_interview.some(item => item._id === '000000000000000000000004')} />
+                            <ButtonWithShadow text={'Problemas urinarios'} onPress={() => {navigation.navigate('UrinaryProblems')}} thereAre={currentRecord.clinical_interview.some(item => item._id === '000000000000000000000005')} />
+                            <ButtonWithShadow text={'Caídas y golpes'} onPress={() => {navigation.navigate('FallsAndBumps')}} thereAre={currentRecord.clinical_interview.some(item => item._id === '000000000000000000000006')} />
                         </View>
                     </ScrollView>
                 </View>
@@ -58,6 +72,8 @@ export const Dimensions = ({navigation}) => {
                                 color="white"
                             />
                         }
+                        disabled={loading}
+                        loading={loading}
                         onPress={handleEndTest}
                     />
                 </View>

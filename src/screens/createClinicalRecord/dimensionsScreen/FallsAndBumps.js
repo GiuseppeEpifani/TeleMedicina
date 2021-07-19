@@ -27,6 +27,7 @@ export const FallsAndBumps = ({navigation}) => {
     const [painSwellingDeformitySelected, setPainSwellingDeformitySelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '6052669dbd99de221332c175')?.answer : []);
     const [conscienceLevel, setConscienceLevel] = useState([{ label: "igual que siempre", value: "igual que siempre" }, { label: "Más agitado o confuso que lo habitual", value: "Más agitado o confuso que lo habitual" }, { label: "Más tranquilo o quieto que lo habitual", value: "Más tranquilo o quieto que lo habitual" }]);
     const [conscienceLevelSelected, setConscienceLevelSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '605266f8e56a0a32731ff8a5')?.answer : null);
+    const [loading, setloading] = useState(false);
 
     const handleSaveDimension = () => {
         if (fallsOrBumpsSelected || asStepSelected || woundSiteSelected || bleedingOrInjurySelected || painSwellingDeformitySelected || conscienceLevelSelected) {
@@ -106,6 +107,7 @@ export const FallsAndBumps = ({navigation}) => {
                 );
             }
 
+            setloading(true);
             saveDimension(dimension);
         }
         navigation.navigate('DimensionsInto');
@@ -140,7 +142,7 @@ export const FallsAndBumps = ({navigation}) => {
                 </View>
                 <View style={{flex: 0.05}}/>
             </View>
-            <Fab icon={"text-box-check"} onPress={handleSaveDimension}/> 
+            <Fab icon={"text-box-check"} onPress={() => !loading && handleSaveDimension()} /> 
         </View>
     )
 }

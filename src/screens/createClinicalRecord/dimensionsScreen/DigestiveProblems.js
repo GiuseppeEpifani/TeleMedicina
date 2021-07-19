@@ -31,7 +31,8 @@ export const DigestiveProblems = ({navigation}) => {
     const [colorDeposition, setColorDeposition] = useState([{ label: "Café - Marrón", value: "Café - Marrón" }, { label: "Café con tintes rojizos o rosados", value: "Café con tintes rojizos o rosados" }, { label: "Café con sangre roja y brillante", value: "Café con sangre roja y brillante" }, { label: "Negra de muy mal olor", value: "Negra de muy mal olor" }]);
     const [colorDepositionSelected, setColorDepositionSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60521d55bd99de221332c163')?.answer : null);
     const { consistencyDeposition, ingestedSubstance, additionalInformation } = formValues;
-    
+    const [loading, setloading] = useState(false);
+
     const handleSaveDimension = () => {
         if (withDigestiveProblems || sickness || vomiting || howOftenSelected || appearanceOfVomitSelected || diarrhea || diarrheaEpisodesSelected || colorDepositionSelected ||
             consistencyDeposition.value || ingestedSubstance.value || additionalInformation.value) {
@@ -166,6 +167,7 @@ export const DigestiveProblems = ({navigation}) => {
                 );
             }
 
+            setloading(true);
             saveDimension(dimension);      
         }
         navigation.navigate('DimensionsInto');
@@ -245,7 +247,7 @@ export const DigestiveProblems = ({navigation}) => {
                 </View>
                 <View style={{flex: 0.05}}/>
             </View>
-            <Fab icon={"text-box-check"} onPress={handleSaveDimension}/> 
+            <Fab icon={"text-box-check"} onPress={() => !loading && handleSaveDimension()} /> 
         </View>
     )   
 }

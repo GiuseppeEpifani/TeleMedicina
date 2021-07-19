@@ -26,6 +26,8 @@ const ModalFinallyAttention = ({setModalVisible, modalVisible, record, finallyAt
 
     const cleanModal = () => {
         setModalVisible(!modalVisible);
+        setObservation(record?.diagnosis?.observation);
+        setIndication(record?.diagnosis?.indication);
         setValidated(false);
     }
 
@@ -38,7 +40,6 @@ const ModalFinallyAttention = ({setModalVisible, modalVisible, record, finallyAt
         >
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                    <ScrollView>
                     <View style={{height: 50, backgroundColor: VERY_LIGHT, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                         <Text style={{color: PRIMARY, fontWeight: 'bold', fontSize: 26, marginLeft: 8}}>Ficha Clínica</Text>
                         <TouchableOpacity onPress={cleanModal}>
@@ -50,43 +51,44 @@ const ModalFinallyAttention = ({setModalVisible, modalVisible, record, finallyAt
                             />
                         </TouchableOpacity>
                     </View>
-                    <View style={{flex: 3, paddingHorizontal: 30}}>
-                        <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
-                            <Icon
-                                name="calendar"
-                                size={35}
-                                color={SECONDARY}
-                            />
-                            <Text style={{fontSize: 30, marginVertical: 2, color: SECONDARY}}>CREADO EL:</Text>
-                            <Text style={{fontSize: 20, marginLeft: 6, color: PRIMARY, fontWeight: 'bold'}}>{record.created_at}</Text>
-                        </View>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Icon
-                                name="account-edit"
-                                size={35}
-                                color={SECONDARY}
-                            />
-                            <Text style={{fontSize: 18, marginVertical: 4, color: SECONDARY, fontWeight: 'bold'}}>{record.digitador.name} {record.digitador.lastname} - {record.digitador.rbd}</Text>
-                        </View>
-                        <Text style={{fontSize: 18, marginVertical: 4, color: SECONDARY, fontWeight: 'bold'}}>Tipo de consulta: <Text style={{fontSize: 16, marginVertical: 4, color: SECONDARY}}>{record.type_of_query.name}</Text></Text>
-                        <Text style={{fontSize: 18, marginVertical: 4, color: SECONDARY, fontWeight: 'bold'}}>Motivo de consulta y/o síntomas actuales:</Text>
-                        <Text style={{fontSize: 16, marginVertical: 4, color: SECONDARY}}>{record.reason_for_consultation}</Text>
-                        <Text style={{fontSize: 18, marginVertical: 4, color: SECONDARY, fontWeight: 'bold'}}>Estado de salud actual:</Text>
-                        {
-                            (record.health_check.current_health_status) &&
-                                <Text style={{fontSize: 16, marginVertical: 4, color: SECONDARY, marginBottom: 10}}>{record.health_check.current_health_status}</Text>
-                        }
-                        {
-                            (record.health_check.current_health_status === undefined) &&
-                                <Text style={{fontSize: 16, marginVertical: 4, color: SECONDARY, marginBottom: 10}}>Sin mención</Text> 
-                        }
-                        <Hr/>
-                        <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginBottom: 6}}>Observación</Text>
-                        <TextArea maxLength={500} onChangeText={setObservation} value={observation} labelError={(!observation && validated) ? FIELD_COMPLETE : false} />
-                        <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginBottom: 6}}>Indicación</Text>
-                        <TextArea maxLength={500} onChangeText={setIndication} value={indication} labelError={(!indication && validated) ? FIELD_COMPLETE : false} />
+                    <View style={{flex: 3}}>
+                        <ScrollView style={{paddingHorizontal: 30}}>
+                            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
+                                <Icon
+                                    name="calendar"
+                                    size={35}
+                                    color={SECONDARY}
+                                />
+                                <Text style={{fontSize: 30, marginVertical: 2, color: SECONDARY}}>CREADO EL:</Text>
+                                <Text style={{fontSize: 20, marginLeft: 6, color: PRIMARY, fontWeight: 'bold'}}>{record.created_at}</Text>
+                            </View>
+                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <Icon
+                                    name="account-edit"
+                                    size={35}
+                                    color={SECONDARY}
+                                />
+                                <Text style={{fontSize: 18, marginVertical: 4, color: SECONDARY, fontWeight: 'bold'}}>{record.digitador.name} {record.digitador.lastname} - {record.digitador.rbd}</Text>
+                            </View>
+                            <Text style={{fontSize: 18, marginVertical: 4, color: SECONDARY, fontWeight: 'bold'}}>Tipo de consulta: <Text style={{fontSize: 16, marginVertical: 4, color: SECONDARY}}>{record.type_of_query.name}</Text></Text>
+                            <Text style={{fontSize: 18, marginVertical: 4, color: SECONDARY, fontWeight: 'bold'}}>Motivo de consulta y/o síntomas actuales:</Text>
+                            <Text style={{fontSize: 16, marginVertical: 4, color: SECONDARY}}>{record.reason_for_consultation}</Text>
+                            <Text style={{fontSize: 18, marginVertical: 4, color: SECONDARY, fontWeight: 'bold'}}>Estado de salud actual:</Text>
+                            {
+                                (record.health_check.current_health_status) &&
+                                    <Text style={{fontSize: 16, marginVertical: 4, color: SECONDARY, marginBottom: 10}}>{record.health_check.current_health_status}</Text>
+                            }
+                            {
+                                (record.health_check.current_health_status === undefined) &&
+                                    <Text style={{fontSize: 16, marginVertical: 4, color: SECONDARY, marginBottom: 10}}>Sin mención</Text> 
+                            }
+                            <Hr/>
+                            <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginBottom: 6}}>Observación</Text>
+                            <TextArea maxLength={500} onChangeText={setObservation} value={observation} labelError={(!observation && validated) ? FIELD_COMPLETE : false} />
+                            <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginBottom: 6}}>Indicación</Text>
+                            <TextArea maxLength={500} onChangeText={setIndication} value={indication} labelError={(!indication && validated) ? FIELD_COMPLETE : false} />
+                        </ScrollView>
                     </View>
-                    </ScrollView>
                     <View style={{height: 60, marginTop: 10}}>
                         <Hr/>
                         <View style={{flex: 1, alignSelf: 'flex-end', justifyContent: 'center'}}>      

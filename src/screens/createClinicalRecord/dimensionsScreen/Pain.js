@@ -25,6 +25,7 @@ export const Pain = ({navigation}) => {
     const [howLongHurt, setHowLongHurt] = useState([{ label: "Entre 0 y 2 horas", value: "Entre 0 y 2 horas" }, { label: "Entre 3 y 6 horas", value: "Entre 3 y 6 horas" }, { label: "Entre 7 y 12 horas", value: "Entre 7 y 12 horas" }, { label: "Entre 13 y 24 horas", value: "Entre 13 y 24 horas" }, { label: "Entre 1 y 3 dias", value: "Entre 1 y 3 dias" }, { label: "Entre 4 y 7 dias", value: "Entre 4 y 7 dias" }, { label: "Entre 8 y un mes", value: "Entre 8 y un mes" }, { label: "Más de un mes", value: "Más de un mes" }])
     const [howLongHurtSelected, setHowLongHurtSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '605145ce12e6f719115d52e3')?.answer : null)
     const [formValues, handleInputChange] = useForm({ howMuchHurt: { value: (thereIsDimension) ? currentDimension.question.find(item => item.question_id === '6051463463dbbc42e6432143')?.answer : null, isComplete: false }, observationComment: { value: (thereIsDimension) ? currentDimension.question.find(item => item.question_id === '605146508330ff55a27d6aa3')?.answer : null, isComplete: false }});
+    const [loading, setloading] = useState(false);
     const { howMuchHurt, observationComment } = formValues;
 
     const handleSaveDimension = async () => {
@@ -104,6 +105,7 @@ export const Pain = ({navigation}) => {
                 );
             }
 
+            setloading(true);
             saveDimension(dimensionPain);
         }
         navigation.navigate('DimensionsInto');
@@ -158,7 +160,7 @@ export const Pain = ({navigation}) => {
                 </View>
                 <View style={{flex: 0.05}}/>
             </View>
-            <Fab icon={"text-box-check"} onPress={handleSaveDimension}/> 
+            <Fab icon={"text-box-check"} onPress={() => !loading && handleSaveDimension()} /> 
         </View>
     )
 }

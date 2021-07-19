@@ -28,7 +28,8 @@ export const UrinaryProblems = ({navigation}) => {
     const [smellOfUrineSelected, setSmellOfUrineSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60525e7f05651e70c874f5cf')?.answer : null);
     const [sensations, setSensations] = useState([{ label: "Alivio por vaciar la vejiga", value: "Alivio por vaciar la vejiga" }]);
     const [sensationSelected, setSensationSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60525ebde56a0a32731ff89d')?.answer : null);
-    const [pusInUrine, setPusInUrine] = useState();
+    const [pusInUrine, setPusInUrine] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60525ee0bd99de221332c16c')?.answer : null);
+    const [loading, setloading] = useState(false);
 
     const handleSaveDimension = () => {
 
@@ -131,6 +132,7 @@ export const UrinaryProblems = ({navigation}) => {
                 );
             }
 
+            setloading(true);
             saveDimension(dimension);
         }
         navigation.navigate('DimensionsInto');
@@ -183,7 +185,7 @@ export const UrinaryProblems = ({navigation}) => {
                 </View>
                 <View style={{flex: 0.05}}/>
             </View>
-            <Fab icon={"text-box-check"} onPress={handleSaveDimension}/> 
+            <Fab icon={"text-box-check"} onPress={() => !loading && handleSaveDimension()} /> 
         </View>
     )   
 }

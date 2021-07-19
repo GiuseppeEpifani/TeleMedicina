@@ -118,6 +118,18 @@ export const HealthCheck = ({navigation}) => {
                 </View>
 
                 <View style={{flex: 0.3, paddingHorizontal: 30, paddingBottom: 10}}>
+                    <View style={{position: 'absolute', right: 30, marginTop: 5, height: 50, zIndex: 10 }}>
+                        <Button title="Volver" buttonStyle={{height: 40, width: 120, backgroundColor: PRIMARY, borderRadius: 20, zIndex: 10}} titleStyle={{fontSize: 18, fontWeight: 'bold', marginLeft: 10}} 
+                            icon={
+                                <Icon
+                                    name="clipboard-arrow-left"
+                                    size={22}
+                                    color="white"
+                                />
+                            }
+                            onPress={() => {navigation.navigate('InfoPatient')}}
+                        />
+                    </View>
                     <CardInfoPatient patient={patient} />
                 </View>
                 <View  style={{flex: 0.05}}/>

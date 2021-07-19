@@ -1,14 +1,23 @@
-import React from 'react'
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
-import { INFO, LIGHT, SECONDARY, SUCCESS, VERY_LIGHT, WHITE } from '../const/Colors'
+import React from 'react';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { PRIMARY, SUCCESS, VERY_LIGHT, WHITE } from '../const/Colors';
 
-const ButtonWithShadow = ({text, onPress}) => {
+const ButtonWithShadow = ({text, onPress, thereAre}) => {
     return (
         <TouchableOpacity style={styles.container} onPress={onPress}>
-            <View style={styles.shadow}/>
+            <View style={styles.shadow} />
             <View style={styles.subContainer}>
                 <Text style={{fontWeight: 'bold', fontSize: 36, color: WHITE}}>{text}</Text>
             </View>
+            {
+                (thereAre) &&
+                <View style={styles.containerSelect}>
+                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                        <MaterialCommunityIcons size={20} color={WHITE} name={'clipboard-check-multiple'} />
+                    </View>
+                </View>
+            }
         </TouchableOpacity>
     )
 }
@@ -31,6 +40,17 @@ const styles = StyleSheet.create({
         left: -1, 
         top: 14, 
         width: '95%', 
+        borderRadius: 20
+    },
+    containerSelect: {
+        height: 40, 
+        position: 'absolute', 
+        backgroundColor: PRIMARY, 
+        right: -1, 
+        top: 5, 
+        width: 40,
+        borderWidth: 3,
+        borderColor: WHITE, 
         borderRadius: 20
     },
     subContainer: {

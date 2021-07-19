@@ -54,6 +54,7 @@ export const BehaviorProblems = ({navigation}) => {
     const [understandOrders, setUnderstandOrders] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '6052644e05651e70c874f5d5')?.answer : null);
     const [errorCincinnati, setErrorCincinnati] = useState(false);
     const [errorGlasgow, setErrorGlasgow] = useState(false);
+    const [loading, setloading] = useState(false);
 
     const handleSaveDimension = async () => {
         if (consciousnessLevelSelected || smileSelected || armMobilitySelected || wordsSelected || eyeApertureSelected || verbalResponseSelected || motorResponseSelected
@@ -309,6 +310,7 @@ export const BehaviorProblems = ({navigation}) => {
                 );
             }
 
+            setloading(true);
             saveDimension(dimension);
         }
         navigation.navigate('DimensionsInto');
@@ -451,7 +453,7 @@ export const BehaviorProblems = ({navigation}) => {
                 </View>
                 <View style={{flex: 0.05}}/>
             </View>
-            <Fab icon={"text-box-check"} onPress={handleSaveDimension}/> 
+            <Fab icon={"text-box-check"} onPress={() => !loading && handleSaveDimension()} /> 
         </View>
     )
 }

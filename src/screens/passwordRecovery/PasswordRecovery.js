@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button } from 'react-native-elements';
 import { View, Text, Image } from 'react-native';
 import Card from '../../UI/Card'
@@ -13,15 +13,17 @@ import { styles } from './style';
 export const PasswordRecovery = ({ navigation }) => {
 
     const [ formValues, handleInputChange ] = useForm({  email: { value: '', isComplete: false }});
+    const [validField, setValidField] = useState(false)
     const { email } = formValues;
 
     const handleSubmit = () => {
+        setValidField(true);
     }
 
     return (
         <KeyboardScrollView scrollEnabled={false} extraHeight={150}>
             <View style={{flex: 0.5}}>
-                <ArrowBack navigation={navigation}/>
+                <ArrowBack onPress={() => navigation.goBack()} />
             </View>
             <View style={{flex: 5}}>
                 <View style={{alignItems: 'center', marginBottom: 40, flex: 1}}>
@@ -34,7 +36,7 @@ export const PasswordRecovery = ({ navigation }) => {
 
                         <InputText 
                             label="Correo electrónico"
-                            labelError={(!email.isComplete ? FIELD_COMPLETE : !email.isValid ? EMAIL_INVALID : '')}
+                            labelError={ validField ? email.value ? !isValidEmail ? EMAIL_INVALID : false : FIELD_COMPLETE : false}
                             onChangeText={text => handleInputChange(text, 'email')}
                             value={email.value} 
                             placeholder={'Ingrese su correo electrónico'} 
