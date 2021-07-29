@@ -12,11 +12,26 @@ import { RecordContext } from '../../../context/RecordFile/RecordContext';
 export const Dimensions = ({navigation}) => {
 
     const { patient } = useContext(HomeContext);
-    const { updatedRecordClinicalInterview, currentRecord } = useContext(RecordContext);
+    const { updatedRecordClinicalInterview, currentRecord, saveDimension, uploadSingleImage, imageFallsAndBumps } = useContext(RecordContext);
     const [loading, setloading] = useState(false);
 
     const handleEndTest = async () => {
         setloading(true);
+        if (imageFallsAndBumps.base64) {
+            let dimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000006');
+            let img = await uploadSingleImage(imageFallsAndBumps.base64, patient._id);
+
+            dimension.question.push(
+                {
+                    text_question: "<p>Adjunta imagenes</p>",
+                    answer: img,
+                    question_id: "60526705bd99de221332c176",
+                    question_type: 4,
+                    file: null
+                }
+            );
+            saveDimension(dimension);
+        }
         await updatedRecordClinicalInterview(patient._id);
         navigation.navigate('InfoPatient');
     }

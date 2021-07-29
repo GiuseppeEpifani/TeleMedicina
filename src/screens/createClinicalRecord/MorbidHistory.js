@@ -20,7 +20,7 @@ import SwitchContainer from '../../UI/SwitchContainer';
 export const MorbidHistory = ({navigation}) => {
 
     const { patient } = useContext(HomeContext);
-    const { updatedRecordMorbidAntecedent, currentRecord } = useContext(RecordContext);
+    const { updatedRecordMorbidAntecedent, currentRecord, cleanImageFallsAndBumps } = useContext(RecordContext);
 
     const [loading, setLoading] = useState(false);
     const [loadingInit, setLoadingInit] = useState(true)
@@ -39,6 +39,8 @@ export const MorbidHistory = ({navigation}) => {
     const [allergies, setAllergies] = useState(ALLERGIES);
 
     useEffect(() => {
+
+        cleanImageFallsAndBumps();
 
         if ((!Array.isArray(currentRecord.morbid_antecedent) && currentRecord.morbid_antecedent.pathology.length > 0)) {
             const pathologiesFormated = currentRecord.morbid_antecedent.pathology.map(item => JSON.stringify(item));+

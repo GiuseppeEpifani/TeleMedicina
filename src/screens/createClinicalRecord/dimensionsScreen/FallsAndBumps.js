@@ -8,10 +8,13 @@ import PickerSingleSelect from '../../../UI/PickerSingleSelect';
 import { ScrollView } from 'react-native';
 import { RecordContext } from '../../../context/RecordFile/RecordContext';
 import PickerMultiSelect from '../../../UI/PickerMultiSelect';
+import ContainerCameraSingle from '../../../UI/ContainerCameraSingle';
+import { HomeContext } from '../../../context/Home/HomeContext';
 
 export const FallsAndBumps = ({navigation}) => {
 
-    const { saveDimension, currentRecord } = useContext(RecordContext);
+    const { saveDimension, currentRecord, saveNewImageFallsAndBumps, imageFallsAndBumps, cleanImageFallsAndBumps } = useContext(RecordContext);
+    const { patient } = useContext(HomeContext);
     const thereIsDimension = currentRecord.clinical_interview.length > 0 && currentRecord.clinical_interview.some(item => item._id === '000000000000000000000006');
     const currentDimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000006');
 
@@ -20,17 +23,19 @@ export const FallsAndBumps = ({navigation}) => {
     const [asStep, setAsStep] = useState([{ label: "Cayó desde la cama", value: "Cayó desde la cama" }, { label: "Cayó mientras caminaba", value: "Cayó mientras caminaba" }, { label: "Cayó en la ducha o tina", value: "Cayó en la ducha o tina" }, { label: "Cayó desde menos de un metro de altura", value: "Cayó desde menos de un metro de altura" }, { label: "Cayó desde más de un metro de altura", value: "Cayó desde más de un metro de altura" }, { label: "Cayó desde más de 2 metros de altura", value: "Cayó desde más de 2 metros de altura" }]);
     const [asStepSelected, setAsStepSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60526597bd99de221332c174')?.answer : null);
     const [woundSite, setWoundSite] = useState([{ label: "La cabeza", value: "La cabeza" }, { label: "El tórax o espalda", value: "El tórax o espalda" }, { label: "El abdomen", value: "El abdomen" }, { label: "Las piernas", value: "Las piernas" }, { label: "Los brazos", value: "Los brazos" }]);
-    const [woundSiteSelected, setWoundSiteSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '605265f605651e70c874f5d8')?.answer : []);
+    const [woundSiteSelected, setWoundSiteSelected] = useState((thereIsDimension && currentDimension.question.find(item => item.question_id === '605265f605651e70c874f5d8')) ? currentDimension.question.find(item => item.question_id === '605265f605651e70c874f5d8')?.answer : []);
     const [bleedingOrInjury, setBleedingOrInjury] = useState([{ label: "La cabeza", value: "La cabeza" }, { label: "El tórax o espalda", value: "El tórax o espalda" }, { label: "El abdomen", value: "El abdomen" }, { label: "Las piernas", value: "Las piernas" }, { label: "Los brazos", value: "Los brazos" }]);
-    const [bleedingOrInjurySelected, setBleedingOrInjurySelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '6052664fe56a0a32731ff8a4')?.answer : []);
+    const [bleedingOrInjurySelected, setBleedingOrInjurySelected] = useState((thereIsDimension && currentDimension.question.find(item => item.question_id === '6052664fe56a0a32731ff8a4')) ? currentDimension.question.find(item => item.question_id === '6052664fe56a0a32731ff8a4')?.answer : []);
     const [painSwellingDeformity, setPainSwellingDeformity] = useState([{ label: "La cabeza", value: "La cabeza" }, { label: "El tórax o espalda", value: "El tórax o espalda" }, { label: "El abdomen", value: "El abdomen" }, { label: "Las piernas", value: "Las piernas" }, { label: "Los brazos", value: "Los brazos" }]);
-    const [painSwellingDeformitySelected, setPainSwellingDeformitySelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '6052669dbd99de221332c175')?.answer : []);
+    const [painSwellingDeformitySelected, setPainSwellingDeformitySelected] = useState((thereIsDimension && currentDimension.question.find(item => item.question_id === '6052669dbd99de221332c175')) ? currentDimension.question.find(item => item.question_id === '6052669dbd99de221332c175')?.answer : []);
     const [conscienceLevel, setConscienceLevel] = useState([{ label: "igual que siempre", value: "igual que siempre" }, { label: "Más agitado o confuso que lo habitual", value: "Más agitado o confuso que lo habitual" }, { label: "Más tranquilo o quieto que lo habitual", value: "Más tranquilo o quieto que lo habitual" }]);
     const [conscienceLevelSelected, setConscienceLevelSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '605266f8e56a0a32731ff8a5')?.answer : null);
+    const [imageSupport, setImageSupport] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60526705bd99de221332c176')?.answer : null);
     const [loading, setloading] = useState(false);
+    const [image, setImage] = useState(imageFallsAndBumps);
 
-    const handleSaveDimension = () => {
-        if (fallsOrBumpsSelected || asStepSelected || woundSiteSelected.length > 0 || bleedingOrInjurySelected.length > 0 || painSwellingDeformitySelected.length > 0 || conscienceLevelSelected) {
+    const handleSaveDimension = async () => {
+        if (fallsOrBumpsSelected || asStepSelected || woundSiteSelected.length > 0 || bleedingOrInjurySelected.length > 0 || painSwellingDeformitySelected.length > 0 || conscienceLevelSelected || imageSupport) {
             
             let dimension = 
                 {
@@ -107,6 +112,23 @@ export const FallsAndBumps = ({navigation}) => {
                 );
             }
 
+            if (image.base64) {
+                saveNewImageFallsAndBumps(image);
+            } else {
+                if (imageSupport) {
+                    dimension.question.push(
+                        {
+                            text_question: "<p>Adjunta imagenes</p>",
+                            answer: imageSupport,
+                            question_id: "60526705bd99de221332c176",
+                            question_type: 4,
+                            file: null
+                        }
+                    );
+                }
+                cleanImageFallsAndBumps();
+            }
+
             setloading(true);
             saveDimension(dimension);
         }
@@ -137,6 +159,7 @@ export const FallsAndBumps = ({navigation}) => {
                             <PickerMultiSelect value={bleedingOrInjurySelected} setValue={setBleedingOrInjurySelected} items={bleedingOrInjury} setItems={setBleedingOrInjury} max={5} label={'¿Tiene algún sangra-miento o herida en?'}/>
                             <PickerMultiSelect value={painSwellingDeformitySelected} setValue={setPainSwellingDeformitySelected} items={painSwellingDeformity} setItems={setPainSwellingDeformity} max={5} label={'Presenta dolor, deformidad o inflamación en..'}/>
                             <PickerSingleSelect setItems={setConscienceLevel} items={conscienceLevel} setValue={setConscienceLevelSelected} value={conscienceLevelSelected} label={"¿Cómo es el nivel de consciencia luego de la caída o golpe?"} />
+                            <ContainerCameraSingle setImage={setImage} imageSupport={imageSupport} setImageSupport={setImageSupport} patientId={patient._id} tempUri={imageFallsAndBumps.tempUri} label={'Apoyo Audiovisual'} />
                         </ScrollView>
                     </CardWithText>
                 </View>

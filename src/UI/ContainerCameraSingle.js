@@ -2,14 +2,14 @@ import React, { useState } from 'react'
 import { View, StyleSheet, TouchableOpacity } from 'react-native'
 import { SECONDARY, WHITE } from '../const/Colors';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {launchCamera} from 'react-native-image-picker';
 import { Image } from 'react-native-elements';
 import { Text } from 'react-native';
 import { URL } from '../const/Url';
 
-const ContainerCamera = ({setImages, label, images, audiovisualSupport, handleDeleteVisualSupport, patientId}) => {
+const ContainerCamera = ({setImage, label, imageSupport, setImageSupport, patientId, tempUri}) => {
 
-    const [TempUri, setTempUri] = useState([]);
+    const [TempUri, setTempUri] = useState(tempUri);
 
     const takePhoto = () => {
         launchCamera(
@@ -25,15 +25,16 @@ const ContainerCamera = ({setImages, label, images, audiovisualSupport, handleDe
                 const res = assets[0];
                 if (!res.uri) return;
 
-                setImages(Images => [{ base64: `data:image/jpeg;base64,${res.base64}`, urlTemp: res.uri }, ...Images]);
-                setTempUri(TempUri => [res.uri, ...TempUri]);
+                setImage({ base64: `data:image/jpeg;base64,${res.base64}`, tempUri: res.uri });
+                setTempUri(res.uri);
             }
         );
     }
 
-    const handleDeleteImage = (urlTemp) => {
-        setTempUri(TempUri.filter( uri => uri !== urlTemp));
-        setImages(images.filter(img => img.urlTemp !== urlTemp));
+    const handleDeleteImage = () => {
+        setTempUri(null);
+        setImage({base64: null, tempUri: null});
+        setImageSupport(null);
     }
 
     return (
@@ -41,35 +42,31 @@ const ContainerCamera = ({setImages, label, images, audiovisualSupport, handleDe
             { (label) && <Text style={styles.label}>{label}</Text> }
             <View style={{flexDirection: 'row', alignSelf: 'stretch'}}>
                 {
-                    (TempUri.length > 0) &&
-                    TempUri.map(urlTemp => (
-                        <View style={styles.containerImage} key={urlTemp}>
-                            <TouchableOpacity onPress={() => handleDeleteImage(urlTemp)} style={{position: 'absolute', right: 0, top: 0, zIndex: 1, marginRight: 5, marginTop: 5}}>
-                                <MaterialCommunityIcons name="close-circle" size={22} color={'red'}/>
-                            </TouchableOpacity>
-                            <Image
-                                source={{ uri: urlTemp }}
-                                style={{ width: 100, height: 100 }}
-                            />
-                        </View>
-                    ))
+                    (TempUri) &&
+                    <View style={styles.containerImage} key={TempUri}>
+                        <TouchableOpacity onPress={handleDeleteImage} style={{position: 'absolute', right: 0, top: 0, zIndex: 1, marginRight: 5, marginTop: 5}}>
+                            <MaterialCommunityIcons name="close-circle" size={22} color={'red'}/>
+                        </TouchableOpacity>
+                        <Image
+                            source={{ uri: TempUri }}
+                            style={{ width: 100, height: 100 }}
+                        />
+                    </View>
+                }
+                {         
+                    (!TempUri && imageSupport) &&
+                    <View style={styles.containerImage} key={imageSupport.file}>
+                        <TouchableOpacity onPress={() => setImageSupport(null)} style={{position: 'absolute', right: 0, top: 0, zIndex: 1, marginRight: 5, marginTop: 5}}>
+                            <MaterialCommunityIcons name="close-circle" size={22} color={'red'}/>
+                        </TouchableOpacity>
+                        <Image
+                            source={{ uri: `${URL}/storage/clinical_record/${patientId}/dimension/${imageSupport.file}` }}
+                            style={{ width: 100, height: 100 }}
+                        />
+                    </View>
                 }
                 {
-                    (audiovisualSupport.length > 0) &&
-                    audiovisualSupport.map(item => (
-                        <View style={styles.containerImage} key={item.file}>
-                            <TouchableOpacity onPress={() => handleDeleteVisualSupport(item.file)} style={{position: 'absolute', right: 0, top: 0, zIndex: 1, marginRight: 5, marginTop: 5}}>
-                                <MaterialCommunityIcons name="close-circle" size={22} color={'red'}/>
-                            </TouchableOpacity>
-                            <Image
-                                source={{ uri: `${URL}/storage/clinical_record/${patientId}/health_checks/${item.file}` }}
-                                style={{ width: 100, height: 100 }}
-                            />
-                        </View>
-                    ))
-                }
-                {
-                    ((TempUri.length + audiovisualSupport.length) < 4) &&
+                    (!TempUri && !imageSupport) &&
                     <TouchableOpacity onPress={takePhoto}>
                         <View style={styles.container}>
                             <View style={styles.subContainer}>

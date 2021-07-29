@@ -8,7 +8,7 @@ const ButtonWithShadow = ({text, onPress, thereAre}) => {
         <TouchableOpacity style={styles.container} onPress={onPress}>
             <View style={styles.shadow} />
             <View style={styles.subContainer}>
-                <Text style={{fontWeight: 'bold', fontSize: 36, color: WHITE}}>{text}</Text>
+                <Text style={{fontWeight: 'bold', fontSize: 30, color: WHITE}}>{text}</Text>
             </View>
             {
                 (thereAre) &&
@@ -26,15 +26,15 @@ export default ButtonWithShadow;
 
 const styles = StyleSheet.create({
 	container: {
-        height: 90, 
+        height: 60, 
         alignItems: 'center', 
-        marginBottom: 10, 
+        marginBottom: 20, 
         marginTop: 10, 
         width: '100%', 
         elevation: 1
     },
     shadow: {
-        height: 80, 
+        height: 55, 
         position: 'absolute', 
         backgroundColor: VERY_LIGHT, 
         left: -1, 
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
         borderRadius: 20
     },
     subContainer: {
-        height: 80, 
+        height: 60, 
         width: '95%', 
         backgroundColor: SUCCESS, 
         borderRadius: 20, 

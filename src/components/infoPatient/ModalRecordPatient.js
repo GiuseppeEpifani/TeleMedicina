@@ -1,14 +1,18 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Modal, Text, View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
-import { Button } from 'react-native-elements';
+import { Button, Image } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, SECONDARY, SUCCESS, VERY_LIGHT } from '../../const/Colors';
 import { SCREEN_HEIGHT } from '../../const/Dimensions';
+import { URL } from '../../const/Url';
+import { HomeContext } from '../../context/Home/HomeContext';
 import { formatDate } from '../../helpers/formatDate';
 import { formatDateHuman } from '../../helpers/formatDateHuman';
 import Hr from '../../UI/Hr';
 
 const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
+
+    const { patient } = useContext(HomeContext);
 
     const thereIsPain = record.clinical_interview.some(item => item._id === '000000000000000000000001');
     const painDimension = record.clinical_interview.find(item => item._id === '000000000000000000000001');
@@ -30,8 +34,6 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
             visible={modalVisible}
             onRequestClose={() => {
                 setModalVisible(!modalVisible);
-                console.log(record)
-
             }}
         >
             <View style={styles.centeredView}>
@@ -176,6 +178,22 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
                             {
                                 (record.health_check.height) && 
                                 <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Estatura :<Text style={{fontSize: 16, marginLeft: 6, color: SECONDARY, fontWeight: 'bold'}}> {record.health_check.height} mts</Text></Text>
+                            }
+                            {
+                                (record.health_check.audiovisual_support && record.health_check.audiovisual_support.length > 0) &&
+                                <>
+                                    <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Apoyo visual</Text>
+                                    {
+                                        record.health_check.audiovisual_support.map(item => (
+                                            <View style={{ margin: 10, width: 90, height: 90, borderRadius: 22, overflow: 'hidden'}}>
+                                                <Image
+                                                    source={{ uri: `${URL}/storage/clinical_record/${patient._id}/health_checks/${item.file}` }}
+                                                    style={{ width: 100, height: 100 }}
+                                                />
+                                            </View>
+                                        ))
+                                    }
+                                </>
                             }
                             <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginVertical: 2}}>Dolor</Text>
                             {
@@ -466,6 +484,20 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
                             {
                                 (thereIsFallsAndBumps && fallsAndBumpsDimension.question.find(item => item.question_id === '605266f8e56a0a32731ff8a5')) &&
                                 <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Más agitado o confuso que lo habitual<Text style={{fontSize: 16, marginLeft: 6, color: SECONDARY, fontWeight: 'bold'}}> {fallsAndBumpsDimension.question.find(item => item.question_id === '605266f8e56a0a32731ff8a5').answer}</Text></Text>                      
+                            }
+                            {
+                                (thereIsFallsAndBumps && fallsAndBumpsDimension.question.find(item => item.question_id === '60526705bd99de221332c176')) &&
+                                <>
+                                    <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Apoyo visual</Text>
+                                    {
+                                        <View style={{ margin: 10, width: 90, height: 90, borderRadius: 22, overflow: 'hidden'}}>
+                                            <Image
+                                                source={{ uri: `${URL}/storage/clinical_record/${patient._id}/dimension/${fallsAndBumpsDimension.question.find(item => item.question_id === '60526705bd99de221332c176').answer.file}` }}
+                                                style={{ width: 100, height: 100 }}
+                                            />
+                                        </View>  
+                                    }
+                                </>
                             }
                             </>
                         </ScrollView>

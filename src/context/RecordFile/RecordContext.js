@@ -5,10 +5,13 @@ import { recordReducer } from './RecordReducer';
 const initialState = {
     clinicalRecords: [],
     currentRecord: {},
+    imageFallsAndBumps: {
+        base64: null,
+        tempUri: null
+    },
 	loading: false,
 	message: ''
 }
-
 
 export const RecordContext = createContext(initialState);
 
@@ -242,6 +245,25 @@ export const RecordProvider = ({ children }) => {
         return audiovisualSupport;
     }
 
+    const uploadSingleImage = async (img, patientId) => {
+        let image = {
+            file: img,
+            route_name: `clinical_record/${patientId}/dimension`,
+            file_name: `${patientId}_${new Date()}.jpeg`
+        }
+
+        try {
+            const { data } = await teleMedicinaApi.post('/set.update_file_base_64', image);
+            return {...data, ...{extension: 'jpeg'}};
+        } catch (error) {
+            console.log(error)
+        } 
+    }
+
+    const saveNewImageFallsAndBumps = (img) => {
+        dispatch({type: 'saveNewImageFallsAndBumps', payLoad: img});
+    }
+
     const saveDimension = (dimension) => {
         dispatch({type: 'setDimension', payLoad: dimension});
     }
@@ -252,6 +274,10 @@ export const RecordProvider = ({ children }) => {
 
     const cleanData = () => {
         dispatch({type: 'cleanData'});
+    }
+
+    const cleanImageFallsAndBumps = () => {
+        dispatch({type: 'cleanImageFallsAndBumps'});
     }
 	
      return (
@@ -267,7 +293,10 @@ export const RecordProvider = ({ children }) => {
             updatedRecordClinicalInterview,
             uploadImages,
             saveDimension,
-            finallyRecordPatient
+            finallyRecordPatient,
+            uploadSingleImage,
+            saveNewImageFallsAndBumps,
+            cleanImageFallsAndBumps
         }}>
             { children }
         </RecordContext.Provider>

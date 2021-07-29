@@ -43,13 +43,23 @@ export const recordReducer = ( state, action ) => {
                 currentRecord.clinical_interview.push(action.payLoad);
             }
 
-            console.log(currentRecord)
-
             return {
                 ...state,
                 currentRecord
             }
-            
+
+        case 'saveNewImageFallsAndBumps':
+            return {
+                ...state,
+                imageFallsAndBumps: action.payLoad
+            }
+
+        case 'cleanImageFallsAndBumps':
+            return {
+                ...state,
+                imageFallsAndBumps: { base64: null, tempUri: null }
+            }
+
         default:
             return state;
     }

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react'
 import { View, ScrollView } from 'react-native'
-import { Badge, Button, Image } from 'react-native-elements'
+import { Badge, Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, SUCCESS, VERY_LIGHT, WHITE } from '../../const/Colors'
 import KeyboardScrollView from '../../UI/KeyboardScrollView'
