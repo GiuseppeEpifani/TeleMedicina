@@ -155,7 +155,7 @@ export const EditPatient = ({navigation}) => {
         }
     }
 
-    if (loading) return <LoadingScreen text={'Editando pacíente'} />
+    if (loading) return <LoadingScreen text={'Editando paciente'} />
 
     return (
         <KeyboardScrollView scrollEnabled={false} extraHeight={50} barColor={PRIMARY} backgroundColor={WHITE}>
@@ -164,7 +164,7 @@ export const EditPatient = ({navigation}) => {
                     <ArrowBack onPress={() => navigation.goBack()} />
                 </View>
                 <View style={{flex: 5, padding: 30}}>
-                    <Card header title={`Pacíente run: ${patient.rbd}`}>
+                    <Card header title={`Paciente run: ${patient.rbd}`}>
                         <View style={{height: '90.8%', padding: 12}}>
                             <ScrollView style={{padding: 8}}>
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>

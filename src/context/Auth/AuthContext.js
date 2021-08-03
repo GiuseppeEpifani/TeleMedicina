@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         try {
             if (token) {
                 const { data } = await teleMedicinaApi.post('/refresh');
-                await AsyncStorage.setItem('token', data.access_token); 
+                await AsyncStorage.setItem('token', data.access_token);
                 dispatch({type: 'refreshToken', payLoad: data.access_token });
             } else {
                 return dispatch({type: 'notAuthenticated'});
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
             const { data } = await teleMedicinaLogin.post('/auth/login', { email: email.value.toLowerCase() , password: password.value });
             dispatch({ type: 'signIn', payLoad: { username: data.email, token: data.token} });
             await AsyncStorage.setItem('token', data.token);
-
+            await AsyncStorage.setItem('user', JSON.stringify(data.user)); 
         } catch (error) {
             dispatch({ type: 'addError', payLoad: 'Algo salio mal, credenciales incorrectas o error de respuesta' });
             console.log(error)

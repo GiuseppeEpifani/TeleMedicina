@@ -17,7 +17,7 @@ const PatientReview = ({navigation}) => {
     const createAlertDelete = () => {
 		Alert.alert(
 			"¿Esta seguro?",
-			`Eliminara al pacíente con el run: ${patient.rbd}` ,
+			`Eliminara al paciente con el run: ${patient.rbd}` ,
 			[
 				{
 					text: "Cancelar",

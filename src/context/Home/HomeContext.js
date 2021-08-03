@@ -40,9 +40,9 @@ export const HomeProvider = ({ children }) => {
 		}
 	}
 
-	const getPatientFilter = async (rbd) => {
+	const getPatientFilter = async ({rbd, name, lastname}) => {
 		try {
-			const { data: { patients, lastPage }} = await teleMedicinaApi.post('/get.pager_patients', { rbd });
+			const { data: { patients, lastPage }} = await teleMedicinaApi.post('/get.pager_patients', { rbd, name, lastname });
 			let arrayPatient = [];
 		 	patients.forEach((patient, index) => {
 				if (index === 0) {
@@ -59,10 +59,10 @@ export const HomeProvider = ({ children }) => {
 		}
 	}
 
-	const loadMorePatientWithRbd = async (rbd) => {
+	const loadMorePatientWithFilter = async ({rbd, name, lastname}) => {
 		try {
 			if (numberPage < totalPage && totalPage) {
-				const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/get.pager_patients?page=${numberPage}`, { rbd });
+				const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/get.pager_patients?page=${numberPage}`, { rbd, name, lastname });
 				let arrayPatient = listPatient;
 				patients.forEach((patient) => {
 					arrayPatient =  [...arrayPatient, {...patient, select: false}];
@@ -123,7 +123,7 @@ export const HomeProvider = ({ children }) => {
             dispatch({type: 'setPatient', payLoad: newPatient});
 
 			dispatch({type: 'setLoading', payLoad: false});
-			dispatch({type: 'setMessage', payLoad: 'Pacíente modificado'});
+			dispatch({type: 'setMessage', payLoad: 'Paciente modificado'});
 		} catch (error) {
 			dispatch({type: 'setLoading', payLoad: false});
 			console.log(error)
@@ -162,7 +162,7 @@ export const HomeProvider = ({ children }) => {
             getPatient,
 			getPatientFilter,
 			loadMorePatient,
-			loadMorePatientWithRbd,
+			loadMorePatientWithFilter,
 			createNewPatient,
 			updatePatient,
 			deletePatient,

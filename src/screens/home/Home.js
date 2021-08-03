@@ -13,23 +13,29 @@ import { LoadingScreen } from '../../UI/LoadingScreen';
 import { HomeContext } from '../../context/Home/HomeContext';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { format } from 'rut.js'
-import { RecordContext } from '../../context/RecordFile/RecordContext';
+import CardSearch from '../../UI/CardSearch';
 
 export const Home = ({navigation}) => {
 
- 	const { getPatient, listPatient, patient, loadMorePatient, removeMessage, handleSelectPatient, disabled, message, loading, getPatientFilter, loadMorePatientWithRbd } = useContext(HomeContext);
+ 	const { getPatient, listPatient, patient, loadMorePatient, removeMessage, handleSelectPatient, disabled, message, loading, getPatientFilter, loadMorePatientWithFilter, totalPage, numberPage } = useContext(HomeContext);
 
-	const [inputSearch, setInputSearch] = useState('');
-	const [loadingPatients, setLoadingPatients] = useState(false);
-	const debouncedValue = useDebouncedValue(inputSearch);
+	const [inputRun, setInputRun] = useState('');
+	const [inputName, setInputName] = useState('');
+	const [inputLastName, setInputLastName] = useState('');
+	const [loadingPatients, setLoadingPatients] = useState(true);
+	const [typeSearch, setTypeSearch] = useState(false);
+	const debouncedRun = useDebouncedValue(inputRun);
+	const debouncedName = useDebouncedValue(inputName);
+	const debouncedLastName = useDebouncedValue(inputLastName);
 
 	useEffect(() => {
-		if (debouncedValue.trim().length == 0) {
+		setLoadingPatients(true);
+		if (debouncedRun.trim().length == 0 && debouncedName.trim().length == 0 && debouncedLastName.trim().length == 0) {
 			refreshListPatients();
 		} else {
 			handleDebounce();
 		}
-	}, [debouncedValue]);
+	}, [debouncedRun, debouncedName, debouncedLastName]);
 
 	useEffect(() => {
 		getPatient();
@@ -45,15 +51,20 @@ export const Home = ({navigation}) => {
     }, [message]);
 
 	const refreshListPatients = async () => {
-		setLoadingPatients(true);
-		await getPatient(debouncedValue);
+		await getPatient();
 		setLoadingPatients(false);
 	}
 
 	const handleDebounce = async () => {
-		setLoadingPatients(true);
-		await getPatientFilter(debouncedValue);
+		await getPatientFilter({ rbd: debouncedRun, name: debouncedName, lastname: debouncedLastName });
 		setLoadingPatients(false);
+	}
+
+	const cleanDebounce = (value) => {
+		setInputRun('');
+		setInputName('');
+		setInputLastName('');
+		setTypeSearch(value);
 	}
 
 	const renderListPatient = ({item: patientRender}) => {
@@ -64,28 +75,62 @@ export const Home = ({navigation}) => {
 		)
 	}
 
-	if (loading) return <LoadingScreen text={'Eliminando pacíente'}/>
+	if (loading) return <LoadingScreen text={'Eliminando paciente'}/>
 
     return (
 		<KeyboardView scrollEnabled={false} extraHeight={200} barColor={PRIMARY} backgroundColor={WHITE}>
 			<View style={{flex: 1, padding: 20}}>
 				<View style={{flex: 0.9, marginBottom: 30}}>
-					<Card header={true} title={'Ficha clinica'} padding={9}>
-						<View style={{alignItems: 'center'}}>
-							<InputText 
-								labelError={false}
-								onChangeText={(text) => (text.trim().length > 0) ? setInputSearch(format(text)) : setInputSearch('')}
-								value={inputSearch}
-								editable={!loadingPatients} 
-								placeholder={'Buscar por run'} 
-								keyboardType={'numeric'}
-								nameIcon={"account-search"} 
-								styleWidth={{width: '70%'}}
-								buttonDelete
-								onPress={(inputSearch.trim().length > 0) ? () => setInputSearch('') : false}
-							/>						
-						</View>
-					</Card>
+					<CardSearch header={true} switchHeader valueSwitch={typeSearch} setSwitch={cleanDebounce} titleFirstSwitch={'Run'} titleSecondSwitch={'Nombre'} title={'Ficha clinica'} padding={9}>
+						{
+							(!typeSearch) &&
+							<View style={{alignItems: 'center'}}>
+								<InputText 
+									onChangeText={(text) => (text.trim().length > 0) ? setInputRun(format(text)) : setInputRun('')}
+									value={inputRun}
+									editable={!loadingPatients} 
+									placeholder={'Buscar por run'} 
+									keyboardType={'numeric'}
+									nameIcon={"account-search"} 
+									styleWidth={{width: '70%'}}
+									buttonDelete
+									onPress={(inputRun.trim().length > 0) ? () => setInputRun('') : false}
+								/>
+							</View>
+						}
+						{
+							(typeSearch) && 
+							<View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
+								<View style={{flex: 1}}>
+									<InputText 
+										onChangeText={(text) => (text.trim().length > 0) ? setInputName(text) : setInputName('')}
+										value={inputName}
+										editable={!loadingPatients} 
+										placeholder={'Buscar por nombres'} 
+										keyboardType={'default'}
+										nameIcon={"account-search"} 
+										styleWidth={{width: '70%'}}
+										buttonDelete
+										onPress={(inputName.trim().length > 0) ? () => setInputName('') : false}
+									/>
+								</View>
+								<View style={{flex: 0.05}} />
+								<View style={{flex: 1}}>
+									<InputText 
+										onChangeText={(text) => (text.trim().length > 0) ? setInputLastName(text) : setInputLastName('')}
+										value={inputLastName}
+										editable={!loadingPatients} 
+										placeholder={'Buscar por apellido paterno'} 
+										keyboardType={'default'}
+										nameIcon={"account-search"} 
+										styleWidth={{width: '70%'}}
+										buttonDelete
+										onPress={(inputLastName.trim().length > 0) ? () => setInputLastName('') : false}
+									/>
+								</View>		
+							</View>
+						}
+					</CardSearch>
 				</View>
 				<View style={{flex: 5}}>
 					<Card header title={'Lista de pacientes'}>
@@ -109,10 +154,10 @@ export const Home = ({navigation}) => {
 										data={listPatient}
 										keyExtractor={ (patientRender) => patientRender._id}
 										renderItem={renderListPatient}
-										onEndReached={(inputSearch.trim().length == 0) ? loadMorePatient : () => loadMorePatientWithRbd(inputSearch)}
+										onEndReached={(inputRun.trim().length == 0 && inputName.trim().length == 0 && inputLastName.trim().length == 0) ? loadMorePatient : () => loadMorePatientWithFilter(inputRun)}
 										onEndReachedThreshold={0.5}
 										ListFooterComponent={
-											(inputSearch.trim().length == 0) &&
+											(numberPage < totalPage && totalPage) &&
 											<ActivityIndicator size="large" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}}/>
 										}
 									/>					

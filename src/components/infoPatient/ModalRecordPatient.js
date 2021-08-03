@@ -183,16 +183,18 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
                                 (record.health_check.audiovisual_support && record.health_check.audiovisual_support.length > 0) &&
                                 <>
                                     <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Apoyo visual</Text>
-                                    {
-                                        record.health_check.audiovisual_support.map(item => (
-                                            <View style={{ margin: 10, width: 90, height: 90, borderRadius: 22, overflow: 'hidden'}}>
-                                                <Image
-                                                    source={{ uri: `${URL}/storage/clinical_record/${patient._id}/health_checks/${item.file}` }}
-                                                    style={{ width: 100, height: 100 }}
-                                                />
-                                            </View>
-                                        ))
-                                    }
+                                    <View style={{flexDirection: 'row'}}>
+                                        {
+                                            record.health_check.audiovisual_support.map(item => (
+                                                <View style={{ margin: 10, width: 90, height: 90, borderRadius: 22, overflow: 'hidden'}} key={item.file}>
+                                                    <Image
+                                                        source={{ uri: `${URL}/storage/clinical_record/${patient._id}/health_checks/${item.file}` }}
+                                                        style={{ width: 100, height: 100 }}
+                                                    />
+                                                </View>
+                                            ))
+                                        }
+                                    </View>
                                 </>
                             }
                             <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginVertical: 2}}>Dolor</Text>

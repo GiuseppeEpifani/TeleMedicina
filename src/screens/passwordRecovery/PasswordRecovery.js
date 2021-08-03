@@ -1,23 +1,46 @@
 import React, { useState } from 'react'
 import { Button } from 'react-native-elements';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, Alert } from 'react-native';
 import Card from '../../UI/Card'
 import KeyboardScrollView from '../../UI/KeyboardScrollView';
 import ArrowBack from '../../UI/ArrowBack';
 import InputText from '../../UI/InputText';
-import { useForm } from '../../hooks/useForm';
 import { FIELD_COMPLETE, EMAIL_INVALID } from '../../const/Fields';
 import { PRIMARY } from '../../const/Colors';
 import { styles } from './style';
+import teleMedicinaLogin from '../../api/baseURL';
 
 export const PasswordRecovery = ({ navigation }) => {
 
-    const [ formValues, handleInputChange ] = useForm({  email: { value: '', isComplete: false }});
-    const [validField, setValidField] = useState(false)
-    const { email } = formValues;
+    const [loading, setLoading] = useState(false);
+    const [validField, setValidField] = useState(false);
+    const [isValidEmail, setIsValidEmail] = useState(false);
+    const [email, setEmail] = useState();
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         setValidField(true);
+        if (email) {
+            const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+            let isValid = emailRegex.test(email);
+            setIsValidEmail(isValid);
+            if (isValid) {
+                setLoading(true);
+                try {
+                    const { data } = await teleMedicinaLogin.post('/password/email', { email });
+                    Alert.alert(
+                        'Notificación', data.message, [ { text: 'Esta bien' } ]
+                    );
+                    setEmail();
+                    setValidField(false);
+                } catch (error) {
+                    console.log(error);
+                    setEmail();
+                    setValidField(false);
+                    setLoading(false);
+                }
+            }
+        }
+        setLoading(false);
     }
 
     return (
@@ -36,9 +59,9 @@ export const PasswordRecovery = ({ navigation }) => {
 
                         <InputText 
                             label="Correo electrónico"
-                            labelError={ validField ? email.value ? !isValidEmail ? EMAIL_INVALID : false : FIELD_COMPLETE : false}
-                            onChangeText={text => handleInputChange(text, 'email')}
-                            value={email.value} 
+                            labelError={ validField ? email ? !isValidEmail ? EMAIL_INVALID : false : FIELD_COMPLETE : false}
+                            onChangeText={setEmail}
+                            value={email} 
                             placeholder={'Ingrese su correo electrónico'} 
                             keyboardType={'default'} 
                             nameIcon={"email"} 
@@ -48,11 +71,13 @@ export const PasswordRecovery = ({ navigation }) => {
                         containerStyle={{ borderRadius: 15, marginTop: 10 }}
                         buttonStyle={{backgroundColor: PRIMARY}}
                         title="Reestablecer contraseña"
-                        loading={false}
+                        loading={loading}
+                        disabled={loading}
                         onPress={ () => handleSubmit() }
                         />
                     </Card>
                 </View>
+                <View style={{flex: 0.05}} />
             </View>
         </KeyboardScrollView>        
     )

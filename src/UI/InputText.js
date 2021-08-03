@@ -23,7 +23,7 @@ const InputText = (props) => {
                     />
                     { props.buttonDelete &&
                         <Button
-                            containerStyle={{width: 120}}
+                            containerStyle={{width: '20%'}}
                             buttonStyle={{backgroundColor: WHITE, height: '100%'}}                         
                             onPress={(props.onPress) ? props.onPress : () => {}}
                             icon={

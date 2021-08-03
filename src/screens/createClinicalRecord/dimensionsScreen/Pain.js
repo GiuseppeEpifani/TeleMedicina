@@ -16,7 +16,6 @@ export const Pain = ({navigation}) => {
     const { saveDimension, currentRecord } = useContext(RecordContext);
     const thereIsDimension = currentRecord.clinical_interview.length > 0 && currentRecord.clinical_interview.some(item => item._id === '000000000000000000000001');
     const currentDimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000001');
-    console.log(currentDimension)
 
     const [havePain, setHavePain] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '605144b412e6f719115d52e2')?.answer : null);
     const [pains, setPains] = useState([{ label: "Cabeza", value: "Cabeza" }, { label: "Tórax", value: "Tórax" }, { label: "Espalda", value: "Espalda" }, { label: "Brazo Izquierdo", value: "Brazo Izquierdo" }, { label: "Brazo Derecho", value: "Brazo Derecho" }, { label: "Abdomen", value: "Abdomen" }, { label: "Vientre Bajo", value: "Vientre Bajo" }, { label: "Pierna Derecha", value: "Pierna Derecha" }]);

@@ -13,7 +13,7 @@ const DatePicker = ({handleGetDate, labelError, label, value}) => {
         if (value) {
             setdateString(formatDate(date));
         }
-    }, [])
+    }, [value]);
 
     const handleOnChange = (event, selectedDate) => {
         try {

@@ -135,7 +135,7 @@ export const RegisterPatient = ({navigation}) => {
         }
     }
 
-    if (loading) return <LoadingScreen text={'Registrando pacíente'} />
+    if (loading) return <LoadingScreen text={'Registrando paciente'} />
 
     return (
         <KeyboardScrollView scrollEnabled={false} extraHeight={50} barColor={PRIMARY} backgroundColor={WHITE}>
