@@ -135,7 +135,7 @@ export const EditPatient = ({navigation}) => {
 
             await updatePatient(
                 {
-                    id: patient._id,
+                    id: (patient?._id) ? patient._id : 0,
                     email: email.value,
                     gender: selectedGender,
                     address: address.value, 

@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import { View, StyleSheet, TouchableOpacity } from 'react-native'
 import { SECONDARY, WHITE } from '../const/Colors';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { launchCamera } from 'react-native-image-picker';
 import { Image } from 'react-native-elements';
 import { Text } from 'react-native';
 import { URL } from '../const/Url';
 
-const ContainerCamera = ({setImages, label, images, audiovisualSupport, handleDeleteVisualSupport, patientId}) => {
+const ContainerCamera = ({setImages, label, images, audiovisualSupport, handleDeleteVisualSupport, patientId, imagesLocal, setimagesLocal, appIsLocal}) => {
 
     const [TempUri, setTempUri] = useState([]);
 
@@ -36,6 +36,10 @@ const ContainerCamera = ({setImages, label, images, audiovisualSupport, handleDe
         setImages(images.filter(img => img.urlTemp !== urlTemp));
     }
 
+    const hanldeDeleteImageLocal = (imageLocal) => {
+        setimagesLocal(imagesLocal.filter(img => img.guid_name !== imageLocal.guid_name));
+    }
+
     return (
         <View>
             { (label) && <Text style={styles.label}>{label}</Text> }
@@ -55,7 +59,7 @@ const ContainerCamera = ({setImages, label, images, audiovisualSupport, handleDe
                     ))
                 }
                 {
-                    (audiovisualSupport.length > 0) &&
+                    (!appIsLocal && audiovisualSupport.length > 0 && imagesLocal.length == 0) &&
                     audiovisualSupport.map(item => (
                         <View style={styles.containerImage} key={item.file}>
                             <TouchableOpacity onPress={() => handleDeleteVisualSupport(item.file)} style={{position: 'absolute', right: 0, top: 0, zIndex: 1, marginRight: 5, marginTop: 5}}>
@@ -69,7 +73,21 @@ const ContainerCamera = ({setImages, label, images, audiovisualSupport, handleDe
                     ))
                 }
                 {
-                    ((TempUri.length + audiovisualSupport.length) < 4) &&
+                    (imagesLocal.length > 0) &&
+                    imagesLocal.map((item) => (
+                        <View style={styles.containerImage} key={item.guid_name}>
+                            <TouchableOpacity onPress={() => hanldeDeleteImageLocal(item)} style={{position: 'absolute', right: 0, top: 0, zIndex: 1, marginRight: 5, marginTop: 5}}>
+                                <MaterialCommunityIcons name="close-circle" size={22} color={'red'}/>
+                            </TouchableOpacity>
+                            <Image
+                                source={{ uri: item.file }}
+                                style={{ width: 100, height: 100 }}
+                            />
+                        </View>
+                    ))
+                }           
+                {
+                    ((TempUri.length + audiovisualSupport.length) < 4 || imagesLocal.length + TempUri.length < 4) &&
                     <TouchableOpacity onPress={takePhoto}>
                         <View style={styles.container}>
                             <View style={styles.subContainer}>

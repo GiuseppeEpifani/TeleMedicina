@@ -7,7 +7,7 @@ import { Image } from 'react-native-elements';
 import { Text } from 'react-native';
 import { URL } from '../const/Url';
 
-const ContainerCamera = ({setImage, label, imageSupport, setImageSupport, patientId, tempUri}) => {
+const ContainerCamera = ({setImage, label, imageSupport, setImageSupport, patientId, tempUri, imageLocal}) => {
 
     const [TempUri, setTempUri] = useState(tempUri);
 
@@ -54,13 +54,25 @@ const ContainerCamera = ({setImage, label, imageSupport, setImageSupport, patien
                     </View>
                 }
                 {         
-                    (!TempUri && imageSupport) &&
+                    (!TempUri && !imageLocal && imageSupport) &&
                     <View style={styles.containerImage} key={imageSupport.file}>
                         <TouchableOpacity onPress={() => setImageSupport(null)} style={{position: 'absolute', right: 0, top: 0, zIndex: 1, marginRight: 5, marginTop: 5}}>
                             <MaterialCommunityIcons name="close-circle" size={22} color={'red'}/>
                         </TouchableOpacity>
                         <Image
                             source={{ uri: `${URL}/storage/clinical_record/${patientId}/dimension/${imageSupport.file}` }}
+                            style={{ width: 100, height: 100 }}
+                        />
+                    </View>
+                }
+                {
+                    (imageLocal) &&
+                    <View style={styles.containerImage} key={TempUri}>
+                        <TouchableOpacity onPress={handleDeleteImage} style={{position: 'absolute', right: 0, top: 0, zIndex: 1, marginRight: 5, marginTop: 5}}>
+                            <MaterialCommunityIcons name="close-circle" size={22} color={'red'}/>
+                        </TouchableOpacity>
+                        <Image
+                            source={{ uri: imageLocal }}
                             style={{ width: 100, height: 100 }}
                         />
                     </View>

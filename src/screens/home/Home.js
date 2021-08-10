@@ -29,6 +29,7 @@ export const Home = ({navigation}) => {
 	const debouncedLastName = useDebouncedValue(inputLastName);
 
 	useEffect(() => {
+		if (debouncedRun.trim().length > 0 && debouncedRun == '-') return;
 		setLoadingPatients(true);
 		if (debouncedRun.trim().length == 0 && debouncedName.trim().length == 0 && debouncedLastName.trim().length == 0) {
 			refreshListPatients();
@@ -152,9 +153,9 @@ export const Home = ({navigation}) => {
 								<View style={{flex: 1}}>
 									<OptimizedFlatList
 										data={listPatient}
-										keyExtractor={ (patientRender) => patientRender._id}
+										keyExtractor={ (patientRender) => (patientRender?.local) ? patientRender.rbd : patientRender._id}
 										renderItem={renderListPatient}
-										onEndReached={(inputRun.trim().length == 0 && inputName.trim().length == 0 && inputLastName.trim().length == 0) ? loadMorePatient : () => loadMorePatientWithFilter(inputRun)}
+										onEndReached={(debouncedRun.trim().length == 0 && debouncedName.trim().length == 0 && debouncedLastName.trim().length == 0) ? loadMorePatient : () => debouncedRun != '-' ? loadMorePatientWithFilter({rbd: debouncedRun, name: debouncedName, lastname: debouncedLastName}) : loadMorePatient()}
 										onEndReachedThreshold={0.5}
 										ListFooterComponent={
 											(numberPage < totalPage && totalPage) &&

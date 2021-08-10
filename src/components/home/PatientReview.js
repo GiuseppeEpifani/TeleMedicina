@@ -9,25 +9,75 @@ import { WHITE } from '../../const/Colors';
 import TextIcon from '../../UI/TextIcon';
 import { HomeContext } from '../../context/Home/HomeContext';
 import { formatDate } from '../../helpers/formatDate';
+import { modeApp } from '../../helpers/modeApp';
 
 const PatientReview = ({navigation}) => {
 
-    const { patient, deletePatient } = useContext(HomeContext)
+    const { patient, deletePatient } = useContext(HomeContext);
 
-    const createAlertDelete = () => {
-		Alert.alert(
-			"¿Esta seguro?",
-			`Eliminara al paciente con el run: ${patient.rbd}` ,
-			[
-				{
-					text: "Cancelar",
-					onPress: () => {},
-					style: "cancel"
-				},
-				{ text: "Si, esta bien", onPress: () => deletePatient(patient._id) }
-			]
-		);
+    const createAlertDelete = async () => {
+        if (!await modeApp()) {
+            Alert.alert(
+                "¿Esta seguro?",
+                `Eliminara al paciente con el run: ${patient.rbd}` ,
+                [
+                    {
+                        text: "Cancelar",
+                        onPress: () => {},
+                        style: "cancel"
+                    },
+                    { text: "Si, esta bien", onPress: () => deletePatient({id: patient._id, rbd: patient.rbd}) }
+                ]
+            );        
+        } else {
+            if (patient?.local) {
+                Alert.alert(
+                    "¿Esta seguro?",
+                    `Eliminara al paciente con el run: ${patient.rbd}` ,
+                    [
+                        {
+                            text: "Cancelar",
+                            onPress: () => {},
+                            style: "cancel"
+                        },
+                        { text: "Si, esta bien", onPress: () => deletePatient({id: patient._id, rbd: patient.rbd}) }
+                    ]
+                );
+            } else {
+                Alert.alert(
+                    "Importante leer",
+                    "Los pacientes que no son agregados localmente, no pueden ser eliminados cuando la aplicación esta modo offline." ,
+                    [
+                        {
+                            text: "Esta bien",
+                            style: "cancel"
+                        },
+                    ]
+                );
+            }
+        }
 	};
+
+    const navigateSreenEdit = async () => {
+        if (!await modeApp()) {
+            navigation.navigate('EditPatient');
+        } else {
+            if (patient?.local) {
+                navigation.navigate('EditPatient');
+            } else {
+                Alert.alert(
+                    "Importante leer",
+                    "Los pacientes que no son agregados localmente, no pueden ser editados cuando la aplicación esta modo offline." ,
+                    [
+                        {
+                            text: "Esta bien",
+                            style: "cancel"
+                        },
+                    ]
+                ); 
+            }
+        }
+    }
 
     return ( 
         <View style={{flex: 1}}>
@@ -62,7 +112,7 @@ const PatientReview = ({navigation}) => {
                     </View>
                     <View style={{height: 50, flexDirection: 'row'}}>
                         <Button
-                            onPress={() => navigation.navigate('EditPatient')}
+                            onPress={navigateSreenEdit}
                             containerStyle={{flex: 1}}
                             buttonStyle={styles.btnEdit}
                                 icon={

@@ -1,18 +1,22 @@
-import React, { useContext } from 'react'
-import { Modal, Text, View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
-import { Button, Image } from 'react-native-elements';
+import React, { useContext, useState } from 'react'
+import { Modal, Text, View, StyleSheet, TouchableOpacity, ScrollView, TouchableHighlight } from 'react-native'
+import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { PRIMARY, SECONDARY, SUCCESS, VERY_LIGHT } from '../../const/Colors';
+import { PRIMARY, SECONDARY, SUCCESS, VERY_LIGHT, WHITE } from '../../const/Colors';
 import { SCREEN_HEIGHT } from '../../const/Dimensions';
 import { URL } from '../../const/Url';
 import { HomeContext } from '../../context/Home/HomeContext';
 import { formatDate } from '../../helpers/formatDate';
 import { formatDateHuman } from '../../helpers/formatDateHuman';
+import ImageViewer from 'react-native-image-zoom-viewer';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Hr from '../../UI/Hr';
 
 const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
-
+    
     const { patient } = useContext(HomeContext);
+    const [showModalHealtCheck, setShowModalHealtCheck] = useState(false);
+    const [showModalDimensions, setShowModalDimensions] = useState(false);
 
     const thereIsPain = record.clinical_interview.some(item => item._id === '000000000000000000000001');
     const painDimension = record.clinical_interview.find(item => item._id === '000000000000000000000001');
@@ -27,6 +31,36 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
     const thereIsFallsAndBumps = record.clinical_interview.some(item => item._id === '000000000000000000000006');
     const fallsAndBumpsDimension = record.clinical_interview.find(item => item._id === '000000000000000000000006');
 
+    const imagesHealtCheck = (record.health_check.audiovisual_support && record.health_check.audiovisual_support.length > 0) ? record.health_check.audiovisual_support.map(item => {
+        return {
+            url: `${URL}/storage/clinical_record/${patient._id}/health_checks/${item.file}`,
+        }
+    }) : [];
+
+    const imagesDimension = (thereIsFallsAndBumps && fallsAndBumpsDimension.question.find(item => item.question_id === '60526705bd99de221332c176')) ? [
+        {
+            url: `${URL}/storage/clinical_record/${patient._id}/dimension/${fallsAndBumpsDimension.question.find(item => item.question_id === '60526705bd99de221332c176').answer.file}`,
+        }
+    ] : [];
+
+    const closeModals = () => {
+        if (showModalHealtCheck) {
+            setShowModalHealtCheck(false);
+        }
+
+        if (showModalDimensions) {
+            setShowModalDimensions(false);
+        }
+    }
+
+    const renderHeader = () => {
+        return (
+            <TouchableHighlight onPress={closeModals} style={{height: 50, backgroundColor: WHITE, width: 50, position: 'absolute', left: 20, top: 20, zIndex: 1000, borderRadius: 50, justifyContent: 'center', alignItems: 'center'}} activeOpacity={0.6} underlayColor="#DDDDDD">
+                <MaterialCommunityIcons name="close" size={46} color={PRIMARY} />
+            </TouchableHighlight>
+        )
+    }
+
     return (
         <Modal
             animationType="fade"
@@ -36,6 +70,18 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
                 setModalVisible(!modalVisible);
             }}
         >
+            <Modal visible={showModalHealtCheck} transparent={true}>
+                <ImageViewer 
+                    imageUrls={imagesHealtCheck}
+                    renderHeader={renderHeader}
+                />
+            </Modal>
+            <Modal visible={showModalDimensions} transparent={true}>
+                <ImageViewer 
+                    imageUrls={imagesDimension}
+                    renderHeader={renderHeader}
+                />
+            </Modal>
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                     <View style={{height: 50, backgroundColor: VERY_LIGHT, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -182,19 +228,13 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
                             {
                                 (record.health_check.audiovisual_support && record.health_check.audiovisual_support.length > 0) &&
                                 <>
-                                    <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Apoyo visual</Text>
-                                    <View style={{flexDirection: 'row'}}>
-                                        {
-                                            record.health_check.audiovisual_support.map(item => (
-                                                <View style={{ margin: 10, width: 90, height: 90, borderRadius: 22, overflow: 'hidden'}} key={item.file}>
-                                                    <Image
-                                                        source={{ uri: `${URL}/storage/clinical_record/${patient._id}/health_checks/${item.file}` }}
-                                                        style={{ width: 100, height: 100 }}
-                                                    />
-                                                </View>
-                                            ))
-                                        }
-                                    </View>
+                                    <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Apoyo visual:</Text>
+                                    <Button
+                                        containerStyle={{borderRadius: 20, overflow: 'hidden'}}
+                                        buttonStyle={{backgroundColor: PRIMARY, width: 140, borderRadius: 20, marginVertical: 5, overflow: 'hidden'}}
+                                        title="Ver fotos"
+                                        onPress={() => setShowModalHealtCheck(true)}
+                                    />
                                 </>
                             }
                             <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginVertical: 2}}>Dolor</Text>
@@ -490,15 +530,13 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
                             {
                                 (thereIsFallsAndBumps && fallsAndBumpsDimension.question.find(item => item.question_id === '60526705bd99de221332c176')) &&
                                 <>
-                                    <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Apoyo visual</Text>
-                                    {
-                                        <View style={{ margin: 10, width: 90, height: 90, borderRadius: 22, overflow: 'hidden'}}>
-                                            <Image
-                                                source={{ uri: `${URL}/storage/clinical_record/${patient._id}/dimension/${fallsAndBumpsDimension.question.find(item => item.question_id === '60526705bd99de221332c176').answer.file}` }}
-                                                style={{ width: 100, height: 100 }}
-                                            />
-                                        </View>  
-                                    }
+                                    <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Apoyo visual:</Text>
+                                    <Button
+                                        containerStyle={{borderRadius: 20, overflow: 'hidden'}}
+                                        buttonStyle={{backgroundColor: PRIMARY, width: 140, borderRadius: 20, marginVertical: 5, overflow: 'hidden'}}
+                                        title="Ver fotos"
+                                        onPress={() => setShowModalDimensions(true)}
+                                    />
                                 </>
                             }
                             </>

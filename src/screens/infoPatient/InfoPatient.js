@@ -25,13 +25,13 @@ export const InfoPatient = ({navigation}) => {
     }, [])
 
     const loadingRecords = async () => {
-        await getRecords(patient._id);
+        await getRecords({id: patient._id, rbd: patient.rbd});
         setLoadingData(false);
     }
 
-    const finallyAttention = async ({recordId, observation, indication}) => {
+    const finallyAttention = async ({recordId, observation, indication, record}) => {
         setLoadingData(true);
-        await finallyRecordPatient({patientId: patient._id, recordId, observation, indication});
+        await finallyRecordPatient({patientId: patient._id, rbd: patient.rbd, recordId, observation, indication, recordToFinally: record});
         setLoadingData(false);
     }
 
@@ -103,7 +103,7 @@ export const InfoPatient = ({navigation}) => {
                             (clinicalRecords.length > 0 && !loadingData) &&
                             <FlatList
                                 data={clinicalRecords}
-                                keyExtractor={(recordRender) => recordRender._id}
+                                keyExtractor={(recordRender, index) => (recordRender?.local) ? recordRender.id+''+index : recordRender._id }
                                 renderItem={renderListRecord}
                             />	
                         }

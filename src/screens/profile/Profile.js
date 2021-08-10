@@ -5,13 +5,13 @@ import { PRIMARY, WHITE } from '../../const/Colors';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Card from '../../UI/Card';
 import KeyboardScrollView from '../../UI/KeyboardScrollView';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import InputText from '../../UI/InputText';
 import DatePicker from '../../UI/DatePicker';
 import RadioButton from '../../UI/RadioButton';
 import { FIELD_COMPLETE } from '../../const/Fields';
 import Hr from '../../UI/Hr';
 import teleMedicinaApi from '../../api/teleMedicinaApi';
+import { getUser } from '../../helpers/getUser';
 
 export const Profile = () => {
 
@@ -32,9 +32,8 @@ export const Profile = () => {
         setBirthday(dateString);
     }
 
-    const getUser = async () => {
-        let user = await AsyncStorage.getItem('user');
-        user = JSON.parse(user);
+    const getUserConnected = async () => {
+        const user = await getUser();
         setName(user.name);
         setEmail(user.email);
         setLastname(user.lastname);
@@ -91,7 +90,7 @@ export const Profile = () => {
     }
 
     useEffect(() => {
-        getUser();
+        getUserConnected();
     }, []);
 
     return (

@@ -19,7 +19,7 @@ export const Dimensions = ({navigation}) => {
         setloading(true);
         if (imageFallsAndBumps.base64) {
             let dimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000006');
-            let img = await uploadSingleImage(imageFallsAndBumps.base64, patient._id);
+            let img = await uploadSingleImage({img: imageFallsAndBumps.base64, patientId: patient._id, recordId: currentRecord.id});
 
             dimension.question.push(
                 {
@@ -32,7 +32,7 @@ export const Dimensions = ({navigation}) => {
             );
             saveDimension(dimension);
         }
-        await updatedRecordClinicalInterview(patient._id);
+        await updatedRecordClinicalInterview({patientId: patient._id, rbd: patient.rbd});
         navigation.navigate('InfoPatient');
     }
 

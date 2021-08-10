@@ -12,6 +12,8 @@ teleMedicinaApi.interceptors.request.use(
         
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            config.headers.ContentType = 'Application/json';
+            config.headers.Accept = 'Application/json';
         }
 
         return config;

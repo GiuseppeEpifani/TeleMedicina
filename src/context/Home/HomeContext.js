@@ -1,5 +1,11 @@
 import React, { createContext, useReducer } from 'react'
 import teleMedicinaApi from '../../api/teleMedicinaApi';
+import { createPatient } from '../../helpers/patientsLocal/createPatient';
+import { deletePatientLocal } from '../../helpers/patientsLocal/deletePatientLocal';
+import { getPatientsFilter } from '../../helpers/patientsLocal/getPatientsFilter';
+import { getPatientPaginate } from '../../helpers/patientsLocal/getPatientsPaginate';
+import { modeApp } from '../../helpers/modeApp';
+import { updatePatientLocal } from '../../helpers/patientsLocal/updatePatientLocal';
 import { homeReducer } from './HomeReducer';
 
 const initialState = {
@@ -23,18 +29,34 @@ export const HomeProvider = ({ children }) => {
 
 	const getPatient = async () => {
 		try {
-			const { data: {patients, lastPage} } = await teleMedicinaApi.post('/get.pager_patients');
-			let arrayPatient = [];
-		 	patients.forEach((patient, index) => {
-				if (index === 0) {
-					dispatch({type: 'setPatient', payLoad: patients[0]});
-					arrayPatient =  [...arrayPatient, {...patient, select: true}];
-				} else {
-					arrayPatient =  [...arrayPatient, {...patient, select: false}];
-				}
-			});
+			if (!await modeApp()) {
+				const { data: {patients, lastPage} } = await teleMedicinaApi.post('/get.pager_patients');
+				let arrayPatient = [];
+				patients.forEach((patient, index) => {
+				   if (index === 0) {
+					   dispatch({type: 'setPatient', payLoad: patients[0]});
+					   arrayPatient =  [...arrayPatient, {...patient, select: true}];
+				   } else {
+					   arrayPatient =  [...arrayPatient, {...patient, select: false}];
+				   }
+			   });
 
-            dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+			   dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+			} else {
+				const { patients, lastPage } = await getPatientPaginate(1);
+				let arrayPatient = [];
+				patients.forEach((patient, index) => {
+				   if (index === 0) {
+					   dispatch({type: 'setPatient', payLoad: patients[0]});
+					   arrayPatient =  [...arrayPatient, {...patient, select: true}];
+				   } else {
+					   arrayPatient =  [...arrayPatient, {...patient, select: false}];
+				   }
+			   });
+
+			   dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+			}
+			
 		} catch (error) {
 			console.log(error)
 		}
@@ -42,18 +64,35 @@ export const HomeProvider = ({ children }) => {
 
 	const getPatientFilter = async ({rbd, name, lastname}) => {
 		try {
-			const { data: { patients, lastPage }} = await teleMedicinaApi.post('/get.pager_patients', { rbd, name, lastname });
-			let arrayPatient = [];
-		 	patients.forEach((patient, index) => {
-				if (index === 0) {
-					dispatch({type: 'setPatient', payLoad: patients[0]});
-					arrayPatient =  [...arrayPatient, {...patient, select: true}];
-				} else {
-					arrayPatient =  [...arrayPatient, {...patient, select: false}];
-				} 
-			});
+			if (!await modeApp()) {
+				const { data: { patients, lastPage }} = await teleMedicinaApi.post('/get.pager_patients', { rbd, name, lastname });
+				let arrayPatient = [];
+				patients.forEach((patient, index) => {
+					if (index === 0) {
+						dispatch({type: 'setPatient', payLoad: patients[0]});
+						arrayPatient =  [...arrayPatient, {...patient, select: true}];
+					} else {
+						arrayPatient =  [...arrayPatient, {...patient, select: false}];
+					} 
+				});
 
-            dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+				dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+			} else {
+				if (rbd != '-') {
+					const patients = await getPatientsFilter({rbd, name, lastname});
+					let arrayPatient = [];
+					patients.forEach((patient, index) => {
+						if (index === 0) {
+							dispatch({type: 'setPatient', payLoad: patients[0]});
+							arrayPatient =  [...arrayPatient, {...patient, select: true}];
+						} else {
+							arrayPatient =  [...arrayPatient, {...patient, select: false}];
+						}
+					});
+
+					dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: 0}});
+				}
+			}
 		} catch (error) {
 			console.log(error)
 		}
@@ -61,14 +100,16 @@ export const HomeProvider = ({ children }) => {
 
 	const loadMorePatientWithFilter = async ({rbd, name, lastname}) => {
 		try {
-			if (numberPage < totalPage && totalPage) {
-				const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/get.pager_patients?page=${numberPage}`, { rbd, name, lastname });
-				let arrayPatient = listPatient;
-				patients.forEach((patient) => {
-					arrayPatient =  [...arrayPatient, {...patient, select: false}];
-				});
-	
-            	dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: numberPage + 1, totalPage: lastPage}});
+			if (rbd != '-') {
+				if (numberPage < totalPage && totalPage) {
+					const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/get.pager_patients?page=${numberPage}`, { rbd, name, lastname });
+					let arrayPatient = listPatient;
+					patients.forEach((patient) => {
+						arrayPatient =  [...arrayPatient, {...patient, select: false}];
+					});
+		
+					dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: numberPage + 1, totalPage: lastPage}});
+				}
 			}
 		} catch (error) {
 			console.log(error);
@@ -78,13 +119,23 @@ export const HomeProvider = ({ children }) => {
 	const loadMorePatient = async () => {
 		try {
 			if (numberPage < totalPage && totalPage) {
-				const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/get.pager_patients?page=${numberPage}`);
-				let arrayPatient = listPatient;
-				patients.forEach((patient) => {
-					arrayPatient =  [...arrayPatient, {...patient, select: false}];
-				});
-	
-            	dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: numberPage + 1, totalPage: lastPage}});
+				if (!await modeApp()) {
+					const { data: {patients, lastPage} } = await teleMedicinaApi.post(`/get.pager_patients?page=${numberPage}`);
+					let arrayPatient = listPatient;
+					patients.forEach((patient) => {
+						arrayPatient =  [...arrayPatient, {...patient, select: false}];
+					});
+		
+					dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: numberPage + 1, totalPage: lastPage}});
+				} else {
+					const { patients, lastPage } = await getPatientPaginate(numberPage);
+					let arrayPatient = listPatient;
+					patients.forEach((patient) => {
+						arrayPatient =  [...arrayPatient, {...patient, select: false}];
+					});
+		
+					dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: numberPage + 1, totalPage: lastPage}});
+				}
 			}
 		} catch (error) {
 			console.log(error);
@@ -102,7 +153,11 @@ export const HomeProvider = ({ children }) => {
 	const createNewPatient = async (patient) => {
 		try {
 			dispatch({type: 'setLoading', payLoad: true});
-			await teleMedicinaApi.post('/set.create_update_clinical_patients', patient);
+			if (!await modeApp()) {
+				await teleMedicinaApi.post('/set.create_update_clinical_patients', patient);
+			} else {
+				await createPatient(patient);
+			}
 			dispatch({type: 'setLoading', payLoad: false});
 			dispatch({type: 'setMessage', payLoad: 'Paciente creado'});
 		} catch (error) {
@@ -114,14 +169,21 @@ export const HomeProvider = ({ children }) => {
 	const updatePatient = async (patient) => {
 		try {
 			dispatch({type: 'setLoading', payLoad: true});
-			const { data: patientUpdated } = await teleMedicinaApi.post('/set.create_update_clinical_patients', patient);
-			let patientFound = listPatient.find(patientFound => patientFound._id == patient._id );
-			patientFound = { ...patientFound, select: true };
-			let newPatient = { ...patientFound, ...patientUpdated.data };
-			let newListPatient = listPatient.map(value => (value._id == newPatient._id) ? newPatient : value);
-			dispatch({type: 'setListPatient', payLoad: { listPatient: newListPatient, numberPage, totalPage}});
-            dispatch({type: 'setPatient', payLoad: newPatient});
-
+			if (!await modeApp()) {
+				const { data: patientUpdated } = await teleMedicinaApi.post('/set.create_update_clinical_patients', patient);
+				let patientFound = listPatient.find(patientFound => patientFound._id == patient._id );
+				patientFound = { ...patientFound, select: true };
+				let newPatient = { ...patientFound, ...patientUpdated.data };
+				let newListPatient = listPatient.map(value => (value._id == newPatient._id) ? newPatient : value);
+				dispatch({type: 'setListPatient', payLoad: { listPatient: newListPatient, numberPage, totalPage}});
+				dispatch({type: 'setPatient', payLoad: newPatient});
+			} else {
+				await updatePatientLocal(patient);
+				let newPatient = { ...patient, ...{select: true, local: true} };
+				let newListPatient = listPatient.map(value => (value.rbd == newPatient.rbd) ? newPatient : value);
+				dispatch({type: 'setListPatient', payLoad: { listPatient: newListPatient, numberPage, totalPage}});
+				dispatch({type: 'setPatient', payLoad: newPatient});
+			}
 			dispatch({type: 'setLoading', payLoad: false});
 			dispatch({type: 'setMessage', payLoad: 'Paciente modificado'});
 		} catch (error) {
@@ -130,12 +192,24 @@ export const HomeProvider = ({ children }) => {
 		}
 	}
 
-	const deletePatient = async (id) => {
+	const deletePatient = async ({id, rbd}) => {
 		try {
 			dispatch({type: 'setLoading', payLoad: true});
-			const { data } = await teleMedicinaApi.post('/delete.clinical_patients_id', { id });
-			if (data) {
-				let listPatientsFilter = listPatient.filter(patient => patient._id !== id);
+			if (!await modeApp()) {
+				const { data } = await teleMedicinaApi.post('/delete.clinical_patients_id', { id });
+				if (data) {
+					let listPatientsFilter = listPatient.filter(patient => patient._id !== id);
+					if (listPatientsFilter.length > 0) {
+						listPatientsFilter[0].select = true;
+						dispatch({type: 'setListPatient', payLoad: { listPatient: listPatientsFilter, numberPage: numberPage, totalPage: totalPage}});
+						dispatch({type: 'setPatient', payLoad: listPatientsFilter[0]});
+					} else {
+						dispatch({type: 'setListPatient', payLoad: { listPatient: [], numberPage: null, totalPage: null}});
+					}	
+				}
+			} else {
+				await deletePatientLocal(rbd);
+				let listPatientsFilter = listPatient.filter(patient => patient.rbd !== rbd);
 				if (listPatientsFilter.length > 0) {
 					listPatientsFilter[0].select = true;
 					dispatch({type: 'setListPatient', payLoad: { listPatient: listPatientsFilter, numberPage: numberPage, totalPage: totalPage}});

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { View, Text } from 'react-native';
 import { Badge } from 'react-native-elements'
 import { PRIMARY, SECONDARY, SUCCESS, WHITE } from '../../../const/Colors';
@@ -10,6 +10,8 @@ import { RecordContext } from '../../../context/RecordFile/RecordContext';
 import PickerMultiSelect from '../../../UI/PickerMultiSelect';
 import ContainerCameraSingle from '../../../UI/ContainerCameraSingle';
 import { HomeContext } from '../../../context/Home/HomeContext';
+import { getSingleImageDimension } from '../../../helpers/recordsLocal/getSingleImageDimension';
+import { modeApp } from '../../../helpers/modeApp';
 
 export const FallsAndBumps = ({navigation}) => {
 
@@ -31,11 +33,23 @@ export const FallsAndBumps = ({navigation}) => {
     const [conscienceLevel, setConscienceLevel] = useState([{ label: "igual que siempre", value: "igual que siempre" }, { label: "Más agitado o confuso que lo habitual", value: "Más agitado o confuso que lo habitual" }, { label: "Más tranquilo o quieto que lo habitual", value: "Más tranquilo o quieto que lo habitual" }]);
     const [conscienceLevelSelected, setConscienceLevelSelected] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '605266f8e56a0a32731ff8a5')?.answer : null);
     const [imageSupport, setImageSupport] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60526705bd99de221332c176')?.answer : null);
+    const [imageLocal, setImageLocal] = useState();
     const [loading, setloading] = useState(false);
     const [image, setImage] = useState(imageFallsAndBumps);
 
+    useEffect(() => {
+        getImageLocal();
+    }, [])
+
+    const getImageLocal = async () => {
+        if (await modeApp()) {
+            const img = await getSingleImageDimension(currentRecord.id);
+            if (img) setImageLocal(img.file);
+        }
+    }
+
     const handleSaveDimension = async () => {
-        if (fallsOrBumpsSelected || asStepSelected || woundSiteSelected.length > 0 || bleedingOrInjurySelected.length > 0 || painSwellingDeformitySelected.length > 0 || conscienceLevelSelected || imageSupport) {
+        if (fallsOrBumpsSelected || asStepSelected || woundSiteSelected.length > 0 || bleedingOrInjurySelected.length > 0 || painSwellingDeformitySelected.length > 0 || conscienceLevelSelected || imageSupport || image) {
             
             let dimension = 
                 {
@@ -159,7 +173,7 @@ export const FallsAndBumps = ({navigation}) => {
                             <PickerMultiSelect value={bleedingOrInjurySelected} setValue={setBleedingOrInjurySelected} items={bleedingOrInjury} setItems={setBleedingOrInjury} max={5} label={'¿Tiene algún sangra-miento o herida en?'}/>
                             <PickerMultiSelect value={painSwellingDeformitySelected} setValue={setPainSwellingDeformitySelected} items={painSwellingDeformity} setItems={setPainSwellingDeformity} max={5} label={'Presenta dolor, deformidad o inflamación en..'}/>
                             <PickerSingleSelect setItems={setConscienceLevel} items={conscienceLevel} setValue={setConscienceLevelSelected} value={conscienceLevelSelected} label={"¿Cómo es el nivel de consciencia luego de la caída o golpe?"} />
-                            <ContainerCameraSingle setImage={setImage} imageSupport={imageSupport} setImageSupport={setImageSupport} patientId={patient._id} tempUri={imageFallsAndBumps.tempUri} label={'Apoyo Audiovisual'} />
+                            <ContainerCameraSingle imageLocal={imageLocal} setImage={setImage} imageSupport={imageSupport} setImageSupport={setImageSupport} patientId={patient._id} tempUri={imageFallsAndBumps.tempUri} label={'Apoyo Audiovisual'} />
                         </ScrollView>
                     </CardWithText>
                 </View>

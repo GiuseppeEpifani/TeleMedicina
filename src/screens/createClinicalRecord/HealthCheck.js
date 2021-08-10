@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { View, ScrollView } from 'react-native'
 import { Badge, Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -13,6 +13,8 @@ import { HomeContext } from '../../context/Home/HomeContext';
 import { RecordContext } from '../../context/RecordFile/RecordContext';
 import { useForm } from '../../hooks/useForm';
 import TextArea from '../../UI/TextArea';
+import { modeApp } from '../../helpers/modeApp';
+import { getMultipleImageHealthCheck } from '../../helpers/recordsLocal/getMultipleImageHealthCheck';
 
 export const HealthCheck = ({navigation}) => {
     const { patient } = useContext(HomeContext);
@@ -23,6 +25,21 @@ export const HealthCheck = ({navigation}) => {
     const [loading, setLoading] = useState(false);
     const [audiovisualSupport, setaudiovisualSupport] = useState((currentRecord.health_check.audiovisual_support) ? currentRecord.health_check.audiovisual_support : []);
     const [images, setImages] = useState([]);
+    const [imagesLocal, setimagesLocal] = useState([]);
+    const [appIsLocal, setAppIsLocal] = useState(false);
+
+    useEffect(() => {
+        getImagesLocal();
+    }, []);
+
+    const getImagesLocal = async () => {
+        const isLocal = await modeApp();
+        setAppIsLocal(isLocal);
+        if (isLocal) {
+            const images = await getMultipleImageHealthCheck(currentRecord.id);
+            if (images && images.length > 0) setimagesLocal(images);
+        }
+    }
 
     const saveRecord = async () => {
         if (bloodPressureSystolic.value && bloodPressureSystolic.value > 300 || bloodPressureSystolic.value && isNaN(bloodPressureSystolic.value)) {
@@ -62,13 +79,30 @@ export const HealthCheck = ({navigation}) => {
         }
 
         setLoading(true);
-
+        let imagesSavedLocal = [];
         let audiovisualSupportLength = (audiovisualSupport) ? audiovisualSupport.length : 0;
         let audiovisualSupportArray = [];
         if (images.length > 0) {
-            audiovisualSupportArray = await uploadImages(images, patient._id);
-            audiovisualSupportArray = [...audiovisualSupport, ...audiovisualSupportArray];
-            audiovisualSupportLength = audiovisualSupportArray.length;
+            if (!await modeApp()) {
+                audiovisualSupportArray = await uploadImages({imgs: images, patientId: patient._id, recordId: currentRecord.id});
+                audiovisualSupportArray = [...audiovisualSupport, ...audiovisualSupportArray];
+                audiovisualSupportLength = audiovisualSupportArray.length;
+            } else {
+                const newArrayImagesLocal = imagesLocal.map(({file}) => { return { base64: file } })
+                const newImages = [...images, ...newArrayImagesLocal];
+                audiovisualSupportArray = await uploadImages({imgs: newImages, patientId: patient._id, recordId: currentRecord.id});
+                audiovisualSupportLength = audiovisualSupportArray.length;
+            }
+        } else {
+            if (await modeApp()) {
+                imagesSavedLocal = await getMultipleImageHealthCheck(currentRecord.id);
+
+                if (imagesSavedLocal && imagesSavedLocal.length > imagesLocal.length) {
+                    const newArrayImagesLocal = imagesLocal.map(({file}) => { return { base64: file } })
+                    audiovisualSupportArray = await uploadImages({imgs: newArrayImagesLocal, patientId: patient._id, recordId: currentRecord.id});
+                    audiovisualSupportLength = audiovisualSupportArray.length;
+                }
+            }
         }
 
         let health_check = [];
@@ -77,7 +111,7 @@ export const HealthCheck = ({navigation}) => {
             breathingFrequency.value || bloodGlucose.value || o2Saturation.value || temperature.value || weight.value || height.value) {
             health_check = 
                 {
-                    audiovisual_support: (images.length > 0) ? audiovisualSupportArray : audiovisualSupport,
+                    audiovisual_support: (images.length > 0 || await modeApp() && imagesSavedLocal.length > imagesLocal.length) ? audiovisualSupportArray : audiovisualSupport,
                     audiovisual_support_length: audiovisualSupportLength,
                     blood_glucose: bloodGlucose.value,
                     blood_glucose_type: bloodGlucoseType.value,
@@ -93,7 +127,7 @@ export const HealthCheck = ({navigation}) => {
                 };
         }
             
-        await updatedRecordHealthCheck(patient._id, health_check)
+        await updatedRecordHealthCheck({patientId: patient._id, health_check, rbd: patient.rbd})
         navigation.navigate('Dimensions');
         setLoading(false);
     }
@@ -265,7 +299,7 @@ export const HealthCheck = ({navigation}) => {
                             <TextArea label={'Estado de salud actual'} labelError={false} onChangeText={(text) => handleInputChange(text, "currentHealthStatus")} value={currentHealthStatus.value} keyboardType={'default'} />                                         
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <View style={{flex: 1}}>
-                                    <ContainerCamera setImages={setImages} images={images} audiovisualSupport={audiovisualSupport} handleDeleteVisualSupport={handleDeleteVisualSupport} patientId={patient._id} label={'Apoyo Audiovisual'} />
+                                    <ContainerCamera appIsLocal={appIsLocal} setImages={setImages} images={images} audiovisualSupport={audiovisualSupport} handleDeleteVisualSupport={handleDeleteVisualSupport} patientId={patient._id} imagesLocal={imagesLocal} setimagesLocal={setimagesLocal} label={'Apoyo visual'} />
                                 </View>
                                 <View style={{flex: 1}}/>
                             </View>

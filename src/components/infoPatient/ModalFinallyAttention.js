@@ -20,7 +20,7 @@ const ModalFinallyAttention = ({setModalVisible, modalVisible, record, finallyAt
         setValidated(true);
 
         if (observation && indication) {
-            finallyAttentionPatient({ recordId: record._id, observation, indication });
+            finallyAttentionPatient({ recordId: record._id, observation, indication, record });
             setValidated(false);
         }
     }

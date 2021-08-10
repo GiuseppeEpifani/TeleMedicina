@@ -82,7 +82,7 @@ export const MorbidHistory = ({navigation}) => {
                     previous_pregnancies: previousPregnancies, 
                     abortion: abortion
                 };
-            await updatedRecordMorbidAntecedent(patient._id, morbid_antecedent)
+            await updatedRecordMorbidAntecedent({patientId: patient._id, morbid_antecedent, rbd: patient.rbd})
             navigation.navigate('HealthCheck');
             setValidated(false);
             setLoading(false);
