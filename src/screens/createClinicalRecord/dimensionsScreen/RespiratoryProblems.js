@@ -11,7 +11,7 @@ import { RecordContext } from '../../../context/RecordFile/RecordContext';
 
 export const RespiratoryProblems = ({navigation}) => {
 
-    const { saveDimension, currentRecord } = useContext(RecordContext);
+    const { saveDimension, currentRecord, removeDimension } = useContext(RecordContext);
     const thereIsDimension = currentRecord.clinical_interview.length > 0 && currentRecord.clinical_interview.some(item => item._id === '000000000000000000000003');
     const currentDimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000003');
 
@@ -34,142 +34,141 @@ export const RespiratoryProblems = ({navigation}) => {
     const [loading, setloading] = useState(false);
 
     const handleSaveDimension = () => {
+        let dimension = 
+            {
+                _id: "000000000000000000000003",
+                active: 1,
+                description: "Encuesta para identificar problemas respiratorios",
+                name: "Problemas respiratorios",
+                question: []
+            };
 
-        if (breatheEffort || speedSelected || ribs || clavicles || chestMoves || howExpandsSelected || hasCoughSelected || coloredFingersSelected || 
-            laboredBreathing || lipColorSelected || lungSecretions) {
-
-            let dimension = 
+        if (breatheEffort) {
+            dimension.question.push(
                 {
-                    _id: "000000000000000000000003",
-                    active: 1,
-                    description: "Encuesta para identificar problemas respiratorios",
-                    name: "Problemas respiratorios",
-                    question: []
-                };
+                    text_question: "<p>¿Respira con mucho esfuerzo?\t</p>",
+                    answer: breatheEffort,
+                    question_id: "60525a76bd99de221332c166",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (breatheEffort) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Respira con mucho esfuerzo?\t</p>",
-                        answer: breatheEffort,
-                        question_id: "60525a76bd99de221332c166",
-                        question_type: 2
-                    }
-                );
-            }
+        if (speedSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿A qué velocidad?</p>",
+                    answer: speedSelected,
+                    question_id: "60525a9a05651e70c874f5c7",
+                    question_type: 1
+                }
+            );
+        }
+        
+        if (ribs) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Se le marcan las costillas al respirar?</p>",
+                    answer: ribs,
+                    question_id: "60525ab6e56a0a32731ff898",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (speedSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿A qué velocidad?</p>",
-                        answer: speedSelected,
-                        question_id: "60525a9a05651e70c874f5c7",
-                        question_type: 1
-                    }
-                );
-            }
-            
-            if (ribs) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Se le marcan las costillas al respirar?</p>",
-                        answer: ribs,
-                        question_id: "60525ab6e56a0a32731ff898",
-                        question_type: 2
-                    }
-                );
-            }
+        if (clavicles) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Se le marcan las clavículas al respirar?</p>",
+                    answer: clavicles,
+                    question_id: "60525adabd99de221332c167",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (clavicles) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Se le marcan las clavículas al respirar?</p>",
-                        answer: clavicles,
-                        question_id: "60525adabd99de221332c167",
-                        question_type: 2
-                    }
-                );
-            }
+        if (chestMoves) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿El tórax se mueve igual en ambos lados?</p>",
+                    answer: chestMoves,
+                    question_id: "60525afb05651e70c874f5c8",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (chestMoves) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿El tórax se mueve igual en ambos lados?</p>",
-                        answer: chestMoves,
-                        question_id: "60525afb05651e70c874f5c8",
-                        question_type: 2
-                    }
-                );
-            }
+        if (howExpandsSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Cómo se expande el tórax?</p>",
+                    answer: howExpandsSelected,
+                    question_id: "60525b4c05651e70c874f5c9",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (howExpandsSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Cómo se expande el tórax?</p>",
-                        answer: howExpandsSelected,
-                        question_id: "60525b4c05651e70c874f5c9",
-                        question_type: 1
-                    }
-                );
-            }
+        if (hasCoughSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Tiene tos?</p>",
+                    answer: hasCoughSelected,
+                    question_id: "60525b7de56a0a32731ff89a",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (hasCoughSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Tiene tos?</p>",
-                        answer: hasCoughSelected,
-                        question_id: "60525b7de56a0a32731ff89a",
-                        question_type: 1
-                    }
-                );
-            }
+        if (coloredFingersSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿De qué color tiene la punta de los dedos?</p>",
+                    answer: coloredFingersSelected,
+                    question_id: "60525bb3bd99de221332c168",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (coloredFingersSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿De qué color tiene la punta de los dedos?</p>",
-                        answer: coloredFingersSelected,
-                        question_id: "60525bb3bd99de221332c168",
-                        question_type: 1
-                    }
-                );
-            }
+        if (laboredBreathing) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Le cuesta respirar al estar acostado?</p>",
+                    answer: laboredBreathing,
+                    question_id: "60525bf305651e70c874f5ca",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (laboredBreathing) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Le cuesta respirar al estar acostado?</p>",
-                        answer: laboredBreathing,
-                        question_id: "60525bf305651e70c874f5ca",
-                        question_type: 2
-                    }
-                );
-            }
+        if (lipColorSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿De qué color tiene los labios?</p>",
+                    answer: lipColorSelected,
+                    question_id: "60525c21bd99de221332c169",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (lipColorSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿De qué color tiene los labios?</p>",
-                        answer: lipColorSelected,
-                        question_id: "60525c21bd99de221332c169",
-                        question_type: 1
-                    }
-                );
-            }
+        if (lungSecretions) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Logra escuchar secreciones en los pulmones?</p>",
+                    answer: lungSecretions,
+                    question_id: "60525c4505651e70c874f5cb",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (lungSecretions) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Logra escuchar secreciones en los pulmones?</p>",
-                        answer: lungSecretions,
-                        question_id: "60525c4505651e70c874f5cb",
-                        question_type: 2
-                    }
-                );
-            }
-
-            setloading(true);
+        setloading(true);
+        if (dimension.question.length > 0) {
             saveDimension(dimension);
+        } else {
+            removeDimension(dimension);
         }
         navigation.navigate('DimensionsInto');
     }

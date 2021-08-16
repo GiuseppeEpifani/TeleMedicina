@@ -17,17 +17,17 @@ export const getPatientsFilter = async ({rbd, name, lastname}) => {
                     if (name && lastname) {
                         let namePatient = patient.name.toLowerCase();
                         let lastnamePatient = patient.lastname ? patient.lastname.toLowerCase() : '';
-                        return namePatient.indexOf(name) > -1 && lastnamePatient.indexOf(lastname) > -1;  
+                        return namePatient.indexOf(name.toLowerCase()) > -1 && lastnamePatient.indexOf(lastname.toLowerCase()) > -1;  
                     }
 
                     if (name) {
                         let namePatient = patient.name.toLowerCase();
-                        return namePatient.indexOf(name) > -1;  
+                        return namePatient.indexOf(name.toLowerCase()) > -1;  
                     }
 
                     if (lastname) {
                         let lastnamePatient = patient.lastname ? patient.lastname.toLowerCase() : '';
-                        return lastnamePatient.indexOf(lastname) > -1;  
+                        return lastnamePatient.indexOf(lastname.toLowerCase()) > -1;  
                     }
                 });
                 newArrayPatients = [...newArrayPatients, ...patientsFilter];
@@ -35,7 +35,7 @@ export const getPatientsFilter = async ({rbd, name, lastname}) => {
 
             return newArrayPatients;
         } else {
-            return null;
+            return [];
         }
     } catch (error) {
         console.log(error)

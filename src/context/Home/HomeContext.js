@@ -7,6 +7,7 @@ import { getPatientPaginate } from '../../helpers/patientsLocal/getPatientsPagin
 import { modeApp } from '../../helpers/modeApp';
 import { updatePatientLocal } from '../../helpers/patientsLocal/updatePatientLocal';
 import { homeReducer } from './HomeReducer';
+import NetInfo from "@react-native-community/netinfo";
 
 const initialState = {
     patient: {},
@@ -16,7 +17,8 @@ const initialState = {
 	totalPage: 0,
 	numberPage: 0,
 	disabled: false,
-	message: ''
+	message: '',
+	loadingPatients: true,
 }
 
 
@@ -30,20 +32,24 @@ export const HomeProvider = ({ children }) => {
 	const getPatient = async () => {
 		try {
 			if (!await modeApp()) {
-				const { data: {patients, lastPage} } = await teleMedicinaApi.post('/get.pager_patients');
-				let arrayPatient = [];
-				patients.forEach((patient, index) => {
-				   if (index === 0) {
-					   dispatch({type: 'setPatient', payLoad: patients[0]});
-					   arrayPatient =  [...arrayPatient, {...patient, select: true}];
-				   } else {
-					   arrayPatient =  [...arrayPatient, {...patient, select: false}];
-				   }
-			   });
+				NetInfo.fetch().then(async (state) => {
+					if (state.isConnected) {
+						const { data: {patients, lastPage} } = await teleMedicinaApi.post('/get.pager_patients');
+						let arrayPatient = [];
+						patients.forEach((patient, index) => {
+						if (index === 0) {
+							dispatch({type: 'setPatient', payLoad: patients[0]});
+							arrayPatient =  [...arrayPatient, {...patient, select: true}];
+						} else {
+							arrayPatient =  [...arrayPatient, {...patient, select: false}];
+						}
+						});
 
-			   dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+						dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+					}
+				})
 			} else {
-				const { patients, lastPage } = await getPatientPaginate(1);
+				const { patients, lastPage } = await getPatientPaginate(0);
 				let arrayPatient = [];
 				patients.forEach((patient, index) => {
 				   if (index === 0) {
@@ -54,7 +60,7 @@ export const HomeProvider = ({ children }) => {
 				   }
 			   });
 
-			   dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+			   dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 1, totalPage: lastPage}});
 			}
 			
 		} catch (error) {
@@ -78,7 +84,7 @@ export const HomeProvider = ({ children }) => {
 
 				dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
 			} else {
-				if (rbd != '-') {
+				if (rbd !== '-') {
 					const patients = await getPatientsFilter({rbd, name, lastname});
 					let arrayPatient = [];
 					patients.forEach((patient, index) => {
@@ -228,6 +234,10 @@ export const HomeProvider = ({ children }) => {
 	const removeMessage = () => {
 		dispatch({type: 'setMessage', payLoad: ''});
 	}
+
+	const setLoadingPatients = (value) => {
+        dispatch({type: 'setLoadingPatients', payLoad: value});
+    }
 	
     return (
         <HomeContext.Provider value={{
@@ -240,7 +250,8 @@ export const HomeProvider = ({ children }) => {
 			createNewPatient,
 			updatePatient,
 			deletePatient,
-			removeMessage
+			removeMessage,
+			setLoadingPatients
         }}>
             { children }
         </HomeContext.Provider>

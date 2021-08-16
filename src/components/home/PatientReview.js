@@ -66,7 +66,7 @@ const PatientReview = ({navigation}) => {
                 navigation.navigate('EditPatient');
             } else {
                 Alert.alert(
-                    "Importante leer",
+                    "Atención",
                     "Los pacientes que no son agregados localmente, no pueden ser editados cuando la aplicación esta modo offline." ,
                     [
                         {

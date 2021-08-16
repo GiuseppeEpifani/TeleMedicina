@@ -59,12 +59,6 @@ export const recordReducer = ( state, action ) => {
                 ...state,
                 imageFallsAndBumps: { base64: null, tempUri: null }
             }
-        
-        case 'setUser':
-            return {
-                ...state,
-                user: action.payLoad
-            }
 
         default:
             return state;

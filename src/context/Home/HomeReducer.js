@@ -36,7 +36,13 @@ export const homeReducer = ( state, action ) => {
                 ...state,
                 message: action.payLoad
             }
-            
+
+        case 'setLoadingPatients':
+            return {
+                ...state,
+                loadingPatients: action.payLoad
+            }
+
         default:
             return state;
     }

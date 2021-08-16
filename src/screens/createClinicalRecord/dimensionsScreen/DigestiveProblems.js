@@ -13,7 +13,7 @@ import TextArea from '../../../UI/TextArea';
 
 export const DigestiveProblems = ({navigation}) => {
 
-    const { saveDimension, currentRecord } = useContext(RecordContext);
+    const { saveDimension, currentRecord, removeDimension } = useContext(RecordContext);
     const thereIsDimension = currentRecord.clinical_interview.length > 0 && currentRecord.clinical_interview.some(item => item._id === '000000000000000000000004');
     const currentDimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000004');
 
@@ -34,142 +34,142 @@ export const DigestiveProblems = ({navigation}) => {
     const [loading, setloading] = useState(false);
 
     const handleSaveDimension = () => {
-        if (withDigestiveProblems || sickness || vomiting || howOftenSelected || appearanceOfVomitSelected || diarrhea || diarrheaEpisodesSelected || colorDepositionSelected ||
-            consistencyDeposition.value || ingestedSubstance.value || additionalInformation.value) {
-
-            let dimension = 
+        let dimension = 
+            {
+                _id: "000000000000000000000004",
+                active: 1,
+                description: "Encuesta para identificar problemas digestivos",
+                name: "Problemas digestivos",
+                question: []
+            };
+        
+        if (withDigestiveProblems) {
+            dimension.question.push(
                 {
-                    _id: "000000000000000000000004",
-                    active: 1,
-                    description: "Encuesta para identificar problemas digestivos",
-                    name: "Problemas digestivos",
-                    question: []
-                };
-            
-            if (withDigestiveProblems) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>Problemas digestivos </p>",
-                        answer: withDigestiveProblems,
-                        question_id: "60521ba405651e70c874f5c2",
-                        question_type: 2
-                    }
-                );
-            }
-
-            if (sickness) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>Náuseas</p>",
-                        answer: sickness,
-                        question_id: "60521bd2e56a0a32731ff894",
-                        question_type: 2
-                    }
-                );
-            }
-
-            if (vomiting) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>Vómitos</p>",
-                        answer: vomiting,
-                        question_id: "60521be205651e70c874f5c3",
-                        question_type: 2
-                    }
-                );
-            }
-
-            if (howOftenSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Cuántas veces?</p>",
-                        answer: howOftenSelected,
-                        question_id: "60521c16bd99de221332c162",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (appearanceOfVomitSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Qué aspecto tiene el vomito?</p>",
-                        answer: appearanceOfVomitSelected,
-                        question_id: "60521c65e56a0a32731ff895",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (diarrhea) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>Diarrea</p>",
-                        answer: diarrhea,
-                        question_id: "60521c8005651e70c874f5c4",
-                        question_type: 2
-                    }
-                );
-            }
-
-            if (diarrheaEpisodesSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Cuántos episodios de diarrea?</p>",
-                        answer: diarrheaEpisodesSelected,
-                        question_id: "60521cd6e56a0a32731ff896",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (colorDepositionSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Qué color tiene la deposición?</p>",
-                        answer: colorDepositionSelected,
-                        question_id: "60521d55bd99de221332c163",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (consistencyDeposition.value) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Que Consistencia tiene la deposición?</p>",
-                        answer: consistencyDeposition.value,
-                        question_id: "60521cf705651e70c874f5c5",
-                        question_type: 3
-                    }
-                );
-            }
-
-            if (ingestedSubstance.value) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Ha ingerido alguna comida, medicamento o sustancia que le podría causar los síntomas?</p>",
-                        answer: ingestedSubstance.value,
-                        question_id: "60521d7ce56a0a32731ff897",
-                        question_type: 3
-                    }
-                );
-            }
-
-            if (additionalInformation.value) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>Si es posible, escriba otra información que desee entregar sobre el estómago, intestino o gases</p>",
-                        answer: additionalInformation.value,
-                        question_id: "60521d9b05651e70c874f5c6",
-                        question_type: 3
-                    }
-                );
-            }
-
-            setloading(true);
-            saveDimension(dimension);      
+                    text_question: "<p>Problemas digestivos </p>",
+                    answer: withDigestiveProblems,
+                    question_id: "60521ba405651e70c874f5c2",
+                    question_type: 2
+                }
+            );
         }
+
+        if (sickness) {
+            dimension.question.push(
+                {
+                    text_question: "<p>Náuseas</p>",
+                    answer: sickness,
+                    question_id: "60521bd2e56a0a32731ff894",
+                    question_type: 2
+                }
+            );
+        }
+
+        if (vomiting) {
+            dimension.question.push(
+                {
+                    text_question: "<p>Vómitos</p>",
+                    answer: vomiting,
+                    question_id: "60521be205651e70c874f5c3",
+                    question_type: 2
+                }
+            );
+        }
+
+        if (howOftenSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Cuántas veces?</p>",
+                    answer: howOftenSelected,
+                    question_id: "60521c16bd99de221332c162",
+                    question_type: 1
+                }
+            );
+        }
+
+        if (appearanceOfVomitSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Qué aspecto tiene el vomito?</p>",
+                    answer: appearanceOfVomitSelected,
+                    question_id: "60521c65e56a0a32731ff895",
+                    question_type: 1
+                }
+            );
+        }
+
+        if (diarrhea) {
+            dimension.question.push(
+                {
+                    text_question: "<p>Diarrea</p>",
+                    answer: diarrhea,
+                    question_id: "60521c8005651e70c874f5c4",
+                    question_type: 2
+                }
+            );
+        }
+
+        if (diarrheaEpisodesSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Cuántos episodios de diarrea?</p>",
+                    answer: diarrheaEpisodesSelected,
+                    question_id: "60521cd6e56a0a32731ff896",
+                    question_type: 1
+                }
+            );
+        }
+
+        if (colorDepositionSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Qué color tiene la deposición?</p>",
+                    answer: colorDepositionSelected,
+                    question_id: "60521d55bd99de221332c163",
+                    question_type: 1
+                }
+            );
+        }
+
+        if (consistencyDeposition.value) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Que Consistencia tiene la deposición?</p>",
+                    answer: consistencyDeposition.value,
+                    question_id: "60521cf705651e70c874f5c5",
+                    question_type: 3
+                }
+            );
+        }
+
+        if (ingestedSubstance.value) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Ha ingerido alguna comida, medicamento o sustancia que le podría causar los síntomas?</p>",
+                    answer: ingestedSubstance.value,
+                    question_id: "60521d7ce56a0a32731ff897",
+                    question_type: 3
+                }
+            );
+        }
+
+        if (additionalInformation.value) {
+            dimension.question.push(
+                {
+                    text_question: "<p>Si es posible, escriba otra información que desee entregar sobre el estómago, intestino o gases</p>",
+                    answer: additionalInformation.value,
+                    question_id: "60521d9b05651e70c874f5c6",
+                    question_type: 3
+                }
+            );
+        }
+
+        setloading(true);
+        if (dimension.question.length > 0) {
+            saveDimension(dimension);
+        } else {
+            removeDimension(dimension);
+        }  
         navigation.navigate('DimensionsInto');
     }
 

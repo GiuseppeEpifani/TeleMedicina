@@ -111,7 +111,7 @@ export const HealthCheck = ({navigation}) => {
             breathingFrequency.value || bloodGlucose.value || o2Saturation.value || temperature.value || weight.value || height.value) {
             health_check = 
                 {
-                    audiovisual_support: (images.length > 0 || await modeApp() && imagesSavedLocal.length > imagesLocal.length) ? audiovisualSupportArray : audiovisualSupport,
+                    audiovisual_support: (images.length > 0 || await modeApp() && imagesSavedLocal && imagesSavedLocal.length > imagesLocal.length) ? audiovisualSupportArray : audiovisualSupport,
                     audiovisual_support_length: audiovisualSupportLength,
                     blood_glucose: bloodGlucose.value,
                     blood_glucose_type: bloodGlucoseType.value,

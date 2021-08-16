@@ -11,7 +11,7 @@ import { RecordContext } from '../../../context/RecordFile/RecordContext';
 
 export const BehaviorProblems = ({navigation}) => {
 
-    const { saveDimension, currentRecord } = useContext(RecordContext);
+    const { saveDimension, currentRecord, removeDimension } = useContext(RecordContext);
     const thereIsDimension = currentRecord.clinical_interview.length > 0 && currentRecord.clinical_interview.some(item => item._id === '000000000000000000000002');
     const currentDimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000002');
 
@@ -57,261 +57,259 @@ export const BehaviorProblems = ({navigation}) => {
     const [loading, setloading] = useState(false);
 
     const handleSaveDimension = async () => {
-        if (consciousnessLevelSelected || smileSelected || armMobilitySelected || wordsSelected || eyeApertureSelected || verbalResponseSelected || motorResponseSelected
-            || problemsMovingBody || difficultToMoveArmsSelected || difficultToMoveLegsSelected || limbSensation || whatLimbSensationSelected || whatArmFeelsSelected || 
-            whatLegsFeelsSelected || someSideOfTheFaceLooksDown || whichSideOfTheFaceSelected || hardPronunceWords || whichProblemHaveSelected || behaviourSelected ||
-            recognizePeople || recognizeTheDate || understandOrders) {
+        let dimension = {
+            active: 1,
+            description: 'Encuesta de problemas de comportamiento',
+            name: 'Problemas comportamiento',
+            question: [],
+            _id: '000000000000000000000002'
+        };
 
-            let dimension = {
-                active: 1,
-                description: 'Encuesta de problemas de comportamiento',
-                name: 'Problemas comportamiento',
-                question: [],
-                _id: '000000000000000000000002'
-            };
-
-            if (consciousnessLevelSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿cual es tu nivel de consciencia?</p>",
-                        answer: consciousnessLevelSelected,
-                        question_id: "6052614705651e70c874f5d0",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (smileSelected || armMobilitySelected || wordsSelected) {
-                if (smileSelected && armMobilitySelected && wordsSelected) {
-                    setErrorCincinnati(false);
-                    dimension.question.push(
-                        {
-                            text_question: "Escala de cincinnati",
-                            question_id: "60ca72443d2da079df46451b",
-                            question_type: 5,
-                            question: [
-                                {
-                                    text_question: "<p>Sonrisa</p>",
-                                    answer: JSON.parse(smileSelected)
-                                },
-                                {
-                                    text_question: "<p>Movilidad brazos</p>",
-                                    answer: JSON.parse(armMobilitySelected)
-                                },
-                                {
-                                    text_question: "<p>Palabras</p>",
-                                    answer: JSON.parse(wordsSelected)
-                                }
-                            ],
-                            result_text: 2,
-                            result_max: 3
-                        }
-                    );
-                } else {
-                    setErrorCincinnati(true);                 
-                    return;
+        if (consciousnessLevelSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿cual es tu nivel de consciencia?</p>",
+                    answer: consciousnessLevelSelected,
+                    question_id: "6052614705651e70c874f5d0",
+                    question_type: 1
                 }
-            }
+            );
+        }
 
-            if (eyeApertureSelected || verbalResponseSelected || motorResponseSelected) {
-                if (eyeApertureSelected && verbalResponseSelected && motorResponseSelected) {
-                    setErrorGlasgow(false);
-                    dimension.question.push(
-                        {
-                            text_question: "Escala coma de glasgow",
-                            question_id: "60ca72443d2da079df46451c",
-                            question_type: 6,
-                            question: [
-                              {
-                                text_question: "<p>Apertura ocular</p>",
-                                answer: JSON.parse(eyeApertureSelected)
-                              },
-                              {
-                                text_question: "<p>Respuesta verbal</p>",
-                                answer: JSON.parse(verbalResponseSelected)      
-                              },
-                              {
-                                text_question: "<p>Respuesta motriz</p>",
-                                answer: JSON.parse(motorResponseSelected)  
-                              }
-                            ],
-                            result_text: 12,
-                            result_max: 15
-                        }
-                    );
-                } else {
-                    setErrorGlasgow(true);                  
-                    return;
+        if (smileSelected || armMobilitySelected || wordsSelected) {
+            if (smileSelected && armMobilitySelected && wordsSelected) {
+                setErrorCincinnati(false);
+                dimension.question.push(
+                    {
+                        text_question: "Escala de cincinnati",
+                        question_id: "60ca72443d2da079df46451b",
+                        question_type: 5,
+                        question: [
+                            {
+                                text_question: "<p>Sonrisa</p>",
+                                answer: JSON.parse(smileSelected)
+                            },
+                            {
+                                text_question: "<p>Movilidad brazos</p>",
+                                answer: JSON.parse(armMobilitySelected)
+                            },
+                            {
+                                text_question: "<p>Palabras</p>",
+                                answer: JSON.parse(wordsSelected)
+                            }
+                        ],
+                        result_text: 2,
+                        result_max: 3
+                    }
+                );
+            } else {
+                setErrorCincinnati(true);                 
+                return;
+            }
+        }
+
+        if (eyeApertureSelected || verbalResponseSelected || motorResponseSelected) {
+            if (eyeApertureSelected && verbalResponseSelected && motorResponseSelected) {
+                setErrorGlasgow(false);
+                dimension.question.push(
+                    {
+                        text_question: "Escala coma de glasgow",
+                        question_id: "60ca72443d2da079df46451c",
+                        question_type: 6,
+                        question: [
+                            {
+                            text_question: "<p>Apertura ocular</p>",
+                            answer: JSON.parse(eyeApertureSelected)
+                            },
+                            {
+                            text_question: "<p>Respuesta verbal</p>",
+                            answer: JSON.parse(verbalResponseSelected)      
+                            },
+                            {
+                            text_question: "<p>Respuesta motriz</p>",
+                            answer: JSON.parse(motorResponseSelected)  
+                            }
+                        ],
+                        result_text: 12,
+                        result_max: 15
+                    }
+                );
+            } else {
+                setErrorGlasgow(true);                  
+                return;
+            }
+        }
+
+        if (problemsMovingBody) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Tiene problemas para movilizar el cuerpo?</p>",
+                    answer: problemsMovingBody,
+                    question_id: "60526161e56a0a32731ff89e",
+                    question_type: 2
                 }
-            }
+            );
+        }
 
-            if (problemsMovingBody) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Tiene problemas para movilizar el cuerpo?</p>",
-                        answer: problemsMovingBody,
-                        question_id: "60526161e56a0a32731ff89e",
-                        question_type: 2
-                    }
-                );
-            }
+        if (difficultToMoveArmsSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Le cuesta mover los brazos?</p>",
+                    answer: difficultToMoveArmsSelected,
+                    question_id: "605261a3bd99de221332c16f",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (difficultToMoveArmsSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Le cuesta mover los brazos?</p>",
-                        answer: difficultToMoveArmsSelected,
-                        question_id: "605261a3bd99de221332c16f",
-                        question_type: 1
-                    }
-                );
-            }
+        if (difficultToMoveLegsSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Le cuesta mover las piernas?</p>",
+                    answer: difficultToMoveLegsSelected,
+                    question_id: "605261e205651e70c874f5d1",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (difficultToMoveLegsSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Le cuesta mover las piernas?</p>",
-                        answer: difficultToMoveLegsSelected,
-                        question_id: "605261e205651e70c874f5d1",
-                        question_type: 1
-                    }
-                );
-            }
+        if (limbSensation) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Tiene algunas sensación extraña en extremidades?</p>",
+                    answer: limbSensation,
+                    question_id: "60526204e56a0a32731ff89f",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (limbSensation) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Tiene algunas sensación extraña en extremidades?</p>",
-                        answer: limbSensation,
-                        question_id: "60526204e56a0a32731ff89f",
-                        question_type: 2
-                    }
-                );
-            }
+        if (whatLimbSensationSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Que sensación extraña?</p>",
+                    answer: whatLimbSensationSelected,
+                    question_id: "60526235bd99de221332c170",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (whatLimbSensationSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Que sensación extraña?</p>",
-                        answer: whatLimbSensationSelected,
-                        question_id: "60526235bd99de221332c170",
-                        question_type: 1
-                    }
-                );
-            }
+        if (whatArmFeelsSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿En qué brazo siente esa sensación?</p>",
+                    answer: whatArmFeelsSelected,
+                    question_id: "6052627905651e70c874f5d2",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (whatArmFeelsSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿En qué brazo siente esa sensación?</p>",
-                        answer: whatArmFeelsSelected,
-                        question_id: "6052627905651e70c874f5d2",
-                        question_type: 1
-                    }
-                );
-            }
+        if (whatLegsFeelsSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿En qué pierna siente esa sensación?</p>",
+                    answer: whatLegsFeelsSelected,
+                    question_id: "605262b8e56a0a32731ff8a0",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (whatLegsFeelsSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿En qué pierna siente esa sensación?</p>",
-                        answer: whatLegsFeelsSelected,
-                        question_id: "605262b8e56a0a32731ff8a0",
-                        question_type: 1
-                    }
-                );
-            }
+        if (someSideOfTheFaceLooksDown) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Algún lado de la cara se ve caído?</p>",
+                    answer: someSideOfTheFaceLooksDown,
+                    question_id: "605262f1bd99de221332c171",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (someSideOfTheFaceLooksDown) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Algún lado de la cara se ve caído?</p>",
-                        answer: someSideOfTheFaceLooksDown,
-                        question_id: "605262f1bd99de221332c171",
-                        question_type: 2
-                    }
-                );
-            }
+        if (whichSideOfTheFaceSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Qué lado de la cara se ve distinto o extraño?</p>",
+                    answer: whichSideOfTheFaceSelected,
+                    question_id: "6052632805651e70c874f5d3",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (whichSideOfTheFaceSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Qué lado de la cara se ve distinto o extraño?</p>",
-                        answer: whichSideOfTheFaceSelected,
-                        question_id: "6052632805651e70c874f5d3",
-                        question_type: 1
-                    }
-                );
-            }
+        if (hardPronunceWords) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Le cuesta pronunciar las palabras?</p>",
+                    answer: hardPronunceWords,
+                    question_id: "60526344e56a0a32731ff8a1",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (hardPronunceWords) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Le cuesta pronunciar las palabras?</p>",
-                        answer: hardPronunceWords,
-                        question_id: "60526344e56a0a32731ff8a1",
-                        question_type: 2
-                    }
-                );
-            }
+        if (whichProblemHaveSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Qué problema tiene?</p>",
+                    answer: whichProblemHaveSelected,
+                    question_id: "6052639dbd99de221332c172",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (whichProblemHaveSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Qué problema tiene?</p>",
-                        answer: whichProblemHaveSelected,
-                        question_id: "6052639dbd99de221332c172",
-                        question_type: 1
-                    }
-                );
-            }
+        if (behaviourSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Cómo es su comportamiento o conducta?</p>",
+                    answer: behaviourSelected,
+                    question_id: "605263e705651e70c874f5d4",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (behaviourSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Cómo es su comportamiento o conducta?</p>",
-                        answer: behaviourSelected,
-                        question_id: "605263e705651e70c874f5d4",
-                        question_type: 1
-                    }
-                );
-            }
+        if (recognizePeople) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Es capaz de reconocer a las personas?</p>",
+                    answer: recognizePeople,
+                    question_id: "60526406e56a0a32731ff8a2",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (recognizePeople) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Es capaz de reconocer a las personas?</p>",
-                        answer: recognizePeople,
-                        question_id: "60526406e56a0a32731ff8a2",
-                        question_type: 2
-                    }
-                );
-            }
+        if (recognizeTheDate) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Reconoce la fecha?</p>",
+                    answer: recognizeTheDate,
+                    question_id: "60526413bd99de221332c173",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (recognizeTheDate) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Reconoce la fecha?</p>",
-                        answer: recognizeTheDate,
-                        question_id: "60526413bd99de221332c173",
-                        question_type: 2
-                    }
-                );
-            }
+        if (understandOrders) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Es capaz de entender las órdenes, indicaciones o preguntas?</p>",
+                    answer: understandOrders,
+                    question_id: "6052644e05651e70c874f5d5",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (understandOrders) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Es capaz de entender las órdenes, indicaciones o preguntas?</p>",
-                        answer: understandOrders,
-                        question_id: "6052644e05651e70c874f5d5",
-                        question_type: 2
-                    }
-                );
-            }
-
-            setloading(true);
+        setloading(true);
+        if (dimension.question.length > 0) {
             saveDimension(dimension);
+        } else {
+            removeDimension(dimension);
         }
         navigation.navigate('DimensionsInto');
     }

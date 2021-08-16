@@ -7,7 +7,7 @@ import { Image } from 'react-native-elements';
 import { Text } from 'react-native';
 import { URL } from '../const/Url';
 
-const ContainerCamera = ({setImage, label, imageSupport, setImageSupport, patientId, tempUri, imageLocal}) => {
+const ContainerCamera = ({setImage, label, imageSupport, setImageSupport, patientId, tempUri, imageLocal, setImageLocal}) => {
 
     const [TempUri, setTempUri] = useState(tempUri);
 
@@ -35,6 +35,7 @@ const ContainerCamera = ({setImage, label, imageSupport, setImageSupport, patien
         setTempUri(null);
         setImage({base64: null, tempUri: null});
         setImageSupport(null);
+        setImageLocal(null);
     }
 
     return (

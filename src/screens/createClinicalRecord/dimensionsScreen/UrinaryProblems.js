@@ -11,7 +11,7 @@ import { RecordContext } from '../../../context/RecordFile/RecordContext';
 
 export const UrinaryProblems = ({navigation}) => {
 
-    const { saveDimension, currentRecord } = useContext(RecordContext);
+    const { saveDimension, currentRecord, removeDimension } = useContext(RecordContext);
     const thereIsDimension = currentRecord.clinical_interview.length > 0 && currentRecord.clinical_interview.some(item => item._id === '000000000000000000000005');
     const currentDimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000005');
 
@@ -31,109 +31,109 @@ export const UrinaryProblems = ({navigation}) => {
     const [pusInUrine, setPusInUrine] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60525ee0bd99de221332c16c')?.answer : null);
     const [loading, setloading] = useState(false);
 
-    const handleSaveDimension = () => {
+    const handleSaveDimension = () => {            
+        let dimension = 
+            {
+                _id: "000000000000000000000005",
+                active: 1,
+                description: "Encuesta para identificar problemas urinarios",
+                nam: "Problemas urinarios",
+                question: []
+            }
 
-        if (urinationTube || discomfortsUrinateSelected || timesHeGoesToTheBathroomSelected || amountOfUrineSelected || urineColorSelected || smellOfUrineSelected || sensationSelected || pusInUrine) {
-            
-            let dimension = 
+        if (urinationTube) {
+            dimension.question.push(
                 {
-                    _id: "000000000000000000000005",
-                    active: 1,
-                    description: "Encuesta para identificar problemas urinarios",
-                    nam: "Problemas urinarios",
-                    question: []
+                    text_question: "<p>¿Usa sonda permanente para orinar?</p>",
+                    answer: urinationTube,
+                    question_id: "60525d1505651e70c874f5ce",
+                    question_type: 2
                 }
+            );
+        }
 
-            if (urinationTube) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Usa sonda permanente para orinar?</p>",
-                        answer: urinationTube,
-                        question_id: "60525d1505651e70c874f5ce",
-                        question_type: 2
-                    }
-                );
-            }
+        if (discomfortsUrinateSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Qué molestia tiene el orinar?</p>",
+                    answer: discomfortsUrinateSelected,
+                    question_id: "60525d50e56a0a32731ff89b",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (discomfortsUrinateSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Qué molestia tiene el orinar?</p>",
-                        answer: discomfortsUrinateSelected,
-                        question_id: "60525d50e56a0a32731ff89b",
-                        question_type: 1
-                    }
-                );
-            }
+        if (timesHeGoesToTheBathroomSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Cuántas veces va al baño a orinar?</p>",
+                    answer: timesHeGoesToTheBathroomSelected,
+                    question_id: "60525d8ebd99de221332c16a",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (timesHeGoesToTheBathroomSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Cuántas veces va al baño a orinar?</p>",
-                        answer: timesHeGoesToTheBathroomSelected,
-                        question_id: "60525d8ebd99de221332c16a",
-                        question_type: 1
-                    }
-                );
-            }
+        if (amountOfUrineSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Cuándo va al baño, Qué cantidad de orina hace?</p>",
+                    answer: amountOfUrineSelected,
+                    question_id: "60525de2e56a0a32731ff89c",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (amountOfUrineSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Cuándo va al baño, Qué cantidad de orina hace?</p>",
-                        answer: amountOfUrineSelected,
-                        question_id: "60525de2e56a0a32731ff89c",
-                        question_type: 1
-                    }
-                );
-            }
+        if (urineColorSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Qué color tiene la orina ?</p>",
+                    answer: urineColorSelected,
+                    question_id: "60525e2dbd99de221332c16b",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (urineColorSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Qué color tiene la orina ?</p>",
-                        answer: urineColorSelected,
-                        question_id: "60525e2dbd99de221332c16b",
-                        question_type: 1
-                    }
-                );
-            }
+        if (smellOfUrineSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Qué olor percibe en la orina?</p>",
+                    answer: smellOfUrineSelected,
+                    question_id: "60525e7f05651e70c874f5cf",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (smellOfUrineSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Qué olor percibe en la orina?</p>",
-                        answer: smellOfUrineSelected,
-                        question_id: "60525e7f05651e70c874f5cf",
-                        question_type: 1
-                    }
-                );
-            }
+        if (sensationSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Qué sientes cuando terminas de orinar?</p>",
+                    answer: sensationSelected,
+                    question_id: "60525ebde56a0a32731ff89d",
+                    question_type: 1
+                }
+            );
+        }
 
-            if (sensationSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Qué sientes cuando terminas de orinar?</p>",
-                        answer: sensationSelected,
-                        question_id: "60525ebde56a0a32731ff89d",
-                        question_type: 1
-                    }
-                );
-            }
+        if (pusInUrine) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Logras observar pus a través de la orina</p>",
+                    answer: pusInUrine,
+                    question_id: "60525ee0bd99de221332c16c",
+                    question_type: 2
+                }
+            );
+        }
 
-            if (pusInUrine) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Logras observar pus a través de la orina</p>",
-                        answer: pusInUrine,
-                        question_id: "60525ee0bd99de221332c16c",
-                        question_type: 2
-                    }
-                );
-            }
-
-            setloading(true);
+        setloading(true);
+        if (dimension.question.length > 0) {
             saveDimension(dimension);
+        } else {
+            removeDimension(dimension);
         }
         navigation.navigate('DimensionsInto');
     }

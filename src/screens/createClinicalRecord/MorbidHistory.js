@@ -53,7 +53,7 @@ export const MorbidHistory = ({navigation}) => {
         }
 
         setLoadingInit(false);
-    }, [])
+    }, []);
 
     const handleGetDate = (dateString) => {
         setLastRuleDate(dateString);

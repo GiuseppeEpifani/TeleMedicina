@@ -12,7 +12,7 @@ import { PRIMARY } from '../../const/Colors';
 
 export const SignIn = ({ navigation }) => {
 
-    const { signIn,errorMessage, removeError} = useContext(AuthContext)
+    const { signIn,errorMessage, removeError } = useContext(AuthContext);
     const [isValidEmail, setisValidEmail] = useState(true)
     const [formValues, handleInputChange] = useForm({ email: { value: '', isComplete: false }, password: { value: '', isComplete: false }});
     const [validField, setValidField] = useState(false)

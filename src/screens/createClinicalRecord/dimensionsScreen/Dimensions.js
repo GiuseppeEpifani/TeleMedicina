@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState } from 'react'
 import { View, ScrollView } from 'react-native'
 import { Badge, Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -8,6 +8,8 @@ import { CardInfoPatient } from '../../../components/infoPatient/CardInfoPatient
 import ButtonWithShadow from '../../../UI/ButtonWithShadow';
 import { HomeContext } from '../../../context/Home/HomeContext';
 import { RecordContext } from '../../../context/RecordFile/RecordContext';
+import { modeApp } from '../../../helpers/modeApp';
+import { removeSingleImage } from '../../../helpers/recordsLocal/removeSingleImage';
 
 export const Dimensions = ({navigation}) => {
 
@@ -31,6 +33,10 @@ export const Dimensions = ({navigation}) => {
                 }
             );
             saveDimension(dimension);
+        } else {
+            if (await modeApp()) {
+                removeSingleImage(currentRecord.id);
+            }
         }
         await updatedRecordClinicalInterview({patientId: patient._id, rbd: patient.rbd});
         navigation.navigate('InfoPatient');

@@ -61,6 +61,24 @@ export const authReducer = ( state, action ) => {
                 loading: true
             }
 
+        case 'setUploadBaseData':
+            return {
+                ...state,
+                uploadBaseData: action.payLoad
+            }
+
+        case 'setIsConnected':
+            return {
+                ...state,
+                isConnected: action.payLoad
+            }
+
+        case 'setModeAppOffline':
+            return {
+                ...state,
+                appOffline: action.payLoad
+            }
+
         default:
             return state;
     }

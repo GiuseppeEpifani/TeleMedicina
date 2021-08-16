@@ -38,7 +38,7 @@ export const InfoPatient = ({navigation}) => {
     const renderListRecord = ({item: record}) => {
 		return (
             <View style={{paddingHorizontal: 30}}>
-                <CardAttention navigation={navigation} record={record} deleteRecord={deleteRecord} setCurrentRecord={setCurrentRecord} finallyAttention={finallyAttention}/>
+                <CardAttention navigation={navigation} record={record} deleteRecord={deleteRecord} setCurrentRecord={setCurrentRecord} finallyAttention={finallyAttention} patient={patient} />
             </View>
 		)
 	}
@@ -76,6 +76,7 @@ export const InfoPatient = ({navigation}) => {
                             buttonStyle={{backgroundColor: SUCCESS, height: 40, width: 200, borderRadius: 20}}
                             titleStyle={{fontWeight: 'bold', marginLeft: 5}}
                             title="Crear atención"
+                            disabled={loadingData}
                             onPress={() => setModalVisible(true)}
                         />   
                     </View>

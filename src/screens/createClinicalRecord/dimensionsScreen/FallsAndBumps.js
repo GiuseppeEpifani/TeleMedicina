@@ -15,7 +15,7 @@ import { modeApp } from '../../../helpers/modeApp';
 
 export const FallsAndBumps = ({navigation}) => {
 
-    const { saveDimension, currentRecord, saveNewImageFallsAndBumps, imageFallsAndBumps, cleanImageFallsAndBumps } = useContext(RecordContext);
+    const { saveDimension, removeDimension, currentRecord, saveNewImageFallsAndBumps, imageFallsAndBumps, cleanImageFallsAndBumps } = useContext(RecordContext);
     const { patient } = useContext(HomeContext);
     const thereIsDimension = currentRecord.clinical_interview.length > 0 && currentRecord.clinical_interview.some(item => item._id === '000000000000000000000006');
     const currentDimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000006');
@@ -49,103 +49,106 @@ export const FallsAndBumps = ({navigation}) => {
     }
 
     const handleSaveDimension = async () => {
-        if (fallsOrBumpsSelected || asStepSelected || woundSiteSelected.length > 0 || bleedingOrInjurySelected.length > 0 || painSwellingDeformitySelected.length > 0 || conscienceLevelSelected || imageSupport || image) {
-            
-            let dimension = 
+        let dimension = 
+            {
+                _id: "000000000000000000000006",
+                active: 1,
+                description: "Encuesta de caídas y  golpes",
+                name: "Caídas y gopes",
+                question: []
+            }
+        
+        if (fallsOrBumpsSelected) {
+            dimension.question.push(
                 {
-                    _id: "000000000000000000000006",
-                    active: 1,
-                    description: "Encuesta de caídas y  golpes",
-                    name: "Caídas y gopes",
-                    question: []
+                    text_question: "<p>¿Ha sufrido alguna caída o golpe?</p>",
+                    answer: fallsOrBumpsSelected,
+                    question_id: "6052652ae56a0a32731ff8a3",
+                    question_type: 1
                 }
-            
-            if (fallsOrBumpsSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Ha sufrido alguna caída o golpe?</p>",
-                        answer: fallsOrBumpsSelected,
-                        question_id: "6052652ae56a0a32731ff8a3",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (asStepSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿En caso de caída, cómo ocurrió?</p>",
-                        answer: asStepSelected,
-                        question_id: "60526597bd99de221332c174",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (woundSiteSelected.length > 0) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿El golpe fue en?</p>",
-                        answer: woundSiteSelected,
-                        question_id: "605265f605651e70c874f5d8",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (bleedingOrInjurySelected.length > 0) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Tiene algún sangra-miento o herida en ?</p>",
-                        answer: bleedingOrInjurySelected,
-                        question_id: "6052664fe56a0a32731ff8a4",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (painSwellingDeformitySelected.length > 0) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>Presenta dolor, deformidad o inflamación en.. </p>",
-                        answer: painSwellingDeformitySelected,
-                        question_id: "6052669dbd99de221332c175",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (conscienceLevelSelected) {
-                dimension.question.push(
-                    {
-                        text_question: "<p>¿Cómo es el nivel de consciencia luego de la caída o golpe?</p>",
-                        answer: conscienceLevelSelected,
-                        question_id: "605266f8e56a0a32731ff8a5",
-                        question_type: 1
-                    }
-                );
-            }
-
-            if (image.base64) {
-                saveNewImageFallsAndBumps(image);
-            } else {
-                if (imageSupport) {
-                    dimension.question.push(
-                        {
-                            text_question: "<p>Adjunta imagenes</p>",
-                            answer: imageSupport,
-                            question_id: "60526705bd99de221332c176",
-                            question_type: 4,
-                            file: null
-                        }
-                    );
-                }
-                cleanImageFallsAndBumps();
-            }
-
-            setloading(true);
-            saveDimension(dimension);
+            );
         }
+
+        if (asStepSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿En caso de caída, cómo ocurrió?</p>",
+                    answer: asStepSelected,
+                    question_id: "60526597bd99de221332c174",
+                    question_type: 1
+                }
+            );
+        }
+
+        if (woundSiteSelected.length > 0) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿El golpe fue en?</p>",
+                    answer: woundSiteSelected,
+                    question_id: "605265f605651e70c874f5d8",
+                    question_type: 1
+                }
+            );
+        }
+
+        if (bleedingOrInjurySelected.length > 0) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Tiene algún sangra-miento o herida en ?</p>",
+                    answer: bleedingOrInjurySelected,
+                    question_id: "6052664fe56a0a32731ff8a4",
+                    question_type: 1
+                }
+            );
+        }
+
+        if (painSwellingDeformitySelected.length > 0) {
+            dimension.question.push(
+                {
+                    text_question: "<p>Presenta dolor, deformidad o inflamación en.. </p>",
+                    answer: painSwellingDeformitySelected,
+                    question_id: "6052669dbd99de221332c175",
+                    question_type: 1
+                }
+            );
+        }
+
+        if (conscienceLevelSelected) {
+            dimension.question.push(
+                {
+                    text_question: "<p>¿Cómo es el nivel de consciencia luego de la caída o golpe?</p>",
+                    answer: conscienceLevelSelected,
+                    question_id: "605266f8e56a0a32731ff8a5",
+                    question_type: 1
+                }
+            );
+        }
+
+        if (image.base64) {
+            saveNewImageFallsAndBumps(image);
+        } else {
+            if (imageSupport) {
+                dimension.question.push(
+                    {
+                        text_question: "<p>Adjunta imagenes</p>",
+                        answer: imageSupport,
+                        question_id: "60526705bd99de221332c176",
+                        question_type: 4,
+                        file: null
+                    }
+                );
+            }
+            cleanImageFallsAndBumps();
+        }
+
+
+        setloading(true);
+        if (dimension.question.length > 0 || image.base64) {
+            saveDimension(dimension);
+        } else {
+            removeDimension(dimension);
+        }
+    
         navigation.navigate('DimensionsInto');
     }
 
@@ -173,7 +176,7 @@ export const FallsAndBumps = ({navigation}) => {
                             <PickerMultiSelect value={bleedingOrInjurySelected} setValue={setBleedingOrInjurySelected} items={bleedingOrInjury} setItems={setBleedingOrInjury} max={5} label={'¿Tiene algún sangra-miento o herida en?'}/>
                             <PickerMultiSelect value={painSwellingDeformitySelected} setValue={setPainSwellingDeformitySelected} items={painSwellingDeformity} setItems={setPainSwellingDeformity} max={5} label={'Presenta dolor, deformidad o inflamación en..'}/>
                             <PickerSingleSelect setItems={setConscienceLevel} items={conscienceLevel} setValue={setConscienceLevelSelected} value={conscienceLevelSelected} label={"¿Cómo es el nivel de consciencia luego de la caída o golpe?"} />
-                            <ContainerCameraSingle imageLocal={imageLocal} setImage={setImage} imageSupport={imageSupport} setImageSupport={setImageSupport} patientId={patient._id} tempUri={imageFallsAndBumps.tempUri} label={'Apoyo Audiovisual'} />
+                            <ContainerCameraSingle setImageLocal={setImageLocal} imageLocal={imageLocal} setImage={setImage} imageSupport={imageSupport} setImageSupport={setImageSupport} patientId={patient._id} tempUri={imageFallsAndBumps.tempUri} label={'Apoyo Audiovisual'} />
                         </ScrollView>
                     </CardWithText>
                 </View>

@@ -23,8 +23,8 @@ const InputText = (props) => {
                     />
                     { props.buttonDelete &&
                         <Button
-                            containerStyle={{width: '20%'}}
-                            buttonStyle={{backgroundColor: WHITE, height: '100%'}}                         
+                            containerStyle={{width: 50, position: 'absolute', right: 0}}
+                            buttonStyle={{backgroundColor: WHITE, height: '100%'} }
                             onPress={(props.onPress) ? props.onPress : () => {}}
                             icon={
                                 <MaterialCommunityIcons

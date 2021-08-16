@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { Modal, Text, View, StyleSheet, TouchableOpacity, ScrollView, TouchableHighlight } from 'react-native'
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -11,6 +11,9 @@ import { formatDateHuman } from '../../helpers/formatDateHuman';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Hr from '../../UI/Hr';
+import { getMultipleImageHealthCheck } from '../../helpers/recordsLocal/getMultipleImageHealthCheck';
+import { getSingleImageDimension } from '../../helpers/recordsLocal/getSingleImageDimension';
+import { modeApp } from '../../helpers/modeApp';
 
 const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
     
@@ -30,10 +33,19 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
     const urinaryProblemsDimension = record.clinical_interview.find(item => item._id === '000000000000000000000005');
     const thereIsFallsAndBumps = record.clinical_interview.some(item => item._id === '000000000000000000000006');
     const fallsAndBumpsDimension = record.clinical_interview.find(item => item._id === '000000000000000000000006');
+    const [appIsLocal, setAppIsLocal] = useState(false);
+    const [imagesLocalhealtCheck, setImagesLocalhealtCheck] = useState([]);
+    const [imagesLocalDimension, setImagesLocalDimension] = useState();
 
     const imagesHealtCheck = (record.health_check.audiovisual_support && record.health_check.audiovisual_support.length > 0) ? record.health_check.audiovisual_support.map(item => {
         return {
             url: `${URL}/storage/clinical_record/${patient._id}/health_checks/${item.file}`,
+        }
+    }) : [];
+
+    const imagesHealtCheckLocal = (imagesLocalhealtCheck && imagesLocalhealtCheck.length > 0) ? imagesLocalhealtCheck.map(item => {
+        return {
+            url: item.file
         }
     }) : [];
 
@@ -42,6 +54,23 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
             url: `${URL}/storage/clinical_record/${patient._id}/dimension/${fallsAndBumpsDimension.question.find(item => item.question_id === '60526705bd99de221332c176').answer.file}`,
         }
     ] : [];
+
+    const imagesDimensionLocal = (imagesLocalDimension) ? [
+        {
+            url: imagesLocalDimension,
+        }
+    ] : [];
+
+    const getImagesLocal = async () => {
+        const isLocal = await modeApp();
+        setAppIsLocal(isLocal);
+        if (isLocal) {
+            const images = await getMultipleImageHealthCheck(record.id);
+            if (images && images.length > 0) setImagesLocalhealtCheck(images);
+            const imageDimension = await getSingleImageDimension(record.id);
+            if (imageDimension) setImagesLocalDimension(imageDimension.file);
+        }
+    }
 
     const closeModals = () => {
         if (showModalHealtCheck) {
@@ -61,6 +90,10 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
         )
     }
 
+    useEffect(() => {
+        getImagesLocal();
+    }, [record.health_check.audiovisual_support, fallsAndBumpsDimension]);
+
     return (
         <Modal
             animationType="fade"
@@ -72,13 +105,13 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
         >
             <Modal visible={showModalHealtCheck} transparent={true}>
                 <ImageViewer 
-                    imageUrls={imagesHealtCheck}
+                    imageUrls={appIsLocal ? imagesHealtCheckLocal : imagesHealtCheck}
                     renderHeader={renderHeader}
                 />
             </Modal>
             <Modal visible={showModalDimensions} transparent={true}>
                 <ImageViewer 
-                    imageUrls={imagesDimension}
+                    imageUrls={appIsLocal ? imagesDimensionLocal : imagesDimension}
                     renderHeader={renderHeader}
                 />
             </Modal>

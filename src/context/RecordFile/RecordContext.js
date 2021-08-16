@@ -7,6 +7,7 @@ import { recordReducer } from './RecordReducer';
 import { getUser } from '../../helpers/getUser';
 import { saveSingleImageDimension } from '../../helpers/recordsLocal/saveSingleImageDimension';
 import { saveMultipleImageHealthCheck } from '../../helpers/recordsLocal/saveMultipleImageHealthCheck';
+import { deleteRecordLocal } from '../../helpers/recordsLocal/deleteRecordLocal';
 
 const initialState = {
     clinicalRecords: [],
@@ -17,7 +18,6 @@ const initialState = {
     },
 	loading: false,
 	message: '',
-    user: {}
 }
 
 export const RecordContext = createContext(initialState);
@@ -25,16 +25,7 @@ export const RecordContext = createContext(initialState);
 export const RecordProvider = ({ children }) => {
 
     const [recordState, dispatch] = useReducer(recordReducer, initialState);
-	const { clinicalRecords, currentRecord, user } = recordState;
-
-    useEffect(() => {
-        getUserConnected();
-    }, []);
-
-    const getUserConnected = async () => {
-        const user = await getUser();
-        if (user) dispatch({type: 'setUser', payLoad: { name: user.name, lastname: user.lastname, rbd: user.rbd, _id: { $oid: user._id } }});
-    }
+	const { clinicalRecords, currentRecord } = recordState;
 
     const getRecords = async ({id, rbd}) => {
         try {
@@ -50,36 +41,40 @@ export const RecordProvider = ({ children }) => {
 		}
     }
 
-    const deleteRecord = async (id) => {
+    const deleteRecord = async ({_id, idLocal, rbd}) => {
         try {
             dispatch({type: 'setLoading', payLoad: true});
-			const { data } = await teleMedicinaApi.post('/delete.patient_clinical_file_id', { id });
-            let newRecordClinical = clinicalRecords.map(record => {
-                if (record._id === id) {
-                    return { ...record, ...{ deleted_at: data.deleted_at, digitador_delete: data.digitador_delete } };
-                } else {
-                    return record;
-                }
-            });
-			dispatch({type: 'setRecords', payLoad: newRecordClinical});
-            dispatch({type: 'setLoading', payLoad: false});
+            if (!await modeApp()) {
+                const { data } = await teleMedicinaApi.post('/delete.patient_clinical_file_id', { id: _id });
+                let newRecordClinical = clinicalRecords.map(record => {
+                    if (record._id === _id) {
+                        return { ...record, ...{ deleted_at: data.deleted_at, digitador_delete: data.digitador_delete } };
+                    } else {
+                        return record;
+                    }
+                });
+                dispatch({type: 'setRecords', payLoad: newRecordClinical});
+                dispatch({type: 'setLoading', payLoad: false});
+            } else {
+                await deleteRecordLocal(idLocal, rbd);
+                let newRecordClinical = clinicalRecords.filter(record => record.id !== idLocal);
+                dispatch({type: 'setRecords', payLoad: newRecordClinical});
+                dispatch({type: 'setLoading', payLoad: false});
+            }
 		} catch (error) {
 			console.log(error)
 		}
     }
 
     const createAttention = async (patient, reasonForConsultation, typeOfQuery) => {
+        const user = await getUser();
         const dateId = new Date();
         let record = 
             { 
                 clinical_patients_id: patient._id,
                 clinical_record_new: { 
                     clinical_interview: [],
-                    diagnosis: {
-                        observation: "",
-                        indication: "",
-                        digitador: {}
-                    },
+                    digitador: user,
                     health_check: {},
                     morbid_antecedent:{},
                     patient: {
@@ -100,6 +95,7 @@ export const RecordProvider = ({ children }) => {
                     id: `${patient._id}_${dateId}`
                 }
             }
+
         try {
             if (!await modeApp()) {
                 const { data } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', record);
@@ -143,22 +139,18 @@ export const RecordProvider = ({ children }) => {
                 clinical_record_new:
                     {
                         clinical_interview: currentRecord.clinical_interview,
-                        diagnosis:
-                            {
-                                observation: "",
-                                indication: "",
-                                digitador: {}
-                            },
+                        digitador: currentRecord.digitador,
                         health_check: currentRecord.health_check,
                         morbid_antecedent,
                         patient: currentRecord.patient,
                         reason_for_consultation: currentRecord.reason_for_consultation,
                         status: currentRecord.status,
                         type_of_query: currentRecord.type_of_query,
-                        _id: currentRecord._id,
+                        _id: currentRecord._id ? currentRecord._id : 0,
                         id: currentRecord.id
                     }
             };
+
         try {
             if (!await modeApp()) {
                 const { data } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', recordToUpdated);
@@ -177,18 +169,12 @@ export const RecordProvider = ({ children }) => {
                         clinical_interview: currentRecord.clinical_interview,
                         clinical_patients_id: patientId,
                         created_at: currentRecord.created_at,
-                        digitador: user,
+                        digitador: currentRecord.digitador,
                         health_check: currentRecord.health_check,
                         morbid_antecedent,
                         patient: currentRecord.patient,
                         reason_for_consultation: currentRecord.reason_for_consultation,
                         status: currentRecord.status,
-                        diagnosis:
-                            {
-                                observation: "",
-                                indication: "",
-                                digitador: {}
-                            },
                         type_of_query: currentRecord.type_of_query,
                         updated_at: null,
                         local: true,
@@ -217,22 +203,18 @@ export const RecordProvider = ({ children }) => {
                 clinical_record_new:
                     {
                         clinical_interview: currentRecord.clinical_interview,
-                        diagnosis:
-                            {
-                                observation: "",
-                                indication: "",
-                                digitador: {}
-                            },
+                        digitador: currentRecord.digitador,
                         health_check,
                         morbid_antecedent: currentRecord.morbid_antecedent,
                         patient: currentRecord.patient,
                         reason_for_consultation: currentRecord.reason_for_consultation,
                         status: currentRecord.status,
                         type_of_query: currentRecord.type_of_query,
-                        _id: currentRecord._id,
+                        _id: currentRecord._id ? currentRecord._id : 0,
                         id: currentRecord.id
                     }
             };
+
         try {
             if (!await modeApp()) {
                 const { data } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', recordToUpdated);
@@ -251,18 +233,12 @@ export const RecordProvider = ({ children }) => {
                         clinical_interview: currentRecord.clinical_interview,
                         clinical_patients_id: patientId,
                         created_at: currentRecord.created_at,
-                        digitador: user,
+                        digitador: currentRecord.digitador,
                         health_check,
                         morbid_antecedent: currentRecord.morbid_antecedent,
                         patient: currentRecord.patient,
                         reason_for_consultation: currentRecord.reason_for_consultation,
                         status: currentRecord.status,
-                        diagnosis:
-                            {
-                                observation: "",
-                                indication: "",
-                                digitador: {}
-                            },
                         type_of_query: currentRecord.type_of_query,
                         updated_at: null,
                         local: true,
@@ -291,22 +267,18 @@ export const RecordProvider = ({ children }) => {
                 clinical_record_new:
                     {
                         clinical_interview: currentRecord.clinical_interview,
-                        diagnosis:
-                            {
-                                observation: "",
-                                indication: "",
-                                digitador: {}
-                            },
+                        digitador: currentRecord.digitador,
                         health_check: currentRecord.health_check,
                         morbid_antecedent: currentRecord.morbid_antecedent,
                         patient: currentRecord.patient,
                         reason_for_consultation: currentRecord.reason_for_consultation,
                         status: 1,
                         type_of_query: currentRecord.type_of_query,
-                        _id: currentRecord._id,
+                        _id: currentRecord._id ? currentRecord._id : 0,
                         id: currentRecord.id
                     }
             };
+
         try {
             if (!await modeApp()) {
                 const { data } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', recordToUpdated);
@@ -325,17 +297,11 @@ export const RecordProvider = ({ children }) => {
                         clinical_interview: currentRecord.clinical_interview,
                         clinical_patients_id: patientId,
                         created_at: currentRecord.created_at,
-                        digitador: user,
+                        digitador: currentRecord.digitador,
                         health_check: currentRecord.health_check,
                         morbid_antecedent: currentRecord.morbid_antecedent,
                         patient: currentRecord.patient,
                         reason_for_consultation: currentRecord.reason_for_consultation,
-                        diagnosis:
-                        {
-                            observation: "",
-                            indication: "",
-                            digitador: {}
-                        },
                         type_of_query: currentRecord.type_of_query,
                         updated_at: null,
                         status: 1,
@@ -377,6 +343,7 @@ export const RecordProvider = ({ children }) => {
                 });
                 dispatch({type: 'setRecords', payLoad: newRecordClinical});
             } else {
+                const user = await getUser();
                 let recordToUpdated =
                     {
                         clinical_patients_id: patientId,
@@ -389,22 +356,24 @@ export const RecordProvider = ({ children }) => {
                                         indication,
                                         digitador: user
                                     },
+                                digitador: recordToFinally.digitador,
                                 health_check: recordToFinally.health_check,
                                 morbid_antecedent: recordToFinally.morbid_antecedent,
                                 patient: recordToFinally.patient,
                                 reason_for_consultation: recordToFinally.reason_for_consultation,
                                 status: 2,
                                 type_of_query: recordToFinally.type_of_query,
-                                _id: recordToFinally._id,
+                                _id: recordToFinally._id ? recordToFinally._id : 0,
                                 id: recordToFinally.id
                             }
                     };
+
                 let recordFormat =
                     {
                         clinical_interview: recordToFinally.clinical_interview,
                         clinical_patients_id: patientId,
                         created_at: recordToFinally.created_at,
-                        digitador: user,
+                        digitador: recordToFinally.digitador,
                         health_check: recordToFinally.health_check,
                         morbid_antecedent: recordToFinally.morbid_antecedent,
                         patient: recordToFinally.patient,
@@ -521,6 +490,12 @@ export const RecordProvider = ({ children }) => {
     const saveDimension = (dimension) => {
         dispatch({type: 'setDimension', payLoad: dimension});
     }
+    
+    const removeDimension = (dimension) => {
+        const newRecord = currentRecord.clinical_interview.filter(item => item._id !== dimension._id)
+        currentRecord.clinical_interview = newRecord;
+        setCurrentRecord(currentRecord)
+    }
 
     const setCurrentRecord = (record) => {
         dispatch({type: 'setCurrentRecord', payLoad: record});
@@ -550,7 +525,8 @@ export const RecordProvider = ({ children }) => {
             finallyRecordPatient,
             uploadSingleImage,
             saveNewImageFallsAndBumps,
-            cleanImageFallsAndBumps
+            cleanImageFallsAndBumps,
+            removeDimension
         }}>
             { children }
         </RecordContext.Provider>

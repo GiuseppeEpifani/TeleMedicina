@@ -17,12 +17,10 @@ import CardSearch from '../../UI/CardSearch';
 
 export const Home = ({navigation}) => {
 
- 	const { getPatient, listPatient, patient, loadMorePatient, removeMessage, handleSelectPatient, disabled, message, loading, getPatientFilter, loadMorePatientWithFilter, totalPage, numberPage } = useContext(HomeContext);
-
+ 	const { getPatient, loadingPatients, setLoadingPatients, listPatient, patient, loadMorePatient, removeMessage, handleSelectPatient, disabled, message, loading, getPatientFilter, loadMorePatientWithFilter, totalPage, numberPage } = useContext(HomeContext);
 	const [inputRun, setInputRun] = useState('');
 	const [inputName, setInputName] = useState('');
 	const [inputLastName, setInputLastName] = useState('');
-	const [loadingPatients, setLoadingPatients] = useState(true);
 	const [typeSearch, setTypeSearch] = useState(false);
 	const debouncedRun = useDebouncedValue(inputRun);
 	const debouncedName = useDebouncedValue(inputName);
@@ -30,7 +28,7 @@ export const Home = ({navigation}) => {
 
 	useEffect(() => {
 		if (debouncedRun.trim().length > 0 && debouncedRun == '-') return;
-		setLoadingPatients(true);
+			setLoadingPatients(true);
 		if (debouncedRun.trim().length == 0 && debouncedName.trim().length == 0 && debouncedLastName.trim().length == 0) {
 			refreshListPatients();
 		} else {
@@ -39,7 +37,7 @@ export const Home = ({navigation}) => {
 	}, [debouncedRun, debouncedName, debouncedLastName]);
 
 	useEffect(() => {
-		getPatient();
+		refreshListPatients();
 	}, []);
 
 	useEffect(() => {
@@ -52,11 +50,13 @@ export const Home = ({navigation}) => {
     }, [message]);
 
 	const refreshListPatients = async () => {
+		setLoadingPatients(true);
 		await getPatient();
 		setLoadingPatients(false);
 	}
 
 	const handleDebounce = async () => {
+		setLoadingPatients(true);
 		await getPatientFilter({ rbd: debouncedRun, name: debouncedName, lastname: debouncedLastName });
 		setLoadingPatients(false);
 	}
@@ -93,7 +93,7 @@ export const Home = ({navigation}) => {
 									placeholder={'Buscar por run'} 
 									keyboardType={'numeric'}
 									nameIcon={"account-search"} 
-									styleWidth={{width: '70%'}}
+									styleWidth={{width: '90%'}}
 									buttonDelete
 									onPress={(inputRun.trim().length > 0) ? () => setInputRun('') : false}
 								/>
@@ -110,7 +110,7 @@ export const Home = ({navigation}) => {
 										placeholder={'Buscar por nombres'} 
 										keyboardType={'default'}
 										nameIcon={"account-search"} 
-										styleWidth={{width: '70%'}}
+										styleWidth={{width: '90%'}}
 										buttonDelete
 										onPress={(inputName.trim().length > 0) ? () => setInputName('') : false}
 									/>
@@ -124,7 +124,7 @@ export const Home = ({navigation}) => {
 										placeholder={'Buscar por apellido paterno'} 
 										keyboardType={'default'}
 										nameIcon={"account-search"} 
-										styleWidth={{width: '70%'}}
+										styleWidth={{width: '90%'}}
 										buttonDelete
 										onPress={(inputLastName.trim().length > 0) ? () => setInputLastName('') : false}
 									/>

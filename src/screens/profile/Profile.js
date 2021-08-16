@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Text, View, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Button } from 'react-native-elements';
 import { PRIMARY, WHITE } from '../../const/Colors';
@@ -12,9 +12,12 @@ import { FIELD_COMPLETE } from '../../const/Fields';
 import Hr from '../../UI/Hr';
 import teleMedicinaApi from '../../api/teleMedicinaApi';
 import { getUser } from '../../helpers/getUser';
+import { AuthContext } from '../../context/Auth/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const Profile = () => {
 
+    const { isConnected, appOffline } = useContext(AuthContext);
     const [selectedGender, setSelectedGender] = useState(1)
     const [name, setName] = useState();
     const [email, setEmail] = useState();
@@ -33,6 +36,11 @@ export const Profile = () => {
     }
 
     const getUserConnected = async () => {
+        if (isConnected) {
+            const { data } = await teleMedicinaApi.post('/me');
+            await AsyncStorage.setItem('user', JSON.stringify(data)); 
+        }
+
         const user = await getUser();
         setName(user.name);
         setEmail(user.email);
@@ -45,6 +53,20 @@ export const Profile = () => {
     }
 
     const updateUser = async () => {
+        if (!isConnected) {
+            Alert.alert(
+                "Atención",
+                "No se puede realizar esta acción cuando la aplicación esta modo offline." ,
+                [
+                    {
+                        text: "Esta bien",
+                        style: "cancel"
+                    },
+                ]
+            );
+            return;
+        }
+
         setvalidated(true);
         if (name && email && lastname && birthday) {
             if (password || repeatPassword) {
@@ -95,13 +117,13 @@ export const Profile = () => {
 
     return (
         <KeyboardScrollView scrollEnabled={false} extraHeight={50} barColor={PRIMARY} backgroundColor={WHITE}>
-            <View style={{flex: 1, padding: 30}}>
+            <View style={{flex: 1, padding: 30}} pointerEvents={appOffline ? "none" : "auto"}>
                 <View style={{flex: 5}}>
                     <Card header title={'Editar perfil'}>
                         {
                             (!loading) &&
                             <>
-                                <View style={{height: '91.4%', padding: 12}}>
+                                <View style={{height: '91%', padding: 12}}>
                                     <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                         <View style={{flex: 1}}>
                                             <InputText
@@ -109,6 +131,7 @@ export const Profile = () => {
                                                 labelError={(validated && !name) ? FIELD_COMPLETE : false}
                                                 onChangeText={setName}
                                                 value={name}
+                                                editable={!isConnected}
                                                 placeholder={'Ingrese sus nombres'} 
                                                 keyboardType={'default'} 
                                                 nameIcon={"account-details"} 

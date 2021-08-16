@@ -10,7 +10,7 @@ import ModalRecordPatient from './ModalRecordPatient';
 import ModalFinallyAttention from './ModalFinallyAttention';
 import { formatDateHuman } from '../../helpers/formatDateHuman';
 
-const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, finallyAttention}) => {
+const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, finallyAttention, patient}) => {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisibleFinallyAttention, setModalVisibleFinallyAttention] = useState(false);
@@ -18,14 +18,13 @@ const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, fina
     const createAlertDelete = () => {
 		Alert.alert(
 			"¿Esta seguro?",
-			`¿Está seguro(a) de eliminar a , La ficha clínica creada ${record.created_at}` ,
+			`¿Está seguro(a) de eliminar la ficha clínica creada ${formatDateHuman(record.created_at, 'YYYY-MM-DD HH:mm:ss', 'HH:mm a, DD MMMM - YYYY')}` ,
 			[
 				{
 					text: "Cancelar",
-					onPress: () => console.log("Cancel Pressed"),
 					style: "cancel"
 				},
-				{ text: "Si, esta bien", onPress: () => deleteRecord(record._id) }
+				{ text: "Si, esta bien", onPress: () => deleteRecord({_id: record._id, idLocal: record.id, rbd: patient.rbd}) }
 			]
 		);
 	};

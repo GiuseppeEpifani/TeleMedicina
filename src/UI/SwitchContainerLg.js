@@ -6,9 +6,7 @@ const SwitchContainerLg = (props) => {
     return (
         <View>
             { (props.label) && <Text style={styles.label}>{props.label}</Text> }
-            <View style={{marginTop: 5}}>
-                <Switch value={props.value} onValueChange={props.onValueChange} />
-            </View>                         
+            <Switch value={props.value} onValueChange={props.onValueChange} />
         </View>  
     )
 }
