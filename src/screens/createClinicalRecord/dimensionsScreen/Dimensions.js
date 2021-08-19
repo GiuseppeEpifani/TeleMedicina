@@ -21,7 +21,7 @@ export const Dimensions = ({navigation}) => {
         setloading(true);
         if (imageFallsAndBumps.base64) {
             let dimension = currentRecord.clinical_interview.find(item => item._id === '000000000000000000000006');
-            let img = await uploadSingleImage({img: imageFallsAndBumps.base64, patientId: patient._id, recordId: currentRecord.id});
+            let img = await uploadSingleImage({img: imageFallsAndBumps.base64, patientId: (patient._id) ? patient._id : patient.id, recordId: currentRecord.id});
 
             dimension.question.push(
                 {

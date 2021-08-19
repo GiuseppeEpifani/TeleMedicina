@@ -7,7 +7,6 @@ import { PRIMARY, SECONDARY, VERY_LIGHT } from '../const/Colors';
 const CardWithText = props => {
 	return (
 		<View style={{height: '100%'}}>
-			<Text style={{position: 'absolute', top: 0, left: 0, fontWeight: 'bold', marginLeft: 10, fontSize: 30, color: SECONDARY, elevation: 30}}>{props.title}</Text>
 			<View style={{...styles.card, ...props.style}}>
 				{ props.header && <View style={styles.header}>
 					<Text style={styles.title}>{props.title}</Text>
@@ -26,7 +25,8 @@ const CardWithText = props => {
 						/>
 					</View> }
 				</View> }
-				<View style={{padding: props.padding, marginTop: 14}}>{props.children}</View>
+				<Text style={{fontWeight: 'bold', marginLeft: 14, fontSize: 30, color: SECONDARY, elevation: 30}}>{props.title}</Text>
+				<View style={{padding: props.padding, paddingBottom: 50}}>{props.children}</View>
 			</View>
 		</View>
 	);

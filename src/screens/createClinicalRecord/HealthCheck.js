@@ -84,13 +84,13 @@ export const HealthCheck = ({navigation}) => {
         let audiovisualSupportArray = [];
         if (images.length > 0) {
             if (!await modeApp()) {
-                audiovisualSupportArray = await uploadImages({imgs: images, patientId: patient._id, recordId: currentRecord.id});
+                audiovisualSupportArray = await uploadImages({imgs: images, patientId: (patient._id) ? patient._id : patient.id, recordId: currentRecord.id });
                 audiovisualSupportArray = [...audiovisualSupport, ...audiovisualSupportArray];
                 audiovisualSupportLength = audiovisualSupportArray.length;
             } else {
                 const newArrayImagesLocal = imagesLocal.map(({file}) => { return { base64: file } })
                 const newImages = [...images, ...newArrayImagesLocal];
-                audiovisualSupportArray = await uploadImages({imgs: newImages, patientId: patient._id, recordId: currentRecord.id});
+                audiovisualSupportArray = await uploadImages({imgs: newImages, patientId: (patient._id) ? patient._id : patient.id, recordId: currentRecord.id});
                 audiovisualSupportLength = audiovisualSupportArray.length;
             }
         } else {
@@ -99,7 +99,7 @@ export const HealthCheck = ({navigation}) => {
 
                 if (imagesSavedLocal && imagesSavedLocal.length > imagesLocal.length) {
                     const newArrayImagesLocal = imagesLocal.map(({file}) => { return { base64: file } })
-                    audiovisualSupportArray = await uploadImages({imgs: newArrayImagesLocal, patientId: patient._id, recordId: currentRecord.id});
+                    audiovisualSupportArray = await uploadImages({imgs: newArrayImagesLocal, patientId: (patient._id) ? patient._id : patient.id, recordId: currentRecord.id});
                     audiovisualSupportLength = audiovisualSupportArray.length;
                 }
             }

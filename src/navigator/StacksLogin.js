@@ -20,7 +20,7 @@ export const StacksLogin = () => {
  
     return (
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        { isLoggedIn || appOffline ? (
+        { (isLoggedIn || appOffline) ? (
             <> 
               	<Stack.Screen name="StackInit" component={StackInit} />
             </>

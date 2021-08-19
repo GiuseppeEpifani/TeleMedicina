@@ -43,6 +43,12 @@ export const homeReducer = ( state, action ) => {
                 loadingPatients: action.payLoad
             }
 
+        case 'cleanDebounce':
+            return {
+                ...state,
+                isCleanDebounce: action.payLoad
+            }
+
         default:
             return state;
     }

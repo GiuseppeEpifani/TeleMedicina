@@ -19,8 +19,8 @@ const initialState = {
 	disabled: false,
 	message: '',
 	loadingPatients: true,
+	isCleanDebounce: false
 }
-
 
 export const HomeContext = createContext(initialState);
 
@@ -30,6 +30,7 @@ export const HomeProvider = ({ children }) => {
 	const { patient, listPatient, totalPage, numberPage } = homeState;
 
 	const getPatient = async () => {
+		setLoadingPatients(true);
 		try {
 			if (!await modeApp()) {
 				NetInfo.fetch().then(async (state) => {
@@ -46,6 +47,10 @@ export const HomeProvider = ({ children }) => {
 						});
 
 						dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+						if (patients.length === 0) dispatch({type: 'setPatient', payLoad: null});
+						setLoadingPatients(false);
+					} else {
+						setLoadingPatients(false);
 					}
 				})
 			} else {
@@ -61,14 +66,20 @@ export const HomeProvider = ({ children }) => {
 			   });
 
 			   dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 1, totalPage: lastPage}});
+
+			   if (patients.length === 0) {
+				   dispatch({type: 'setPatient', payLoad: null});
+				}
+			   setLoadingPatients(false);
 			}
-			
 		} catch (error) {
-			console.log(error)
+			console.log(error);
+			setLoadingPatients(false);	
 		}
 	}
 
 	const getPatientFilter = async ({rbd, name, lastname}) => {
+		setLoadingPatients(true);	
 		try {
 			if (!await modeApp()) {
 				const { data: { patients, lastPage }} = await teleMedicinaApi.post('/get.pager_patients', { rbd, name, lastname });
@@ -83,6 +94,7 @@ export const HomeProvider = ({ children }) => {
 				});
 
 				dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: lastPage}});
+				if (patients.length === 0) dispatch({type: 'setPatient', payLoad: null});
 			} else {
 				if (rbd !== '-') {
 					const patients = await getPatientsFilter({rbd, name, lastname});
@@ -97,10 +109,13 @@ export const HomeProvider = ({ children }) => {
 					});
 
 					dispatch({type: 'setListPatient', payLoad: { listPatient: arrayPatient, numberPage: 2, totalPage: 0}});
+					if (patients.length === 0) dispatch({type: 'setPatient', payLoad: null});
 				}
 			}
+			setLoadingPatients(false);
 		} catch (error) {
-			console.log(error)
+			console.log(error);
+			setLoadingPatients(false);
 		}
 	}
 
@@ -163,6 +178,7 @@ export const HomeProvider = ({ children }) => {
 				await teleMedicinaApi.post('/set.create_update_clinical_patients', patient);
 			} else {
 				await createPatient(patient);
+				if (listPatient.length <= 20) await getPatient();
 			}
 			dispatch({type: 'setLoading', payLoad: false});
 			dispatch({type: 'setMessage', payLoad: 'Paciente creado'});
@@ -211,6 +227,7 @@ export const HomeProvider = ({ children }) => {
 						dispatch({type: 'setPatient', payLoad: listPatientsFilter[0]});
 					} else {
 						dispatch({type: 'setListPatient', payLoad: { listPatient: [], numberPage: null, totalPage: null}});
+						dispatch({type: 'setPatient', payLoad: null});
 					}	
 				}
 			} else {
@@ -222,6 +239,7 @@ export const HomeProvider = ({ children }) => {
 					dispatch({type: 'setPatient', payLoad: listPatientsFilter[0]});
 				} else {
 					dispatch({type: 'setListPatient', payLoad: { listPatient: [], numberPage: null, totalPage: null}});
+					dispatch({type: 'setPatient', payLoad: null});
 				}	
 			}
 			dispatch({type: 'setLoading', payLoad: false});
@@ -238,6 +256,10 @@ export const HomeProvider = ({ children }) => {
 	const setLoadingPatients = (value) => {
         dispatch({type: 'setLoadingPatients', payLoad: value});
     }
+
+	const cleanDebounce = (value) => {
+		dispatch({type: 'cleanDebounce', payLoad: value});
+	}
 	
     return (
         <HomeContext.Provider value={{
@@ -251,7 +273,8 @@ export const HomeProvider = ({ children }) => {
 			updatePatient,
 			deletePatient,
 			removeMessage,
-			setLoadingPatients
+			setLoadingPatients,
+			cleanDebounce
         }}>
             { children }
         </HomeContext.Provider>

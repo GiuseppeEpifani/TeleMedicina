@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Text, View, Alert } from 'react-native';
+import { Text, View, Alert, ActivityIndicator } from 'react-native';
 import { DANGER, PRIMARY, SECONDARY, SUCCESS, WHITE } from '../../const/Colors';
 import { AuthContext } from '../../context/Auth/AuthContext';
 import { RecordContext } from '../../context/RecordFile/RecordContext';
@@ -14,15 +14,17 @@ import teleMedicinaApi from '../../api/teleMedicinaApi';
 import { formatDateHuman } from '../../helpers/formatDateHuman';
 import { HomeContext } from '../../context/Home/HomeContext';
 import NetInfo from "@react-native-community/netinfo";
+import { CommonActions } from '@react-navigation/native';
 
-export const Configuration = () => {
+export const Configuration = ({navigation}) => {
 
-    const { logout, activeModeOffline } = useContext(AuthContext);
+    const { logout, activeModeOffline, checkToken, isConnected } = useContext(AuthContext);
     const { cleanData } = useContext(RecordContext);
-    const { getPatient, setLoadingPatients } = useContext(HomeContext);
+    const { getPatient, cleanDebounce } = useContext(HomeContext);
 
     const [modeApp, setModeApp] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loadingDownloadDataBase, setLoadingDownloadDataBase] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [loadingUploadDataBase, setLoadingUploadDataBase] = useState(false);
     const [cantPatient, setCantPatient] = useState(0);
     const [percentage, setPercentage] = useState(0);
@@ -35,12 +37,19 @@ export const Configuration = () => {
     }
 
     const handleSetModeApp = async (mode) => {
-        setLoadingPatients(true);
         await AsyncStorage.setItem('modeApp', mode.toString());
         setModeApp(mode);
+        navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{name: 'configuration'}],
+            })
+          );
+        cleanDebounce(true);
         activeModeOffline(mode);
+        if (isConnected && !mode) await checkToken();
         await getPatient();
-        setLoadingPatients(false);
+        cleanDebounce(false);
     }
 
     const loadPatientAsyncStorage = async () => {
@@ -66,7 +75,7 @@ export const Configuration = () => {
         if (lastUploadDateApp) {
             setlastUploadDataBase(lastUploadDateApp);
         }
-        await getPatient();
+        setLoading(false);
     }
 
     const alertPrevDownloadDataBase = () => {
@@ -83,48 +92,177 @@ export const Configuration = () => {
         );
     }
 
+    const uploadDataBaseWithPatient = async () => {
+        NetInfo.fetch().then(async (state) => {
+            if (state.isConnected) {
+                try {
+                    const patientsLocal = await AsyncStorage.getItem('listPatientsLocal');
+                    if (patientsLocal) {
+                        const patientsLocalParse = JSON.parse(patientsLocal);
+                        for (let i = 0; i < patientsLocalParse.length; i++) {
+                            const patient = patientsLocalParse[i];
+                            const { data } = await teleMedicinaApi.post('/set.create_update_clinical_patients', patient);
+                            const user = data.data;
+
+                            const records = await AsyncStorage.getItem(`records_for_create_${user.rbd}`);
+
+                            if (records) {
+                                setLoadingUploadDataBase(true);
+                                const recordParse = JSON.parse(records);
+                        
+                                for (let x = 0; x < recordParse.length; x++) {
+                                    let currentRecord = recordParse[x];
+                                    currentRecord.clinical_patients_id = user._id;
+
+                                    let new_images_local = [];
+                                    if (currentRecord.clinical_record_new.health_check && currentRecord.clinical_record_new.health_check.audiovisual_support) {
+                                        let new_audiovisual_support = [];
+
+                                        for (let e = 0; e < currentRecord.clinical_record_new.health_check.audiovisual_support.length; e++) {
+                                            const dateId = new Date();
+                                            let image = {
+                                                file: null,
+                                                route_name: `clinical_record/${user._id}/health_checks`,
+                                                guid_name: (`${user._id}_${dateId}_${e}.jpeg`)
+                                            }
+                                
+                                            let file = {
+                                                file: `${user._id}_${dateId}_${e}.jpeg`,
+                                                file_name: (`${user._id}_${dateId}_${e}.jpeg`),
+                                                size: null,
+                                                extension: "jpeg",
+                                                route: `clinical_record/${user._id}/health_checks`,
+                                                icon_file: "far fa-file-image",
+                                                type_file: "image"
+                                            }
+                                            new_audiovisual_support.push(file);
+                                            new_images_local.push(image);
+                                        }
+                                        currentRecord.clinical_record_new.health_check.audiovisual_support = new_audiovisual_support;
+                                    }
+
+                                    let dimensionFallsAndBumps = currentRecord.clinical_record_new.clinical_interview.find(item => item._id === '000000000000000000000006');
+
+                                    let imageFallsAndBumps;
+                                    if (dimensionFallsAndBumps) {
+                                        let  dimensionFallsAndBumpsImg =  dimensionFallsAndBumps.question.find(({question_id}) => question_id === '60526705bd99de221332c176');
+                                        
+                                        if (dimensionFallsAndBumpsImg) {
+                                            const dateIdDimension = new Date();
+                                            imageFallsAndBumps = {
+                                                file: null,
+                                                route_name: `clinical_record/${user._id}/dimension`,
+                                                guid_name: (`${user._id}_${dateIdDimension}.jpeg`)
+                                            }
+                                    
+                                            let file = {
+                                                file: `${user._id}_${dateIdDimension}.jpeg`,
+                                                file_name: (`${user._id}_${dateIdDimension}.jpeg`),
+                                                size: null,
+                                                extension: "jpeg",
+                                                route: `clinical_record/${user._id}/dimension`,
+                                                icon_file: "far fa-file-image",
+                                                type_file: "image"
+                                            }
+
+                                            dimensionFallsAndBumpsImg.answer = file;
+                                        }
+                                    }
+          
+                                    const { data: {clinical_records} } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', currentRecord);
+                        
+                                    if (clinical_records.health_check && clinical_records.health_check.audiovisual_support_length > 0) {
+                                        const imagesHealthCheck = await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_health_check_to_create`);
+                                        if (imagesHealthCheck) {
+                                            const imagesHealthCheckParse = JSON.parse(imagesHealthCheck);
+                                            for (let a = 0; a < clinical_records.health_check.audiovisual_support_length; a++) {
+                                                let img = imagesHealthCheckParse[a];
+                                                let imageToUpload = new_images_local[a];
+                                                imageToUpload.file = img.file;
+                                                await teleMedicinaApi.post('/set.update_file_base_64', imageToUpload);
+                                            };
+                                            await AsyncStorage.removeItem(`${currentRecord.clinical_record_new.id}_health_check_to_create`);
+                                        }
+                                    }
+
+                                    const imageDimension= await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
+                                    if (imageDimension) {
+                                        const imageDimensionParse = JSON.parse(imageDimension);
+                                        imageFallsAndBumps.file = imageDimensionParse.file;
+                                        await teleMedicinaApi.post('/set.update_file_base_64', imageFallsAndBumps);
+                                        await AsyncStorage.removeItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
+                                    }
+
+                                    await AsyncStorage.removeItem(`records_for_create_${user.rbd}`);
+                                    await AsyncStorage.removeItem(`records_${user.rbd}`);
+                                }
+                                setPercentage(Math.round((i/(patientsLocalParse.length)) * 100));
+                            }
+                        }
+                    }
+
+                } catch (error) {
+                    console.log(error);
+                }
+            } else {
+                Alert.alert(
+                    "Sin conexion a internet",
+                    'No se pueden subir los datos a la nube',
+                    [
+                        {
+                            text: "Esta bien",
+                            style: "cancel"
+                        },
+                    ]
+                );
+            }
+        });
+    }
+
     const uploadDataBase = async () => {
         NetInfo.fetch().then(async (state) => {
             if (state.isConnected) {
                 try {
                     const patientsWithRecords = await AsyncStorage.getItem('list_patient_with_records');
                     const patientsWithRecordsParse = JSON.parse(patientsWithRecords);
-                    setLoadingUploadDataBase(true);
                     if (patientsWithRecordsParse) {
                         const cantPatientsWithRecords = patientsWithRecordsParse.length;
 
                         for (let i = 0; i < patientsWithRecordsParse.length; i++) {
                             const rbd = patientsWithRecordsParse[i];
                             const records = await AsyncStorage.getItem(`records_for_create_${rbd}`);
-                            const recordParse = JSON.parse(records);
-                    
-                            for (let x = 0; x < recordParse.length; x++) {
-                                const currentRecord = recordParse[x];
-                                const { data: {clinical_records} } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', currentRecord);
-                    
-                                if (clinical_records.health_check && clinical_records.health_check.audiovisual_support_length > 0) {
-                                    const imagesHealthCheck = await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_health_check_to_create`);
-                                    if (imagesHealthCheck) {
-                                        const imagesHealthCheckParse = JSON.parse(imagesHealthCheck);
-                                        for (let a = 0; a < clinical_records.health_check.audiovisual_support_length; a++) {
-                                            const img = imagesHealthCheckParse[a];
-                                            await teleMedicinaApi.post('/set.update_file_base_64', img);
-                                        };
-                                        await AsyncStorage.removeItem(`${currentRecord.clinical_record_new.id}_health_check_to_create`);
+
+                            if (records) {
+                                const recordParse = JSON.parse(records);
+                        
+                                for (let x = 0; x < recordParse.length; x++) {
+                                    const currentRecord = recordParse[x];
+                                    const { data: {clinical_records} } = await teleMedicinaApi.post('/set.create_update_patient_clinical_file', currentRecord);
+                        
+                                    if (clinical_records.health_check && clinical_records.health_check.audiovisual_support_length > 0) {
+                                        const imagesHealthCheck = await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_health_check_to_create`);
+                                        if (imagesHealthCheck) {
+                                            const imagesHealthCheckParse = JSON.parse(imagesHealthCheck);
+                                            for (let a = 0; a < clinical_records.health_check.audiovisual_support_length; a++) {
+                                                const img = imagesHealthCheckParse[a];
+                                                await teleMedicinaApi.post('/set.update_file_base_64', img);
+                                            };
+                                            await AsyncStorage.removeItem(`${currentRecord.clinical_record_new.id}_health_check_to_create`);
+                                        }
                                     }
-                                }
 
-                                const imageDimension= await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
-                                if (imageDimension) {
-                                    const imageDimensionParse = JSON.parse(imageDimension);
-                                    await teleMedicinaApi.post('/set.update_file_base_64', imageDimensionParse);
-                                    await AsyncStorage.removeItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
-                                }
+                                    const imageDimension= await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
+                                    if (imageDimension) {
+                                        const imageDimensionParse = JSON.parse(imageDimension);
+                                        await teleMedicinaApi.post('/set.update_file_base_64', imageDimensionParse);
+                                        await AsyncStorage.removeItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
+                                    }
 
-                                await AsyncStorage.removeItem(`records_for_create_${rbd}`);
-                                await AsyncStorage.removeItem(`records_${rbd}`);
+                                    await AsyncStorage.removeItem(`records_for_create_${rbd}`);
+                                    await AsyncStorage.removeItem(`records_${rbd}`);
+                                }
+                                setPercentage(Math.round((i/(cantPatientsWithRecords)) * 100));
                             }
-                            setPercentage(Math.round((i/(cantPatientsWithRecords)) * 100));
                         }
                         await AsyncStorage.removeItem('list_patient_with_records');
                         const lastDate = formatDateHuman(new Date() ,'YYYY-MM-DD HH:mm:ss', 'HH:mm a, DD MMMM - YYYY');
@@ -167,7 +305,7 @@ export const Configuration = () => {
                 await AsyncStorage.removeItem('listPatients');
                 await AsyncStorage.removeItem('cantPatients');
                 if (cantPatient > 0) setCantPatient(0);
-                setLoading(true);
+                setLoadingDownloadDataBase(true);
                 setPercentage(percentageBack);
                 let listPatientPaginate = [];
                 let arrayPatient = patients;
@@ -219,7 +357,7 @@ export const Configuration = () => {
                     setCantPatient(totalPatients);
                     setLastDownloadDataBaseDate(lastDate);
                     getPatient();
-                    setLoading(false);
+                    setLoadingDownloadDataBase(false);
                 } catch (error) {
                     console.log(error);
                     setTimeout(() => {
@@ -253,7 +391,10 @@ export const Configuration = () => {
 				{ text: "Si, esta bien", 
                 onPress: async () => {
                     await AsyncStorage.removeItem('listPatients');
+                    await AsyncStorage.removeItem('listPatientsLocal');
                     await AsyncStorage.removeItem('cantPatients');
+                    await AsyncStorage.removeItem('lastPage');
+                    await getPatient();
                     setCantPatient(0);
                 }}
 			]
@@ -270,6 +411,8 @@ export const Configuration = () => {
             <View style={{flex: 1, padding: 30}}>
                 <View style={{flex: 5}}>
                     <Card header title={'Configuración'} padding={10}>
+                    { !loading &&
+                    <>
                         <Text style={{fontWeight: 'bold', fontSize: 22, color: PRIMARY}}>Información de la aplicación</Text>
                         <View style={{flexDirection: 'row', marginLeft: 5, marginTop: 10}}>
                             <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY}}>Modo de la aplicación</Text>
@@ -287,11 +430,7 @@ export const Configuration = () => {
                         </View>
                         <View style={{flexDirection: 'row', marginLeft: 5}}>
                             <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY}}>Pacientes guardados localmente:</Text>
-                            <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 5, fontSize: 17, marginLeft: 4}}>{cantPatient}</Text>
-                        </View>
-                        <View style={{flexDirection: 'row', marginLeft: 5, marginBottom: 20}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY}}>Fichas guardadas localmente:</Text>
-                            <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 5, fontSize: 17, marginLeft: 4}}>10</Text>
+                            <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 5, fontSize: 17, marginLeft: 4, marginBottom: 10}}>{cantPatient}</Text>
                         </View>
                         <Hr />
                         <Text style={{fontWeight: 'bold', fontSize: 22, color: PRIMARY, marginTop: 10}}>Base de datos</Text>
@@ -318,14 +457,14 @@ export const Configuration = () => {
                             }
                         </View>
                         <View style={{flexDirection: 'row', marginLeft: 5, marginTop: 10}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY, marginRight: 6}}>Descargar base de datos del servidor:</Text>
+                            <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY, marginRight: 6, marginTop: 5}}>Descargar base de datos del servidor:</Text>
                             <View>
                                 <Button 
-                                    title={ !loading ? "Descargar" : `Descargando... (${percentage}%)`} 
+                                    title={ !loadingDownloadDataBase ? "Descargar" : `Descargando... (${percentage}%)`} 
                                     titleStyle={{fontSize: 14, fontWeight: 'bold', marginLeft: 10}}  
                                     containerStyle={{borderRadius: 20}}
-                                    buttonStyle={ !loading ? {backgroundColor: PRIMARY, height: 40, width: 180, borderRadius: 20} : {backgroundColor: PRIMARY, height: 40, width: 200, borderRadius: 20}}
-                                    disabled={!modeApp || loading}
+                                    buttonStyle={ !loadingDownloadDataBase ? {backgroundColor: PRIMARY, height: 40, width: 180, borderRadius: 20} : {backgroundColor: PRIMARY, height: 40, width: 200, borderRadius: 20}}
+                                    disabled={!modeApp || loadingDownloadDataBase}
                                     icon={
                                         <Icon
                                             name="cloud-download"
@@ -338,7 +477,7 @@ export const Configuration = () => {
                             </View>
                         </View>
                         <View style={{flexDirection: 'row', marginLeft: 5, marginTop: 10}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY, marginRight: 6}}>Subir base de datos local:</Text>
+                            <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY, marginRight: 6, marginTop: 5}}>Subir base de datos local:</Text>
                             <View>
                                 <Button 
                                     title={ !loadingUploadDataBase ? "Subir" : `Subiendo... (${percentage}%)`} 
@@ -353,12 +492,15 @@ export const Configuration = () => {
                                             color="white"
                                         />
                                     }
-                                    onPress={uploadDataBase}
+                                    onPress={() => {
+                                        uploadDataBaseWithPatient();
+                                        uploadDataBase();
+                                    }}
                                 />
                             </View>
                         </View>
                         <View style={{flexDirection: 'row', marginLeft: 5, marginBottom: 20, marginTop: 10}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY, marginRight: 6}}>Limpiar base de datos local:</Text>
+                            <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY, marginRight: 6, marginTop: 5}}>Limpiar base de datos local:</Text>
                             <View>
                                 <Button title="Limpiar" 
                                     titleStyle={{fontSize: 14, fontWeight: 'bold', marginLeft: 10}}  
@@ -376,7 +518,6 @@ export const Configuration = () => {
                             </View>                       
                         </View>
                         <Hr />
-                        <Text style={{fontWeight: 'bold', fontSize: 22, color: PRIMARY, marginTop: 10}}>Sesión</Text>
                         <View style={{marginVertical: 14}}>
                             <Button title="Cerrar sesión" 
                                 titleStyle={{fontSize: 18, fontWeight: 'bold', marginLeft: 10}}  
@@ -392,7 +533,12 @@ export const Configuration = () => {
                                 onPress={handleLogout}
                             /> 
                         </View>
-                        <Hr />                
+                    </>}
+                    { loading &&
+                        <View style={{height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+                            <ActivityIndicator size="large" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}} />
+                        </View>
+                    }
                     </Card>
                 </View>
                 <View style={{flex: 0.5}}/>

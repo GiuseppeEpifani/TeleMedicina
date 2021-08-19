@@ -16,14 +16,14 @@ import Card from '../../UI/Card';
 export const InfoPatient = ({navigation}) => {
 
     const { getRecords, deleteRecord, createAttention, clinicalRecords, loading, cleanData, setCurrentRecord, finallyRecordPatient } = useContext(RecordContext);
-    const { patient } = useContext(HomeContext);
+    const { patient, isCleanDebounce } = useContext(HomeContext);
     const [loadingData, setLoadingData] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         loadingRecords();
-    }, [])
-
+    }, []);
+    
     const loadingRecords = async () => {
         await getRecords({id: patient._id, rbd: patient.rbd});
         setLoadingData(false);

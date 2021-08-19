@@ -8,7 +8,7 @@ import KeyboardView from '../../UI/KeyboardView';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PatientReview from '../../components/home/PatientReview';
 import ListItemPatient from '../../components/home/ListItemPatient';
-import { PRIMARY, WHITE } from '../../const/Colors';
+import { PRIMARY, VERY_LIGHT, WHITE } from '../../const/Colors';
 import { LoadingScreen } from '../../UI/LoadingScreen';
 import { HomeContext } from '../../context/Home/HomeContext';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
@@ -17,7 +17,7 @@ import CardSearch from '../../UI/CardSearch';
 
 export const Home = ({navigation}) => {
 
- 	const { getPatient, loadingPatients, setLoadingPatients, listPatient, patient, loadMorePatient, removeMessage, handleSelectPatient, disabled, message, loading, getPatientFilter, loadMorePatientWithFilter, totalPage, numberPage } = useContext(HomeContext);
+ 	const { getPatient, isCleanDebounce, loadingPatients, listPatient, patient, loadMorePatient, removeMessage, handleSelectPatient, disabled, message, loading, getPatientFilter, loadMorePatientWithFilter, totalPage, numberPage } = useContext(HomeContext);
 	const [inputRun, setInputRun] = useState('');
 	const [inputName, setInputName] = useState('');
 	const [inputLastName, setInputLastName] = useState('');
@@ -28,13 +28,20 @@ export const Home = ({navigation}) => {
 
 	useEffect(() => {
 		if (debouncedRun.trim().length > 0 && debouncedRun == '-') return;
-			setLoadingPatients(true);
 		if (debouncedRun.trim().length == 0 && debouncedName.trim().length == 0 && debouncedLastName.trim().length == 0) {
 			refreshListPatients();
 		} else {
 			handleDebounce();
 		}
 	}, [debouncedRun, debouncedName, debouncedLastName]);
+
+	useEffect(() => {
+		if (isCleanDebounce) {
+			setInputRun('');
+			setInputName('');
+			setInputLastName('');
+		}
+	}, [isCleanDebounce])
 
 	useEffect(() => {
 		refreshListPatients();
@@ -50,15 +57,11 @@ export const Home = ({navigation}) => {
     }, [message]);
 
 	const refreshListPatients = async () => {
-		setLoadingPatients(true);
 		await getPatient();
-		setLoadingPatients(false);
 	}
 
 	const handleDebounce = async () => {
-		setLoadingPatients(true);
 		await getPatientFilter({ rbd: debouncedRun, name: debouncedName, lastname: debouncedLastName });
-		setLoadingPatients(false);
 	}
 
 	const cleanDebounce = (value) => {
@@ -142,13 +145,15 @@ export const Home = ({navigation}) => {
 							</View>
 						}
 						{
-							(listPatient.length == 0) && !loadingPatients &&
-							<View style={{height: '96.5%', justifyContent: 'center', alignItems: 'center'}}>
-								<Text style={{color: PRIMARY, fontSize: 22, fontWeight: 'bold'}}>Sin resultados</Text>
+							(listPatient.length == 0 && debouncedRun.trim().length > 0 && !loadingPatients || listPatient.length == 0 && debouncedName.trim().length > 0 && !loadingPatients || listPatient.length == 0 && debouncedLastName.trim().length == 0 && !loadingPatients) &&
+							<View style={{height: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', width: '100%', top: 200}}>
+								<View style={{width: '60%', height: 60, elevation: 10, backgroundColor: VERY_LIGHT, justifyContent: 'center', alignItems: 'center', borderRadius: 20}}>
+									<Text style={{color: PRIMARY, fontSize: 22, fontWeight: 'bold'}}>Sin resultados</Text>
+								</View>
 							</View>
 						}
 						{
-							(listPatient.length > 0) && !loadingPatients &&
+							listPatient.length >= 0 && !loadingPatients &&
 							<View style={{flexDirection: 'row', height: '96.5%'}}>	
 								<View style={{flex: 1}}>
 									<OptimizedFlatList
@@ -182,7 +187,7 @@ export const Home = ({navigation}) => {
 								<View style={{flex: 1.4, borderLeftWidth: 6, borderLeftColor: PRIMARY}}>
 									<PatientReview navigation={navigation} patient={patient} />
 								</View>													
-						</View>
+							</View>
 						}				
 					</Card>
 				</View>

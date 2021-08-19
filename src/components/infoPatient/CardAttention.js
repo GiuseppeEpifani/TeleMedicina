@@ -41,7 +41,7 @@ const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, fina
             <>
             {
                 (!record.deleted_at) &&
-                <View style={{height: 350, marginBottom: 10}}>
+                <View style={{height: 350, marginBottom: 10, padding: 4}}>
                     <ModalRecordPatient setModalVisible={setModalVisible} modalVisible={modalVisible} navigation={navigation} record={record} />
                     <ModalFinallyAttention setModalVisible={setModalVisibleFinallyAttention} modalVisible={modalVisibleFinallyAttention} record={record} finallyAttentionPatient={finallyAttention} />
                     <Card>

@@ -18,7 +18,6 @@ export const App = () => {
 
 const AppState = ({ children }) => {
 	return (
-
 	  <AuthProvider>
 		<HomeProvider>
 			<RecordProvider>

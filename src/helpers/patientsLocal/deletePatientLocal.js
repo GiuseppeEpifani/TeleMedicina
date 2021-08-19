@@ -8,11 +8,20 @@ export const deletePatientLocal = async (rbd) => {
         if (list) {
             let newListPatients = [];
             const listParse = JSON.parse(list);
-            listParse.forEach(({patients}) => {
-                const patientsFilter = patients.filter(patient => patient.rbd !== rbd);
-                if (patientsFilter.length > 0) newListPatients.push({patients: patientsFilter});
-            });
 
+            for (let i = 0; i < listParse.length; i++) {
+                const { patients } = listParse[i];
+                const patientsFilter = patients.filter(patient => patient.rbd !== rbd);
+                if (patientsFilter.length > 0) {
+                    newListPatients.push({patients: patientsFilter});
+                } else {
+                    const lastPage = await AsyncStorage.getItem('lastPage');
+                    await AsyncStorage.setItem('lastPage', (lastPage - 1).toString());
+                }
+            }
+
+            const cantPatient = await AsyncStorage.getItem('cantPatients');
+            await AsyncStorage.setItem('cantPatients', (cantPatient - 1).toString());
             await AsyncStorage.removeItem('listPatients');
             await AsyncStorage.setItem('listPatients', JSON.stringify(newListPatients));
         }

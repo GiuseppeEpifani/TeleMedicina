@@ -158,7 +158,7 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
                                         size={35}
                                         color={SECONDARY}
                                     />
-                                    <Text style={{fontSize: 20, marginVertical: 2, color: SUCCESS}}>CERRADO EL:</Text>
+                                    <Text style={{fontSize: 20, marginVertical: 2, color: SECONDARY}}>CERRADO EL:</Text>
                                     <Text style={{fontSize: 20, marginLeft: 6, color: SUCCESS, fontWeight: 'bold'}}>{formatDateHuman(record.updated_at, 'YYYY-MM-DD HH:mm:ss', 'HH:mm a, DD MMMM - YYYY')}</Text>
                                 </View> 
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>

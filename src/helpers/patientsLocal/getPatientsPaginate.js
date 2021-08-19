@@ -5,7 +5,7 @@ export const getPatientPaginate = async (page) => {
         const list = await AsyncStorage.getItem('listPatients');
         const lastPage = await AsyncStorage.getItem('lastPage');
 
-        if (list && lastPage) {
+        if (list && list.length > 0 && lastPage != 0) {
             const listParse = JSON.parse(list);
             return { patients: listParse[page].patients, lastPage }
         } else {
