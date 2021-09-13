@@ -65,14 +65,23 @@ export const EditPatient = ({navigation}) => {
 
     const handleSetRegion = (value) => {
         const regionValue = value();
-        setIdSelectedRegion(value);
-        setProvinceSelected(null);
-        setCommuneSelected(null);
-        setCommunes([]);
-        const regions = JSON.parse(arrayRegions);
-        const { provinces } = regions.find(region => region._id === regionValue);
-        const provincesName = provinces.map(({name}) => { return { label: name, value: name }});
-        setProvinces(provincesName);
+
+        if (idSelectedRegion == regionValue) {
+            setIdSelectedRegion(null);
+            setProvinceSelected(null);
+            setProvinces([]);
+            setCommuneSelected(null);
+            setCommunes([]);
+        } else {
+            setIdSelectedRegion(value);
+            setProvinceSelected(null);
+            setCommuneSelected(null);
+            setCommunes([]);
+            const regions = JSON.parse(arrayRegions);
+            const { provinces } = regions.find(region => region._id === regionValue);
+            const provincesName = provinces.map(({name}) => { return { label: name, value: name }});
+            setProvinces(provincesName);
+        }
     }
 
     const handleSetProvince = (value) => {

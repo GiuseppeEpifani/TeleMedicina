@@ -59,35 +59,37 @@ const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, fina
                                         </View>
                                     </View>
                                 </View>
-                                <View style={{flexDirection: 'row', flex: 1, justifyContent: 'flex-end'}}>
-                                    {
-                                        (status !== 2) &&
+                                <View style={{position: 'absolute', bottom: 5, right: 0}}>
+                                    <View style={{flexDirection: 'row', flex: 1, justifyContent: 'flex-end'}}>
+                                        {
+                                            (status !== 2) &&
+                                            <Button
+                                                icon={
+                                                    <Icon
+                                                        name="delete"
+                                                        size={25}
+                                                        color="white"
+                                                    />
+                                                }
+                                                containerStyle={{marginRight: 2}}
+                                                buttonStyle={styles.btnDelete}
+                                                onPress={createAlertDelete}
+                                            /> 
+                                        }
                                         <Button
                                             icon={
                                                 <Icon
-                                                    name="delete"
+                                                    name="clipboard-plus"
                                                     size={25}
                                                     color="white"
                                                 />
                                             }
-                                            containerStyle={{marginRight: 2}}
-                                            buttonStyle={styles.btnDelete}
-                                            onPress={createAlertDelete}
-                                        /> 
-                                    }
-                                    <Button
-                                        icon={
-                                            <Icon
-                                                name="clipboard-plus"
-                                                size={25}
-                                                color="white"
-                                            />
-                                        }
-                                        buttonStyle={styles.btnInfo}
-                                        titleStyle={{fontWeight: 'bold', marginLeft: 5}}
-                                        title="Ver ficha"
-                                        onPress={() => setModalVisible(true)}
-                                    />
+                                            buttonStyle={styles.btnInfo}
+                                            titleStyle={{fontWeight: 'bold', marginLeft: 5}}
+                                            title="Ver ficha"
+                                            onPress={() => setModalVisible(true)}
+                                        />
+                                    </View>
                                 </View>
                             </View>
                             <Hr/>

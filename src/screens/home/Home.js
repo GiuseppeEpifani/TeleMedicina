@@ -41,7 +41,7 @@ export const Home = ({navigation}) => {
 			setInputName('');
 			setInputLastName('');
 		}
-	}, [isCleanDebounce])
+	}, [isCleanDebounce]);
 
 	useEffect(() => {
 		refreshListPatients();
@@ -49,11 +49,7 @@ export const Home = ({navigation}) => {
 
 	useEffect(() => {
         if (message.length === 0) return;
-
-        Alert.alert(
-            'Notificación', message, [ { text: 'Esta bien', onPress: removeMessage } ]
-        );
-
+        Alert.alert('Notificación', message, [ { text: 'Esta bien', onPress: removeMessage } ]);
     }, [message]);
 
 	const refreshListPatients = async () => {

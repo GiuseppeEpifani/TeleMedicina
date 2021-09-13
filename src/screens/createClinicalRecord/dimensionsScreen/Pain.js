@@ -28,6 +28,16 @@ export const Pain = ({navigation}) => {
     const [loading, setloading] = useState(false);
     const { howMuchHurt, observationComment } = formValues;
 
+    const handleSetValue = (value, setFunction, getValue) => {
+        const item = value();
+
+        if (getValue == item) {
+            setFunction();
+        } else {
+            setFunction(item);
+        }
+    }
+
     const handleSaveDimension = async () => {
         let dimensionPain = {
             active: 1,
@@ -146,11 +156,11 @@ export const Pain = ({navigation}) => {
 
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <View style={{flex: 1}}>
-                                    <PickerSingleSelect setItems={setHowIsPain} items={howIsPain} setValue={setHowIsPainSelected} value={howIsPainSelected} label={"¿Cómo es el dolor?"} />
+                                    <PickerSingleSelect setItems={setHowIsPain} items={howIsPain} setValue={(value) => handleSetValue(value, setHowIsPainSelected, howIsPainSelected)} value={howIsPainSelected} label={"¿Cómo es el dolor?"} />
                                 </View>
                                 <View style={{flex:0.050}}/>
                                 <View style={{flex: 1}}>
-                                    <PickerSingleSelect setItems={setHowLongHurt} items={howLongHurt} setValue={setHowLongHurtSelected} value={howLongHurtSelected} label={"¿Hace cuánto le duele?"} />
+                                    <PickerSingleSelect setItems={setHowLongHurt} items={howLongHurt} setValue={(value) => handleSetValue(value, setHowLongHurtSelected, howLongHurtSelected)} value={howLongHurtSelected} label={"¿Hace cuánto le duele?"} />
                                 </View>
                             </View>
 

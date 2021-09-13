@@ -33,6 +33,16 @@ export const RespiratoryProblems = ({navigation}) => {
     const [lungSecretions, setLungSecretions] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60525c4505651e70c874f5cb')?.answer : null);
     const [loading, setloading] = useState(false);
 
+    const handleSetValue = (value, setFunction, getValue) => {
+        const item = value();
+
+        if (getValue == item) {
+            setFunction();
+        } else {
+            setFunction(item);
+        }
+    }
+
     const handleSaveDimension = () => {
         let dimension = 
             {
@@ -200,7 +210,7 @@ export const RespiratoryProblems = ({navigation}) => {
                                     <RadioButton selected={breatheEffort == 'No'} labelRadio={'No'}/>
                                 </TouchableOpacity>
                             </View>
-                            <PickerSingleSelect setItems={setSpeeds} items={speeds} setValue={setSpeedSelected} value={speedSelected} label={"¿cual es tu nivel de consciencia?"} />
+                            <PickerSingleSelect setItems={setSpeeds} items={speeds} setValue={(value) => handleSetValue(value, setSpeedSelected, speedSelected)} value={speedSelected} label={"¿cual es tu nivel de consciencia?"} />
                             <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>¿Se le marcan las costillas al respirar?</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setRibs('Si')}}>
@@ -228,9 +238,9 @@ export const RespiratoryProblems = ({navigation}) => {
                                     <RadioButton selected={chestMoves == 'No'} labelRadio={'No'}/>
                                 </TouchableOpacity>
                             </View>
-                            <PickerSingleSelect setItems={setHowExpands} items={howExpands} setValue={setHowExpandsSelected} value={howExpandsSelected} label={"¿Cómo se expande el tórax?"} />
-                            <PickerSingleSelect setItems={setHasCough} items={hasCough} setValue={setHasCoughSelected} value={hasCoughSelected} label={"¿Tiene tos?"} />
-                            <PickerSingleSelect setItems={setColoredFingers} items={coloredFingers} setValue={setColoredFingersSelected} value={coloredFingersSelected} label={"¿De qué color tiene la punta de los dedos?"} />
+                            <PickerSingleSelect setItems={setHowExpands} items={howExpands} setValue={(value) => handleSetValue(value, setHowExpandsSelected, howExpandsSelected)} value={howExpandsSelected} label={"¿Cómo se expande el tórax?"} />
+                            <PickerSingleSelect setItems={setHasCough} items={hasCough} setValue={(value) => handleSetValue(value, setHasCoughSelected, hasCoughSelected)} value={hasCoughSelected} label={"¿Tiene tos?"} />
+                            <PickerSingleSelect setItems={setColoredFingers} items={coloredFingers} setValue={(value) => handleSetValue(value, setColoredFingersSelected, coloredFingersSelected)} value={coloredFingersSelected} label={"¿De qué color tiene la punta de los dedos?"} />
                             <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>¿Le cuesta respirar al estar acostado?</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setLaboredBreathing('Si')}}>
@@ -240,7 +250,7 @@ export const RespiratoryProblems = ({navigation}) => {
                                     <RadioButton selected={laboredBreathing == 'No'} labelRadio={'No'}/>
                                 </TouchableOpacity>
                             </View>
-                            <PickerSingleSelect setItems={setLipColor} items={lipColor} setValue={setLipColorSelected} value={lipColorSelected} label={"¿De qué color tiene los labios?"} />
+                            <PickerSingleSelect setItems={setLipColor} items={lipColor} setValue={(value) => handleSetValue(value, setLipColorSelected, lipColorSelected)} value={lipColorSelected} label={"¿De qué color tiene los labios?"} />
                             <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>¿Logra escuchar secreciones en los pulmones?</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setLungSecretions('Si')}}>

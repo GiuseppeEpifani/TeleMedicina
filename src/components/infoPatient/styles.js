@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     cardAttention: {
         height: '100%', 
         borderLeftWidth: 10, 
-        padding: 20
+        padding: 16
     },
     textCardAttention: {
         fontSize: 30,

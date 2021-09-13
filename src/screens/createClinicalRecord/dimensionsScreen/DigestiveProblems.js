@@ -33,6 +33,16 @@ export const DigestiveProblems = ({navigation}) => {
     const { consistencyDeposition, ingestedSubstance, additionalInformation } = formValues;
     const [loading, setloading] = useState(false);
 
+    const handleSetValue = (value, setFunction, getValue) => {
+        const item = value();
+
+        if (getValue == item) {
+            setFunction();
+        } else {
+            setFunction(item);
+        }
+    }
+
     const handleSaveDimension = () => {
         let dimension = 
             {
@@ -226,8 +236,8 @@ export const DigestiveProblems = ({navigation}) => {
                                     </View>
                                 </View>
                             </View>
-                            <PickerSingleSelect setItems={setHowOften} items={howOften} setValue={setHowOftenSelected} value={howOftenSelected} label={"¿Cuántas veces?"} />
-                            <PickerSingleSelect setItems={setAppearanceOfVomit} items={appearanceOfVomit} setValue={setAppearanceOfVomitSelected} value={appearanceOfVomitSelected} label={"¿Qué aspecto tiene el vomito?"} />
+                            <PickerSingleSelect setItems={setHowOften} items={howOften} setValue={(value) => handleSetValue(value, setHowOftenSelected, howOftenSelected)} value={howOftenSelected} label={"¿Cuántas veces?"} />
+                            <PickerSingleSelect setItems={setAppearanceOfVomit} items={appearanceOfVomit} setValue={(value) => handleSetValue(value, setAppearanceOfVomitSelected, appearanceOfVomitSelected)} value={appearanceOfVomitSelected} label={"¿Qué aspecto tiene el vomito?"} />
                             <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>Náuseas</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setDiarrhea('Si')}}>
@@ -237,9 +247,9 @@ export const DigestiveProblems = ({navigation}) => {
                                     <RadioButton selected={diarrhea == 'No'} labelRadio={'No'}/>
                                 </TouchableOpacity>
                             </View>
-                            <PickerSingleSelect setItems={setDiarrheaEpisodes} items={diarrheaEpisodes} setValue={setDiarrheaEpisodesSelected} value={diarrheaEpisodesSelected} label={"¿Cuántos episodios de diarrea?"} />
+                            <PickerSingleSelect setItems={setDiarrheaEpisodes} items={diarrheaEpisodes} setValue={(value) => handleSetValue(value, setDiarrheaEpisodesSelected, diarrheaEpisodesSelected)} value={diarrheaEpisodesSelected} label={"¿Cuántos episodios de diarrea?"} />
                             <TextArea onChangeText={(text) => handleInputChange(text, 'consistencyDeposition')} value={consistencyDeposition.value} label={'¿Que Consistencia tiene la deposición?'} />
-                            <PickerSingleSelect setItems={setColorDeposition} items={colorDeposition} setValue={setColorDepositionSelected} value={colorDepositionSelected} label={"¿Qué color tiene la deposición?"} />
+                            <PickerSingleSelect setItems={setColorDeposition} items={colorDeposition} setValue={(value) => handleSetValue(value, setColorDepositionSelected, colorDepositionSelected)} value={colorDepositionSelected} label={"¿Qué color tiene la deposición?"} />
                             <TextArea onChangeText={(text) => handleInputChange(text, 'ingestedSubstance')} value={ingestedSubstance.value} label={'¿Ha ingerido alguna comida, medicamento o sustancia que le podría causar los síntomas?'} />
                             <TextArea onChangeText={(text) => handleInputChange(text, 'additionalInformation')} value={additionalInformation.value} label={'Si es posible, escriba otra información que desee entregar sobre el estómago, intestino o gases'} />
                         </ScrollView>

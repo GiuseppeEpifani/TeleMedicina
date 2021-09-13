@@ -34,7 +34,8 @@ export const AuthProvider = ({ children }) => {
         checkToken();
     }, []);
 
-    const uploadRecordWithPatientLocal = async () => {
+    const uploadRecordsLocal = async () => {
+        await uploadRecordWithPatientLocal();
         NetInfo.fetch().then(async (state) => {
             if (state.isConnected) {
                 try {
@@ -45,7 +46,6 @@ export const AuthProvider = ({ children }) => {
                             const patient = patientsLocalParse[i];
                             const { data } = await teleMedicinaApi.post('/set.create_update_clinical_patients', patient);
                             const user = data.data;
-
                             const records = await AsyncStorage.getItem(`records_for_create_${user.rbd}`);
 
                             if (records) {
@@ -83,8 +83,8 @@ export const AuthProvider = ({ children }) => {
                                     }
 
                                     let dimensionFallsAndBumps = currentRecord.clinical_record_new.clinical_interview.find(item => item._id === '000000000000000000000006');
-
                                     let imageFallsAndBumps;
+
                                     if (dimensionFallsAndBumps) {
                                         let  dimensionFallsAndBumpsImg =  dimensionFallsAndBumps.question.find(({question_id}) => question_id === '60526705bd99de221332c176');
                                         
@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }) => {
                                         }
                                     }
 
-                                    const imageDimension= await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
+                                    const imageDimension = await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
                                     if (imageDimension) {
                                         const imageDimensionParse = JSON.parse(imageDimension);
                                         imageFallsAndBumps.file = imageDimensionParse.file;
@@ -140,7 +140,7 @@ export const AuthProvider = ({ children }) => {
                             }
                         }
                     }
-
+                    dispatch({type: 'setUploadBaseData', payLoad: false });
                 } catch (error) {
                     console.log(error);
                 }
@@ -148,16 +148,14 @@ export const AuthProvider = ({ children }) => {
         });
     }
 
-    const uploadRecordsLocal = async () => {
-        await uploadRecordWithPatientLocal();
+    const uploadRecordWithPatientLocal = async () => {
         NetInfo.fetch().then(async (state) => {
             if (state.isConnected) {
                 try {
                     const patientsWithRecords = await AsyncStorage.getItem('list_patient_with_records');
                     const patientsWithRecordsParse = JSON.parse(patientsWithRecords);
+
                     if (patientsWithRecordsParse) {
-                        const cantPatientsWithRecords = patientsWithRecordsParse.length;
-        
                         for (let i = 0; i < patientsWithRecordsParse.length; i++) {
                             const rbd = patientsWithRecordsParse[i];
                             const records = await AsyncStorage.getItem(`records_for_create_${rbd}`);
@@ -192,13 +190,11 @@ export const AuthProvider = ({ children }) => {
                                     await AsyncStorage.removeItem(`records_for_create_${rbd}`);
                                     await AsyncStorage.removeItem(`records_${rbd}`);
                                 }
-                                //setPercentage(Math.round((i/(cantPatientsWithRecords)) * 100));
                             }
                         }
                         await AsyncStorage.removeItem('list_patient_with_records');
                         const lastDate = formatDateHuman(new Date() ,'YYYY-MM-DD HH:mm:ss', 'HH:mm a, DD MMMM - YYYY');
                         await AsyncStorage.setItem('lastUploadDataBase', lastDate);
-                        dispatch({type: 'setUploadBaseData', payLoad: false });
                     }
                 } catch (error) {
                     console.log(error);
@@ -210,15 +206,15 @@ export const AuthProvider = ({ children }) => {
 
     const getModeApp = async () => {
         const user = await getUser();
-
-        if (user) {
-            const modeApp = await AsyncStorage.getItem('modeApp');
-            if (modeApp == 'true') {
-                dispatch({type: 'setModeAppOffline', payLoad: true });
+        NetInfo.fetch().then(async (state) => {
+            if (user) {
+                await AsyncStorage.setItem('modeApp', (!state.isConnected) ? 'true' : 'false');
+                dispatch({type: 'setModeAppOffline', payLoad: (!state.isConnected) ? true : false });
             } else {
+                await AsyncStorage.setItem('modeApp', 'false');
                 dispatch({type: 'setModeAppOffline', payLoad: false });
             }
-        }
+        });
     }
 
     const activeModeOffline = async (mode) => {
@@ -231,24 +227,31 @@ export const AuthProvider = ({ children }) => {
                 'Sin usuario', 'Debe de haber iniciado sesión anteriormente, para poder usar el modo offline.', [ { text: "Esta bien", style: "cancel" } ]
             );
         }
+        checkToken();
     }
 
     const checkToken = async () => {
-        const token = await AsyncStorage.getItem('token');
+        NetInfo.fetch().then(async (state) => {
+            if (state.isConnected) {
+                const token = await AsyncStorage.getItem('token');
 
-        try {
-            if (token) {
-                const { data } = await teleMedicinaApi.post('/refresh');
-                await AsyncStorage.setItem('token', data.access_token);
-                dispatch({type: 'refreshToken', payLoad: data.access_token });
-                await uploadRecordsLocal();
+                try {
+                    if (token) {
+                        const { data } = await teleMedicinaApi.post('/refresh');
+                        await AsyncStorage.setItem('token', data.access_token);
+                        dispatch({type: 'refreshToken', payLoad: data.access_token });
+                        await uploadRecordsLocal();
+                    } else {
+                        return dispatch({type: 'notAuthenticated'});
+                    }
+            
+                } catch (error) {
+                    dispatch({type: 'notAuthenticated'});
+                }
             } else {
-                return dispatch({type: 'notAuthenticated'});
+                dispatch({type: 'authenticated-off'});
             }
-    
-        } catch (error) {
-            dispatch({type: 'notAuthenticated'});
-        }
+        });
     }
 
     const signIn = async ({email, password}) => {

@@ -31,6 +31,16 @@ export const UrinaryProblems = ({navigation}) => {
     const [pusInUrine, setPusInUrine] = useState((thereIsDimension) ? currentDimension.question.find(item => item.question_id === '60525ee0bd99de221332c16c')?.answer : null);
     const [loading, setloading] = useState(false);
 
+    const handleSetValue = (value, setFunction, getValue) => {
+        const item = value();
+
+        if (getValue == item) {
+            setFunction();
+        } else {
+            setFunction(item);
+        }
+    }
+
     const handleSaveDimension = () => {            
         let dimension = 
             {
@@ -165,12 +175,12 @@ export const UrinaryProblems = ({navigation}) => {
                                     <RadioButton selected={urinationTube == 'No'} labelRadio={'No'}/>
                                 </TouchableOpacity>
                             </View>
-                            <PickerSingleSelect setItems={setDiscomfortsUrinate} items={discomfortsUrinate} setValue={setDiscomfortsUrinateSelected} value={discomfortsUrinateSelected} label={"¿Qué molestia tiene el orinar?"} />
-                            <PickerSingleSelect setItems={setTimesHeGoesToTheBathroom} items={timesHeGoesToTheBathroom} setValue={setTimesHeGoesToTheBathroomSelected} value={timesHeGoesToTheBathroomSelected} label={"¿Cuántas veces va al baño a orinar?"} />
-                            <PickerSingleSelect setItems={setAmountOfUrine} items={amountOfUrine} setValue={setAmountOfUrineSelected} value={amountOfUrineSelected} label={"¿Cuándo va al baño, Qué cantidad de orina hace?"} />
-                            <PickerSingleSelect setItems={setUrineColor} items={urineColor} setValue={setUrineColorSelected} value={urineColorSelected} label={"¿Qué color tiene la orina?"} />
-                            <PickerSingleSelect setItems={setSmellOfUrine} items={smellOfUrine} setValue={setSmellOfUrineSelected} value={smellOfUrineSelected} label={"¿Qué olor percibe en la orina?"} />
-                            <PickerSingleSelect setItems={setSensations} items={sensations} setValue={setSensationSelected} value={sensationSelected} label={"¿Qué sientes cuando terminas de orinar?"} />
+                            <PickerSingleSelect setItems={setDiscomfortsUrinate} items={discomfortsUrinate} setValue={(value) => handleSetValue(value, setDiscomfortsUrinateSelected, discomfortsUrinateSelected)} value={discomfortsUrinateSelected} label={"¿Qué molestia tiene el orinar?"} />
+                            <PickerSingleSelect setItems={setTimesHeGoesToTheBathroom} items={timesHeGoesToTheBathroom} setValue={(value) => handleSetValue(value, setTimesHeGoesToTheBathroomSelected, timesHeGoesToTheBathroomSelected)} value={timesHeGoesToTheBathroomSelected} label={"¿Cuántas veces va al baño a orinar?"} />
+                            <PickerSingleSelect setItems={setAmountOfUrine} items={amountOfUrine} setValue={(value) => handleSetValue(value, setAmountOfUrineSelected, amountOfUrineSelected)} value={amountOfUrineSelected} label={"¿Cuándo va al baño, Qué cantidad de orina hace?"} />
+                            <PickerSingleSelect setItems={setUrineColor} items={urineColor} setValue={(value) => handleSetValue(value, setUrineColorSelected, urineColorSelected)} value={urineColorSelected} label={"¿Qué color tiene la orina?"} />
+                            <PickerSingleSelect setItems={setSmellOfUrine} items={smellOfUrine} setValue={(value) => handleSetValue(value, setSmellOfUrineSelected, smellOfUrineSelected)} value={smellOfUrineSelected} label={"¿Qué olor percibe en la orina?"} />
+                            <PickerSingleSelect setItems={setSensations} items={sensations} setValue={(value) => handleSetValue(value, setSensationSelected, sensationSelected)} value={sensationSelected} label={"¿Qué sientes cuando terminas de orinar?"} />
                             <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>¿Logras observar pus a través de la orina</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setPusInUrine('Si')}}>

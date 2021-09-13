@@ -6,7 +6,7 @@ export const useForm = ( fields ) => {
 
     const handleInputChange = ( value, name ) => {
         
-        let isComplete = (value.trim().length > 1) ? true : false
+        let isComplete = (value.trim().length > 1);
      
         setValues({
             ...values,

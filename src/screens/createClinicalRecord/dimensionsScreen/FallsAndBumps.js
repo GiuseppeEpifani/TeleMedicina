@@ -39,7 +39,17 @@ export const FallsAndBumps = ({navigation}) => {
 
     useEffect(() => {
         getImageLocal();
-    }, [])
+    }, []);
+
+    const handleSetValue = (value, setFunction, getValue) => {
+        const item = value();
+
+        if (getValue == item) {
+            setFunction();
+        } else {
+            setFunction(item);
+        }
+    }
 
     const getImageLocal = async () => {
         if (await modeApp()) {
@@ -170,12 +180,12 @@ export const FallsAndBumps = ({navigation}) => {
                     <CardWithText padding={10} title={'Caídas y golpes'}>
                         <ScrollView>
                             <Text style={{fontSize: 22, fontWeight: 'bold', color: SECONDARY, marginLeft: 10, marginBottom: 10}}>Encuesta de caídas y golpes</Text>
-                            <PickerSingleSelect setItems={setFallsOrBumps} items={fallsOrBumps} setValue={setFallsOrBumpsSelected} value={fallsOrBumpsSelected} label={"¿Ha sufrido alguna caída o golpe?"} />
-                            <PickerSingleSelect setItems={setAsStep} items={asStep} setValue={setAsStepSelected} value={asStepSelected} label={"¿En caso de caída, cómo ocurrió?"} />
+                            <PickerSingleSelect setItems={setFallsOrBumps} items={fallsOrBumps} setValue={(value) => handleSetValue(value, setFallsOrBumpsSelected, fallsOrBumpsSelected)} value={fallsOrBumpsSelected} label={"¿Ha sufrido alguna caída o golpe?"} />
+                            <PickerSingleSelect setItems={setAsStep} items={asStep} setValue={(value) => handleSetValue(value, setAsStepSelected, asStepSelected)} value={asStepSelected} label={"¿En caso de caída, cómo ocurrió?"} />
                             <PickerMultiSelect value={woundSiteSelected} setValue={setWoundSiteSelected} items={woundSite} setItems={setWoundSite} max={5} label={'¿El golpe fue en?'}/>
                             <PickerMultiSelect value={bleedingOrInjurySelected} setValue={setBleedingOrInjurySelected} items={bleedingOrInjury} setItems={setBleedingOrInjury} max={5} label={'¿Tiene algún sangra-miento o herida en?'}/>
                             <PickerMultiSelect value={painSwellingDeformitySelected} setValue={setPainSwellingDeformitySelected} items={painSwellingDeformity} setItems={setPainSwellingDeformity} max={5} label={'Presenta dolor, deformidad o inflamación en..'}/>
-                            <PickerSingleSelect setItems={setConscienceLevel} items={conscienceLevel} setValue={setConscienceLevelSelected} value={conscienceLevelSelected} label={"¿Cómo es el nivel de consciencia luego de la caída o golpe?"} />
+                            <PickerSingleSelect setItems={setConscienceLevel} items={conscienceLevel} setValue={(value) => handleSetValue(value, setConscienceLevelSelected, conscienceLevelSelected)} value={conscienceLevelSelected} label={"¿Cómo es el nivel de consciencia luego de la caída o golpe?"} />
                             <ContainerCameraSingle setImageLocal={setImageLocal} imageLocal={imageLocal} setImage={setImage} imageSupport={imageSupport} setImageSupport={setImageSupport} patientId={patient._id} tempUri={imageFallsAndBumps.tempUri} label={'Apoyo Audiovisual'} />
                         </ScrollView>
                     </CardWithText>

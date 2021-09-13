@@ -79,6 +79,13 @@ export const authReducer = ( state, action ) => {
                 appOffline: action.payLoad
             }
 
+        case 'authenticated-off':
+            return {
+                ...state,
+                isLoggedIn: true,
+                status: 'authenticated',
+            }
+
         default:
             return state;
     }

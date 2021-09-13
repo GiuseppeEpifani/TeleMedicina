@@ -15,10 +15,11 @@ import { formatDateHuman } from '../../helpers/formatDateHuman';
 import { HomeContext } from '../../context/Home/HomeContext';
 import NetInfo from "@react-native-community/netinfo";
 import { CommonActions } from '@react-navigation/native';
+import { manager } from '../../helpers/bleManager';
 
 export const Configuration = ({navigation}) => {
 
-    const { logout, activeModeOffline, checkToken, isConnected } = useContext(AuthContext);
+    const { logout, activeModeOffline } = useContext(AuthContext);
     const { cleanData } = useContext(RecordContext);
     const { getPatient, cleanDebounce } = useContext(HomeContext);
 
@@ -30,6 +31,54 @@ export const Configuration = ({navigation}) => {
     const [percentage, setPercentage] = useState(0);
     const [lastDownloadDataBaseDate, setLastDownloadDataBaseDate] = useState();
     const [lastUploadDataBase, setlastUploadDataBase] = useState();
+
+    useEffect(() => {
+        manager.onStateChange((state) => {
+          const subscription = manager.onStateChange((state) => {
+              console.log(state)
+              if (state === 'PoweredOn') {
+                scanAndConnect();
+                subscription.remove();
+              }
+          }, true);
+
+          return () => subscription.remove();
+        });
+      }, [manager]);
+    
+     const scanAndConnect = () => {
+        manager.startDeviceScan(null, null, (error, device) => {
+            if (error) {
+                console.log(error)
+                // Handle error (scanning will be stopped automatically)
+                return
+            }
+
+            console.log('escaneando')
+
+            if (device.name === 'Samico GL') {                
+                manager.stopDeviceScan();
+                device.connect()
+                .then((device) => {
+                    return device.discoverAllServicesAndCharacteristics()
+                }) 
+                .then((device) => {
+                        device.monitorCharacteristicForService('FFF0', 'FFF4', (error, characteristic) => {
+                        if (error) {
+                          console.log(error)
+                          return
+                        }
+                        console.log(characteristic)
+
+                       console.log('pasa dentro')
+                    });
+                }, (error) => {
+                    console.log(error.message)
+                    manager.destroy();
+                })
+            }
+        });
+    }
 
     const handleLogout = () => {
         cleanData();
@@ -47,7 +96,6 @@ export const Configuration = ({navigation}) => {
           );
         cleanDebounce(true);
         activeModeOffline(mode);
-        if (isConnected && !mode) await checkToken();
         await getPatient();
         cleanDebounce(false);
     }
@@ -464,7 +512,7 @@ export const Configuration = ({navigation}) => {
                                     titleStyle={{fontSize: 14, fontWeight: 'bold', marginLeft: 10}}  
                                     containerStyle={{borderRadius: 20}}
                                     buttonStyle={ !loadingDownloadDataBase ? {backgroundColor: PRIMARY, height: 40, width: 180, borderRadius: 20} : {backgroundColor: PRIMARY, height: 40, width: 200, borderRadius: 20}}
-                                    disabled={!modeApp || loadingDownloadDataBase}
+                                    disabled={loadingDownloadDataBase}
                                     icon={
                                         <Icon
                                             name="cloud-download"
@@ -523,6 +571,7 @@ export const Configuration = ({navigation}) => {
                                 titleStyle={{fontSize: 18, fontWeight: 'bold', marginLeft: 10}}  
                                 containerStyle={{borderRadius: 20}}
                                 buttonStyle={{backgroundColor: PRIMARY, height: 40, width: 200, borderRadius: 20}}
+                                disabled={modeApp}
                                 icon={
                                     <Icon
                                         name="logout"

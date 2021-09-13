@@ -3,6 +3,7 @@ import { Alert, View, ScrollView, Image, TouchableOpacity } from 'react-native'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button, Text } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { BleManager } from 'react-native-ble-plx';
 
 import { styles } from './style';
 import { WHITE } from '../../const/Colors';
