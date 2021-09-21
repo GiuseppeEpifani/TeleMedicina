@@ -19,6 +19,7 @@ import { manager } from '../../helpers/bleManager';
 import base64js from 'base64-js';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 import RNAndroidLocationEnabler from 'react-native-android-location-enabler';
+import { MIN_FIELD_2 } from '../../const/Fields';
 
 export const HealthCheck = ({navigation}) => {
     const { patient } = useContext(HomeContext);
@@ -90,6 +91,10 @@ export const HealthCheck = ({navigation}) => {
         }
 
         if (height && height > 2.9 || height && isNaN(height)) {
+            return;
+        }
+
+        if (currentHealthStatus && currentHealthStatus.trim().length < 2) {
             return;
         }
 
@@ -668,12 +673,11 @@ export const HealthCheck = ({navigation}) => {
                                     />
                                 </View>
                             </View>
-                            <TextArea label={'Estado de salud actual'} labelError={false} onChangeText={setCurrentHealthStatus} value={currentHealthStatus} keyboardType={'default'} />                                         
+                            <TextArea label={'Estado de salud actual'} labelError={(currentHealthStatus && currentHealthStatus.trim().length < 2) ? MIN_FIELD_2 : false} onChangeText={setCurrentHealthStatus} value={currentHealthStatus} keyboardType={'default'} />                                         
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <View style={{flex: 1}}>
                                     <ContainerCamera appIsLocal={appIsLocal} setImages={setImages} images={images} audiovisualSupport={audiovisualSupport} handleDeleteVisualSupport={handleDeleteVisualSupport} patientId={patient._id} imagesLocal={imagesLocal} setimagesLocal={setimagesLocal} label={'Apoyo visual'} />
                                 </View>
-                                <View style={{flex: 1}}/>
                             </View>
                         </ScrollView>
                     </Card>

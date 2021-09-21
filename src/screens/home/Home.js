@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { View, ActivityIndicator, Alert, Text } from 'react-native';
-import { OptimizedFlatList } from 'react-native-optimized-flatlist'
+import { OptimizedFlatList } from 'react-native-optimized-flatlist';
 import { Button } from 'react-native-elements';
 import Card from '../../UI/Card';
 import InputText from '../../UI/InputText';
@@ -12,7 +12,7 @@ import { PRIMARY, VERY_LIGHT, WHITE } from '../../const/Colors';
 import { LoadingScreen } from '../../UI/LoadingScreen';
 import { HomeContext } from '../../context/Home/HomeContext';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
-import { format } from 'rut.js'
+import { format } from 'rut.js';
 import CardSearch from '../../UI/CardSearch';
 
 export const Home = ({navigation}) => {

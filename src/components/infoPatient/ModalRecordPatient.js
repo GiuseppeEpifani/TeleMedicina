@@ -259,7 +259,7 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
                                 <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Estatura :<Text style={{fontSize: 16, marginLeft: 6, color: SECONDARY, fontWeight: 'bold'}}> {record.health_check.height} mts</Text></Text>
                             }
                             {
-                                (record.health_check.audiovisual_support && record.health_check.audiovisual_support.length > 0) &&
+                                (!record.lastRecord && record.health_check.audiovisual_support && record.health_check.audiovisual_support.length > 0) &&
                                 <>
                                     <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Apoyo visual:</Text>
                                     <Button
@@ -561,7 +561,7 @@ const ModalRecordPatient = ({setModalVisible, modalVisible, record}) => {
                                 <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Más agitado o confuso que lo habitual<Text style={{fontSize: 16, marginLeft: 6, color: SECONDARY, fontWeight: 'bold'}}> {fallsAndBumpsDimension.question.find(item => item.question_id === '605266f8e56a0a32731ff8a5').answer}</Text></Text>                      
                             }
                             {
-                                (thereIsFallsAndBumps && fallsAndBumpsDimension.question.find(item => item.question_id === '60526705bd99de221332c176')) &&
+                                (!record.lastRecord && thereIsFallsAndBumps && fallsAndBumpsDimension.question.find(item => item.question_id === '60526705bd99de221332c176')) &&
                                 <>
                                     <Text style={{fontSize: 20, marginLeft: 6, marginVertical: 2, color: SECONDARY}}>Apoyo visual:</Text>
                                     <Button

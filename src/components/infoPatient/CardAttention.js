@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { Text, View, Alert, TouchableHighlight, TouchableOpacity  } from 'react-native'
+import React, { useState } from 'react';
+import { Text, View, Alert, TouchableHighlight, TouchableOpacity  } from 'react-native';
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Card from '../../UI/Card'
+import Card from '../../UI/Card';
 import Hr from '../../UI/Hr';
 import { DANGER, SECONDARY, SUCCESS, WARNING, WHITE } from '../../const/Colors';
 import { styles } from './styles';
@@ -34,7 +34,7 @@ const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, fina
         navigation.navigate('CreateClinicalRecord');
     }
 
-    const status = record.status;
+    const status = record.lastRecord ? 2 : record.status;
 
     return (
         <TouchableHighlight style={{flex: 1}}>
@@ -42,7 +42,7 @@ const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, fina
             {
                 (!record.deleted_at) &&
                 <View style={{height: 350, marginBottom: 10, padding: 4}}>
-                    <ModalRecordPatient setModalVisible={setModalVisible} modalVisible={modalVisible} navigation={navigation} record={record} />
+                    <ModalRecordPatient setModalVisible={setModalVisible} modalVisible={modalVisible} record={record} />
                     <ModalFinallyAttention setModalVisible={setModalVisibleFinallyAttention} modalVisible={modalVisibleFinallyAttention} record={record} finallyAttentionPatient={finallyAttention} />
                     <Card>
                         <View style={{...styles.cardAttention, borderLeftColor: (status == 1) ? WARNING : (status == 2) ? SUCCESS : SECONDARY}}>
@@ -102,7 +102,7 @@ const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, fina
                                                 <Text style={{fontSize: 18, color: WHITE, marginLeft: 5}}>REGISTRO ANTECEDENTES</Text>
                                             </View>
                                             {
-                                                (record.status != 2) &&
+                                                (status != 2) &&
                                                 <TouchableOpacity style={{flex: 0.1, justifyContent: 'center'}} onPress={continueRegister}>
                                                     <Icon name="file-document-edit" size={30} color={WHITE} style={{marginRight: 5, alignSelf: 'flex-end'}}/>
                                                 </TouchableOpacity>
@@ -134,7 +134,7 @@ const CardAttention = ({navigation, record, deleteRecord, setCurrentRecord, fina
                                                 <Text style={{fontSize: 18, color: WHITE, marginLeft: 5}}>CIERRE ATENCIÓN</Text>
                                             </View>
                                             {
-                                                (status == 2) &&
+                                                (!record.lastRecord && status == 2) &&
                                                 <TouchableOpacity style={{flex: 0.1, justifyContent: 'center'}} onPress={() => {setModalVisibleFinallyAttention(true)}}>
                                                     <Icon name="file-document-edit" size={30} color={WHITE} style={{marginRight: 5, alignSelf: 'flex-end'}}/>
                                                 </TouchableOpacity>

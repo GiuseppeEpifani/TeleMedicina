@@ -24,7 +24,9 @@ export const AuthContext = createContext(authInitialState);
 
 export const AuthProvider = ({ children }) => {
 
-    const [authState, dispatch] = useReducer(authReducer, authInitialState)
+    const [authState, dispatch] = useReducer(authReducer, authInitialState);
+
+    const {uploadBaseData} = authState;
 
     useEffect(() => {
         NetInfo.addEventListener(async (state) => {
@@ -34,13 +36,13 @@ export const AuthProvider = ({ children }) => {
         checkToken();
     }, []);
 
-    const uploadRecordsLocal = async () => {
-        await uploadRecordWithPatientLocal();
+    const uploadRecordWithPatientLocal = async () => {
         NetInfo.fetch().then(async (state) => {
             if (state.isConnected) {
                 try {
                     const patientsLocal = await AsyncStorage.getItem('listPatientsLocal');
                     if (patientsLocal) {
+                        dispatch({type: 'setUploadBaseData', payLoad: true });
                         const patientsLocalParse = JSON.parse(patientsLocal);
                         for (let i = 0; i < patientsLocalParse.length; i++) {
                             const patient = patientsLocalParse[i];
@@ -142,13 +144,14 @@ export const AuthProvider = ({ children }) => {
                     }
                     dispatch({type: 'setUploadBaseData', payLoad: false });
                 } catch (error) {
+                    dispatch({type: 'setUploadBaseData', payLoad: false });
                     console.log(error);
                 }
             }
         });
     }
 
-    const uploadRecordWithPatientLocal = async () => {
+    const uploadRecordsLocal = async () => {
         NetInfo.fetch().then(async (state) => {
             if (state.isConnected) {
                 try {
@@ -190,6 +193,7 @@ export const AuthProvider = ({ children }) => {
                                     await AsyncStorage.removeItem(`records_for_create_${rbd}`);
                                     await AsyncStorage.removeItem(`records_${rbd}`);
                                 }
+                                dispatch({type: 'setUploadBaseData', payLoad: false });
                             }
                         }
                         await AsyncStorage.removeItem('list_patient_with_records');
@@ -197,8 +201,8 @@ export const AuthProvider = ({ children }) => {
                         await AsyncStorage.setItem('lastUploadDataBase', lastDate);
                     }
                 } catch (error) {
-                    console.log(error);
                     dispatch({type: 'setUploadBaseData', payLoad: false });
+                    console.log(error);
                 }
             }
         });
@@ -240,7 +244,9 @@ export const AuthProvider = ({ children }) => {
                         const { data } = await teleMedicinaApi.post('/refresh');
                         await AsyncStorage.setItem('token', data.access_token);
                         dispatch({type: 'refreshToken', payLoad: data.access_token });
+                        await uploadRecordWithPatientLocal();
                         await uploadRecordsLocal();
+                        dispatch({type: 'setUploadBaseData', payLoad: false });
                     } else {
                         return dispatch({type: 'notAuthenticated'});
                     }

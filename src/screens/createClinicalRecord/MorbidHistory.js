@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { CardInfoPatient } from '../../components/infoPatient/CardInfoPatient';
 import { ALLERGIES } from '../../const/Allergies';
 import { LIGHT, PRIMARY, SUCCESS, VERY_LIGHT, WHITE } from '../../const/Colors'
-import { FIELD_COMPLETE } from '../../const/Fields';
+import { FIELD_COMPLETE, MIN_FIELD_2 } from '../../const/Fields';
 import { PATHOLOGIES } from '../../const/Pathologies';
 import { HomeContext } from '../../context/Home/HomeContext';
 import { RecordContext } from '../../context/RecordFile/RecordContext';
@@ -61,6 +61,14 @@ export const MorbidHistory = ({navigation}) => {
 
     const saveRecord = async () => {
         setValidated(true);
+        if (other && other.trim().length < 2) {
+            return;
+        }
+
+        if (drugs && drugs.trim().length < 2) {
+            return;
+        }
+
         if (pathologiesSelected.length > 0) {
             setLoading(true);
             let pathologyFormated = pathologiesSelected.map(value => JSON.parse(value));
@@ -135,7 +143,7 @@ export const MorbidHistory = ({navigation}) => {
                                     <View style={{flex: 1}}>
                                         <InputText 
                                             label={'Otro'}
-                                            labelError={false}
+                                            labelError={(other && other.trim().length < 2) ? MIN_FIELD_2 : false}
                                             onChangeText={setOther}
                                             value={other}
                                             placeholder={' '} 
@@ -146,7 +154,7 @@ export const MorbidHistory = ({navigation}) => {
                                     <View style={{flex: 1}}>
                                         <InputText 
                                             label={'Fármaco'}
-                                            labelError={false}
+                                            labelError={(drugs && drugs.trim().length < 2) ? MIN_FIELD_2 : false}
                                             onChangeText={setDrugs}
                                             value={drugs}
                                             placeholder={' '} 

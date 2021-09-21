@@ -13,6 +13,7 @@ const Stack = createStackNavigator();
 export const StacksLogin = () => {
 
     const { isLoggedIn, status, loading, isConnected, uploadBaseData, appOffline, changeModeApp } = useContext(AuthContext);
+
     if (changeModeApp) return <LoadingScreen text={'Cambiando modo de la app...'}/>
     if (status == 'checking') return <ScreenInit/>
     if (!isConnected && !appOffline) return <WithoutConnectionScreen />

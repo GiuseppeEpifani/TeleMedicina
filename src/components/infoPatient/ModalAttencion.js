@@ -19,7 +19,7 @@ const ModalAttencion = ({createRecord, patient, modalVisible, setModalVisible, n
     const createAttention = async () => {
         setValidated(true);
 
-        if (reasonForConsultation) {
+        if (reasonForConsultation && reasonForConsultation.trim().length > 1) {
             Keyboard.dismiss();
             setBtnDisabled(true);
             const typeOfQueryObject = {
@@ -65,7 +65,7 @@ const ModalAttencion = ({createRecord, patient, modalVisible, setModalVisible, n
                     </View>
                     <View style={{flex: 3, padding: 30}}>
                         <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginBottom: 6}}>Motivo de consulta y/o síntomas actuales</Text>
-                        <TextArea onChangeText={setReasonForConsultation} value={reasonForConsultation} labelError={(!reasonForConsultation && validated) ? FIELD_COMPLETE : false} />
+                        <TextArea onChangeText={setReasonForConsultation} value={reasonForConsultation} labelError={(!reasonForConsultation && validated || reasonForConsultation && reasonForConsultation.trim().length < 2 && validated) ? FIELD_COMPLETE : false} />
                         <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginTop: 20}}>Tipo de consulta</Text>
                         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginTop: 10}}>
                             <TouchableOpacity onPress={() => {setTypeQuery(1)}}>

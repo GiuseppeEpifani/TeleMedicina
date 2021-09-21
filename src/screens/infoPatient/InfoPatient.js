@@ -12,17 +12,28 @@ import { RecordContext } from '../../context/RecordFile/RecordContext';
 import { HomeContext } from '../../context/Home/HomeContext';
 import { LoadingScreen } from '../../UI/LoadingScreen';
 import Card from '../../UI/Card';
+import { modeApp } from '../../helpers/modeApp';
+import { getLastClinicalRecord } from '../../helpers/recordsLocal/getLastClinicalRecord';
 
 export const InfoPatient = ({navigation}) => {
 
     const { getRecords, deleteRecord, createAttention, clinicalRecords, loading, cleanData, setCurrentRecord, finallyRecordPatient } = useContext(RecordContext);
-    const { patient, isCleanDebounce } = useContext(HomeContext);
+    const { patient } = useContext(HomeContext);
     const [loadingData, setLoadingData] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
+    const [lastClinicalRecord, setLastClinicalRecord] = useState();
 
     useEffect(() => {
+        getClinicalRecordLocal();
         loadingRecords();
     }, []);
+
+    const getClinicalRecordLocal = async () => {
+        if (await modeApp()) {
+            const lastClinicalRecordAsync = await getLastClinicalRecord(patient._id);
+            if (lastClinicalRecordAsync && lastClinicalRecordAsync.clinical_record) setLastClinicalRecord(lastClinicalRecordAsync.clinical_record);
+        }
+    }
     
     const loadingRecords = async () => {
         await getRecords({id: patient._id, rbd: patient.rbd});
@@ -89,7 +100,7 @@ export const InfoPatient = ({navigation}) => {
                             </View>
                         }
                         {
-                            (clinicalRecords.length === 0 && !loadingData) &&
+                            (clinicalRecords.length === 0 && !loadingData && !lastClinicalRecord) &&
                             <View style={{flex: 1, justifyContent: 'center', alignContent: 'center', paddingHorizontal: 30}}>
                                 <View style={{height: 200}}>
                                     <Card padding={30}>
@@ -106,7 +117,7 @@ export const InfoPatient = ({navigation}) => {
                                 data={clinicalRecords}
                                 keyExtractor={(recordRender, index) => (recordRender?.local) ? recordRender.id+''+index : recordRender._id }
                                 renderItem={renderListRecord}
-                            />	
+                            />
                         }
                     </View>
                 </View>

@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useEffect } from 'react'
+import React, { createContext, useReducer } from 'react';
 import teleMedicinaApi from '../../api/teleMedicinaApi';
 import { modeApp } from '../../helpers/modeApp';
 import { createRecordPatient } from '../../helpers/recordsLocal/createRecordPatient';
@@ -8,6 +8,7 @@ import { getUser } from '../../helpers/getUser';
 import { saveSingleImageDimension } from '../../helpers/recordsLocal/saveSingleImageDimension';
 import { saveMultipleImageHealthCheck } from '../../helpers/recordsLocal/saveMultipleImageHealthCheck';
 import { deleteRecordLocal } from '../../helpers/recordsLocal/deleteRecordLocal';
+import { getLastClinicalRecord } from '../../helpers/recordsLocal/getLastClinicalRecord';
 
 const initialState = {
     clinicalRecords: [],
@@ -33,11 +34,16 @@ export const RecordProvider = ({ children }) => {
                 const { data } = await teleMedicinaApi.post('/get.clinical_record_per_patient', { id });
                 dispatch({type: 'setRecords', payLoad: data.clinical_record});
             } else {
-                const records = await getRecordsPatient(rbd);
+                let records = await getRecordsPatient(rbd);
+                let lastClinicalRecordAsync = await getLastClinicalRecord(id);
+                if (lastClinicalRecordAsync && lastClinicalRecordAsync.clinical_record) {
+                    const newLastClinicalRecord = {...lastClinicalRecordAsync.clinical_record, lastRecord: true};
+                    records = [newLastClinicalRecord, ...records];
+                }
                 dispatch({type: 'setRecords', payLoad: records});
             }
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 		}
     }
 
@@ -62,7 +68,7 @@ export const RecordProvider = ({ children }) => {
                 dispatch({type: 'setLoading', payLoad: false});
             }
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 		}
     }
 
@@ -128,7 +134,7 @@ export const RecordProvider = ({ children }) => {
                 dispatch({type: 'setCurrentRecord', payLoad: recordFormat});
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
@@ -192,7 +198,7 @@ export const RecordProvider = ({ children }) => {
                 dispatch({type: 'setCurrentRecord', payLoad: recordFormat});
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         } 
     }
 
@@ -256,7 +262,7 @@ export const RecordProvider = ({ children }) => {
                 dispatch({type: 'setCurrentRecord', payLoad: recordFormat});
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         } 
     }
 
@@ -320,7 +326,7 @@ export const RecordProvider = ({ children }) => {
                 dispatch({type: 'setCurrentRecord', payLoad: recordFormat});
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);;
         } 
     }
 
@@ -401,7 +407,7 @@ export const RecordProvider = ({ children }) => {
                 dispatch({type: 'setRecords', payLoad: newRecordClinical});
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
@@ -437,7 +443,7 @@ export const RecordProvider = ({ children }) => {
                     audiovisualSupport.push(file);
                 }
             } catch (error) {
-                console.log(error)
+                console.log(error);
             } 
         };
 
@@ -479,7 +485,7 @@ export const RecordProvider = ({ children }) => {
                 return file;
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
         } 
     }
 

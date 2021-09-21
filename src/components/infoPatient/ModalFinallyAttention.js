@@ -5,7 +5,7 @@ import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, SECONDARY, VERY_LIGHT, WHITE } from '../../const/Colors';
 import { SCREEN_HEIGHT } from '../../const/Dimensions';
-import { FIELD_COMPLETE } from '../../const/Fields';
+import { FIELD_COMPLETE, MIN_FIELD_2 } from '../../const/Fields';
 import { formatDateHuman } from '../../helpers/formatDateHuman';
 import Hr from '../../UI/Hr';
 import TextArea from '../../UI/TextArea';
@@ -19,7 +19,7 @@ const ModalFinallyAttention = ({setModalVisible, modalVisible, record, finallyAt
     const finallyAttention = async () => {
         setValidated(true);
 
-        if (observation && indication) {
+        if (observation && observation.trim().length > 1 && indication && indication.trim().length > 1) {
             finallyAttentionPatient({ recordId: record._id, observation, indication, record });
             setValidated(false);
         }
@@ -85,9 +85,9 @@ const ModalFinallyAttention = ({setModalVisible, modalVisible, record, finallyAt
                             }
                             <Hr/>
                             <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginBottom: 6}}>Observación</Text>
-                            <TextArea maxLength={500} onChangeText={setObservation} value={observation} labelError={(!observation && validated) ? FIELD_COMPLETE : false} />
+                            <TextArea maxLength={500} onChangeText={setObservation} value={observation} labelError={(!observation && validated) ? FIELD_COMPLETE : (observation && observation.trim().length < 2) ? MIN_FIELD_2 : false} />
                             <Text style={{fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginLeft: 6, marginBottom: 6}}>Indicación</Text>
-                            <TextArea maxLength={500} onChangeText={setIndication} value={indication} labelError={(!indication && validated) ? FIELD_COMPLETE : false} />
+                            <TextArea maxLength={500} onChangeText={setIndication} value={indication} labelError={(!indication && validated) ? FIELD_COMPLETE : (indication && indication.trim().length < 2) ? MIN_FIELD_2 : false} />
                         </ScrollView>
                     </View>
                     <View style={{height: 60, marginTop: 10}}>

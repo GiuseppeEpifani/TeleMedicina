@@ -15,7 +15,6 @@ import { formatDateHuman } from '../../helpers/formatDateHuman';
 import { HomeContext } from '../../context/Home/HomeContext';
 import NetInfo from "@react-native-community/netinfo";
 import { CommonActions } from '@react-navigation/native';
-import { manager } from '../../helpers/bleManager';
 
 export const Configuration = ({navigation}) => {
 
@@ -31,54 +30,6 @@ export const Configuration = ({navigation}) => {
     const [percentage, setPercentage] = useState(0);
     const [lastDownloadDataBaseDate, setLastDownloadDataBaseDate] = useState();
     const [lastUploadDataBase, setlastUploadDataBase] = useState();
-
-    useEffect(() => {
-        manager.onStateChange((state) => {
-          const subscription = manager.onStateChange((state) => {
-              console.log(state)
-              if (state === 'PoweredOn') {
-                scanAndConnect();
-                subscription.remove();
-              }
-          }, true);
-
-          return () => subscription.remove();
-        });
-      }, [manager]);
-    
-     const scanAndConnect = () => {
-        manager.startDeviceScan(null, null, (error, device) => {
-            if (error) {
-                console.log(error)
-                // Handle error (scanning will be stopped automatically)
-                return
-            }
-
-            console.log('escaneando')
-
-            if (device.name === 'Samico GL') {                
-                manager.stopDeviceScan();
-                device.connect()
-                .then((device) => {
-                    return device.discoverAllServicesAndCharacteristics()
-                }) 
-                .then((device) => {
-                        device.monitorCharacteristicForService('FFF0', 'FFF4', (error, characteristic) => {
-                        if (error) {
-                          console.log(error)
-                          return
-                        }
-                        console.log(characteristic)
-
-                       console.log('pasa dentro')
-                    });
-                }, (error) => {
-                    console.log(error.message)
-                    manager.destroy();
-                })
-            }
-        });
-    }
 
     const handleLogout = () => {
         cleanData();
@@ -350,6 +301,7 @@ export const Configuration = ({navigation}) => {
     const downloadDataBase = async (patients, numberPage, cantPage, repeat, percentageBack, cantPatients) => {
         NetInfo.fetch().then(async (state) => {
             if (state.isConnected) {
+                cleanDebounce(true);
                 await AsyncStorage.removeItem('listPatients');
                 await AsyncStorage.removeItem('cantPatients');
                 if (cantPatient > 0) setCantPatient(0);
@@ -408,10 +360,36 @@ export const Configuration = ({navigation}) => {
                     setLoadingDownloadDataBase(false);
                 } catch (error) {
                     console.log(error);
+                    Alert.alert(
+                        "discriptor",
+                        error,
+                        [
+                            {
+                                text: "Esta bien",
+                                style: "cancel"
+                            },
+                        ]
+                    );
                     setTimeout(() => {
                         downloadDataBase(arrayPatient, page, totalPage, 1, percentage, totalPatients);
                     }, 60000);
                 }
+
+                try {
+                    let pageClinicalRecordLast = 1;
+                    let arrayClinicalRecordLast = [];
+                    let totalPageClinicalRecord = 0;
+                    do {
+                        let { data: {data, lastPage} } = await teleMedicinaApi.post(`/get.last_clinical_file?page=${pageClinicalRecordLast}`, { pagination: 500 });
+                        arrayClinicalRecordLast = [ ...arrayClinicalRecordLast, ...data];
+                        totalPageClinicalRecord = lastPage;
+                        pageClinicalRecordLast++;
+                    } while(pageClinicalRecordLast <= totalPageClinicalRecord);
+                    await AsyncStorage.setItem('clinical_record_last', JSON.stringify(arrayClinicalRecordLast));
+                } catch (error) {
+                    console.log(error)
+                }
+                cleanDebounce(false);
             } else {
                 Alert.alert(
                     "Sin conexion a internet",
@@ -427,28 +405,6 @@ export const Configuration = ({navigation}) => {
         })
     }
 
-    const cleanDataBase = async () => {
-        Alert.alert(
-			"¿Esta seguro?",
-			'Eliminara toda la información almacenada localmente, y no podra ser recuperada.' ,
-			[
-				{
-					text: "Cancelar",
-					style: "cancel"
-				},
-				{ text: "Si, esta bien", 
-                onPress: async () => {
-                    await AsyncStorage.removeItem('listPatients');
-                    await AsyncStorage.removeItem('listPatientsLocal');
-                    await AsyncStorage.removeItem('cantPatients');
-                    await AsyncStorage.removeItem('lastPage');
-                    await getPatient();
-                    setCantPatient(0);
-                }}
-			]
-        );
-    }
-    
     useEffect(() => {
         loadConfingApp();
         loadPatientAsyncStorage();
@@ -524,7 +480,7 @@ export const Configuration = ({navigation}) => {
                                 />
                             </View>
                         </View>
-                        <View style={{flexDirection: 'row', marginLeft: 5, marginTop: 10}}>
+                        <View style={{flexDirection: 'row', marginLeft: 5, marginTop: 10, marginBottom: 20}}>
                             <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY, marginRight: 6, marginTop: 5}}>Subir base de datos local:</Text>
                             <View>
                                 <Button 
@@ -546,24 +502,6 @@ export const Configuration = ({navigation}) => {
                                     }}
                                 />
                             </View>
-                        </View>
-                        <View style={{flexDirection: 'row', marginLeft: 5, marginBottom: 20, marginTop: 10}}>
-                            <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY, marginRight: 6, marginTop: 5}}>Limpiar base de datos local:</Text>
-                            <View>
-                                <Button title="Limpiar" 
-                                    titleStyle={{fontSize: 14, fontWeight: 'bold', marginLeft: 10}}  
-                                    containerStyle={{borderRadius: 20}}
-                                    buttonStyle={{backgroundColor: PRIMARY, height: 40, width: 200, borderRadius: 20}}
-                                    icon={
-                                        <Icon
-                                            name="trash-can"
-                                            size={25}
-                                            color="white"
-                                        />
-                                    }
-                                    onPress={cleanDataBase}
-                                />
-                            </View>                       
                         </View>
                         <Hr />
                         <View style={{marginVertical: 14}}>

@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from 'react'
+import React, { createContext, useReducer } from 'react';
 import teleMedicinaApi from '../../api/teleMedicinaApi';
 import { createPatient } from '../../helpers/patientsLocal/createPatient';
 import { deletePatientLocal } from '../../helpers/patientsLocal/deletePatientLocal';
@@ -173,6 +173,7 @@ export const HomeProvider = ({ children }) => {
 
 	const createNewPatient = async (patient) => {
 		try {
+			cleanDebounce(true);
 			dispatch({type: 'setLoading', payLoad: true});
 			if (!await modeApp()) {
 				await teleMedicinaApi.post('/set.create_update_clinical_patients', patient);
@@ -181,10 +182,11 @@ export const HomeProvider = ({ children }) => {
 				if (listPatient.length <= 20) await getPatient();
 			}
 			dispatch({type: 'setLoading', payLoad: false});
+			cleanDebounce(false);
 			dispatch({type: 'setMessage', payLoad: 'Paciente creado'});
 		} catch (error) {
 			dispatch({type: 'setLoading', payLoad: false});
-			console.log(error)
+			console.log(error);
 		}
 	}
 
@@ -210,7 +212,7 @@ export const HomeProvider = ({ children }) => {
 			dispatch({type: 'setMessage', payLoad: 'Paciente modificado'});
 		} catch (error) {
 			dispatch({type: 'setLoading', payLoad: false});
-			console.log(error)
+			console.log(error);
 		}
 	}
 
