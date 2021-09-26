@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { View, ScrollView, TouchableOpacity, ActivityIndicator, Text, Alert, PermissionsAndroid } from 'react-native'
+import { View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, PermissionsAndroid } from 'react-native'
 import { Badge, Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { PRIMARY, SECONDARY, SUCCESS, VERY_LIGHT, WHITE } from '../../const/Colors'
+import { PRIMARY, SUCCESS, VERY_LIGHT, WHITE } from '../../const/Colors'
 import KeyboardScrollView from '../../UI/KeyboardScrollView';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import InputText from '../../UI/InputText';
@@ -157,16 +157,15 @@ export const HealthCheck = ({navigation}) => {
     }
 
     const startDeviceScan = async () => {
-        manager.startDeviceScan(null, { allowDuplicates: false }, (error, device) => {
-            console.log('scaneando')
+        manager.startDeviceScan(null, null, (error, device) => {
             if (error) {
                 setConnectedBluetooth();
                 setScanBluetooth();
                 Alert.alert('Notificación', 'Se apago el bluetooth o el GPS, vuelva a encenderlo', [ { text: 'Esta bien'} ]);
-                console.log(error)
+                console.log(error, 'scan');
             } else {
                 if (device.name === 'Medical') {
-                    connectedSensorMedical(device);
+                    connectedSensorMedical(device); 
                 }
 
                 if (device.name === 'BPM_01') {
@@ -208,7 +207,7 @@ export const HealthCheck = ({navigation}) => {
                 })
                 .catch((err) => {
                     setScanBluetooth();
-                    console.log(err);
+                    console.log(JSON.stringify(err));
                 });
         } else {
             Alert.alert('Notificación', 'Debe de darle permisos de ubicación a la aplicación', [ { text: 'Esta bien'} ]);
@@ -221,7 +220,7 @@ export const HealthCheck = ({navigation}) => {
         setScanBluetooth();
     }
 
-    const connectedSensorMedical = (device) => {
+    const connectedSensorMedical = (device, i = 1) => {
         manager.stopDeviceScan();
         device.connect()
         .then((device) => {
@@ -231,14 +230,19 @@ export const HealthCheck = ({navigation}) => {
         .then((device) => {
             device.monitorCharacteristicForService('CDEACB80-5235-4C07-8846-93A37EE6B86D', 'CDEACB81-5235-4C07-8846-93A37EE6B86D', (error, characteristic) => {
                 if (error) {
-                    setConnectedBluetooth();
-                    setScanBluetooth();
-                    return
+                    console.log(JSON.stringify(error));
+                    if (i < 20) {
+                        connectedSensorMedical(device, i++);
+                        return;
+                    } else {
+                        setConnectedBluetooth();
+                        setScanBluetooth();
+                        return;
+                    }
                 }
 
                 const arrayBytes = base64js.toByteArray(characteristic.value);
                 if (arrayBytes.length === 4) {
-                    console.log(arrayBytes)
                     if (arrayBytes[1] !== 255 && arrayBytes[2] !== 127 && arrayBytes[3] !== 0) {
                         setHeartRate(arrayBytes[1].toString());
                         setO2Saturation(arrayBytes[2].toString());
@@ -246,26 +250,36 @@ export const HealthCheck = ({navigation}) => {
                 }
             });
         }, (error) => {
-            console.log(error.message);
+            console.log(JSON.stringify(error));
             setConnectedBluetooth();
             setScanBluetooth();
         })
     }
 
-    const connectedSensorPressure = (device) => {
+    const connectedSensorPressure = (device, i = 1) => {
         manager.stopDeviceScan();
         device.connect()
         .then((device) => {
             setConnectedBluetooth(1);
             return device.discoverAllServicesAndCharacteristics()
+        }, (error) => {
+            console.log(JSON.stringify(error), 'error conexion');
+            setConnectedBluetooth();
+            setScanBluetooth();
         }) 
         .then((device) => {
-            device.monitorCharacteristicForService('FFF0', 'FFF4', (error, characteristic) => {
+            if (device === undefined) return; 
+            device.monitorCharacteristicForService('0000fff0-0000-1000-8000-00805f9b34fb', '0000fff4-0000-1000-8000-00805f9b34fb', (error, characteristic) => {
                 if (error) {
-                    console.log(error)
-                    setConnectedBluetooth();
-                    setScanBluetooth();                    
-                    return
+                    console.log(JSON.stringify(error, 'ERROR DENTRO MONITOR'));
+                    if (i < 20) {
+                        connectedSensorPressure(device, i++);
+                        return;
+                    } else {
+                        setConnectedBluetooth();
+                        setScanBluetooth();
+                        return;
+                    }
                 }
 
                 const arrayBytes = base64js.toByteArray(characteristic.value);
@@ -281,44 +295,56 @@ export const HealthCheck = ({navigation}) => {
                     } else {
                         setBloodPressureDiastolic(arrayBytes[4].toString());
                     }
+                    setConnectedBluetooth();
+                    setScanBluetooth();
                 }
             });
         }, (error) => {
-            console.log(error.message)
+            console.log(JSON.stringify(error), 'ERROR FUERA MONITOR');
             setConnectedBluetooth();
             setScanBluetooth();
         })
     }
 
-    const connectedSensorThermometer = (device) => {
+    const connectedSensorThermometer = (device, i = 1) => {
         manager.stopDeviceScan();
         device.connect()
         .then((device) => {
             setConnectedBluetooth(4);
             return device.discoverAllServicesAndCharacteristics()
+        }, (error) => {
+            console.log(JSON.stringify(error), 'error conexion');
+            setConnectedBluetooth();
+            setScanBluetooth();
         }) 
         .then((device) => {
-            device.monitorCharacteristicForService('1809', '2A1C', (error, characteristic) => {
+            if (device === undefined) return; 
+            device.monitorCharacteristicForService('1809', '2A1C', async (error, characteristic) => {
                 if (error) {
-                    console.log(error);
-                    setConnectedBluetooth();
-                    setScanBluetooth();                    
-                    return;
+                    console.log(JSON.stringify(error), 'error dentro');
+                    if (i < 20) {
+                        connectedSensorThermometer(device, i++);
+                        return;
+                    } else {
+                        setConnectedBluetooth();
+                        setScanBluetooth();
+                        return;
+                    }
                 }
 
                 const arrayBytes = base64js.toByteArray(characteristic.value);
                 const dataView = new DataView(arrayBytes.buffer);
-                const value = getFloatValue(dataView, 1).toFixed(1);
-                setTemperature(value.toString());
+                const value = await getFloatValue(dataView, 1);
+                setTemperature(value.toFixed(1).toString());
             });
         }, (error) => {
-            console.log(error.message)
+            console.log(JSON.stringify(error), 'error monitor');
             setConnectedBluetooth();
             setScanBluetooth();
         })
     }
 
-    const connectedSensorBalance = (device) => {
+    const connectedSensorBalance = (device, i = 1) => {
         manager.stopDeviceScan();
         device.connect()
         .then((device) => {
@@ -326,12 +352,17 @@ export const HealthCheck = ({navigation}) => {
             return device.discoverAllServicesAndCharacteristics()
         }) 
         .then((device) => {
-            device.monitorCharacteristicForService('FFF0', 'FFF3', (error, characteristic) => {
+            device.monitorCharacteristicForService('FFF0', 'FFF3', async (error, characteristic) => {
                 if (error) {
-                    console.log(error);
-                    setConnectedBluetooth();
-                    setScanBluetooth();                    
-                    return;
+                    console.log(JSON.stringify(error));
+                    if (i < 20) {
+                        connectedSensorBalance(device, i++);
+                        return;
+                    } else {
+                        setConnectedBluetooth();
+                        setScanBluetooth();                    
+                        return;
+                    }
                 }
 
                 const arrayBytes = base64js.toByteArray(characteristic.value);
@@ -369,18 +400,20 @@ export const HealthCheck = ({navigation}) => {
                         break;
                 }
 
-                const dataView = new DataView(arrayBytes.buffer);
-                const valueInt = getFloatValue(dataView, 3);
-                if (arrayBytes[2] == arrayBytes[4]) setWeight((valueInt / 1000).toString());
+                if (arrayBytes[2] == arrayBytes[4]) {
+                    const dataView = new DataView(arrayBytes.buffer);
+                    const valueInt = await getFloatValue(dataView, 3);
+                    setWeight((valueInt / 1000).toString());
+                }
             });
         }, (error) => {
-            console.log(error.message)
+            console.log(JSON.stringify(error));
             setConnectedBluetooth();
             setScanBluetooth();
         })
     }
 
-    const getFloatValue = (value, offset) => {
+    const getFloatValue = async (value, offset) => {
         const negative = value.getInt8(offset + 2) >>> 31;
     
         const [b0, b1, b2, exponent] = [
@@ -434,106 +467,65 @@ export const HealthCheck = ({navigation}) => {
                         <ScrollView>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 10}}>
                                 <View style={{flex: 1}}>
-                                    { 
-                                        scanBluetooth === 1 &&
-                                        <View style={{flexDirection: 'row' ,height: 50, marginTop: 20, justifyContent: 'center', alignContent: 'center'}}> 
-                                            {
-                                                (scanBluetooth === 1 && !connectedBluetooth) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Conectando dispositivo...</Text>
-                                            }
-                                            {
-                                                (scanBluetooth === 1 && connectedBluetooth === 1) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Obteniendo valores...</Text>
-                                            }
-                                            <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}} />
-                                        </View>
-                                    }
-                                    {
-                                        (!scanBluetooth || scanBluetooth != 1) &&
-                                        <InputTextWithInfo 
-                                            label={'Presión arterial'}
-                                            containerStyle={{borderBottomRightRadius: 0, borderTopRightRadius: 0}}
-                                            styleWidth={{width: '100%'}}
-                                            labelError={(bloodPressureSystolic && bloodPressureSystolic > 300 || bloodPressureSystolic && isNaN(bloodPressureSystolic)) ? 'Presión arterial sistólica tiene que estar entre 0.1 - 300' : false}
-                                            value={bloodPressureSystolic}
-                                            onChangeText={setBloodPressureSystolic} 
-                                            placeholder={' '} 
-                                            keyboardType={'numeric'}
-                                        />
-                                    }
+                                    <InputTextWithInfo 
+                                        label={'Presión arterial'}
+                                        containerStyle={{borderBottomRightRadius: 0, borderTopRightRadius: 0}}
+                                        styleWidth={{width: '100%'}}
+                                        labelError={(bloodPressureSystolic && bloodPressureSystolic > 300 || bloodPressureSystolic && isNaN(bloodPressureSystolic)) ? 'Presión arterial sistólica tiene que estar entre 0.1 - 300' : false}
+                                        value={bloodPressureSystolic}
+                                        editable={scanBluetooth !== 1}
+                                        selectTextOnFocus={scanBluetooth !== 1}
+                                        onChangeText={setBloodPressureSystolic} 
+                                        placeholder={' '} 
+                                        keyboardType={'numeric'}
+                                    />
                                 </View>
                                 <View style={{flex: 1}}>
                                     <View style={{flexDirection: 'row'}}>
                                         {
-                                            (scanBluetooth === 1 && connectedBluetooth === 1) &&
-                                            <TouchableOpacity onPress={stopScanBluetooh} style={{position: 'absolute', right: 40, borderRadius: 50, backgroundColor: SUCCESS, top: -4, zIndex: 100}}>
-                                                <MaterialCommunityIcons name="check-bold" size={26} color={WHITE} />
-                                            </TouchableOpacity>
+                                            (scanBluetooth === 1 && !connectedBluetooth) &&
+                                            <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
                                         }
-                                        <TouchableOpacity onPress={() => {(scanBluetooth === 1 && !connectedBluetooth) ? stopScanBluetooh() : VerifyDeviceAndConnect(1);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 1 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                        <TouchableOpacity onPress={() => {(scanBluetooth === 1 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 1 ? {} : VerifyDeviceAndConnect(1);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 1 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
                                             <MaterialCommunityIcons name={scanBluetooth === 1 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
                                         </TouchableOpacity>
                                     </View>
-                                    { 
-                                        scanBluetooth === 1 &&
-                                        <View style={{flexDirection: 'row' ,height: 50, marginTop: 20, justifyContent: 'center', alignContent: 'center'}}> 
-                                            {
-                                                (scanBluetooth === 1 && !connectedBluetooth) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Conectando dispositivo...</Text>
-                                            }
-                                            {
-                                                (scanBluetooth === 1 && connectedBluetooth === 1) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Obteniendo valores...</Text>
-                                            }
-                                            <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}} />
-                                        </View>
-                                    }
-                                    {
-                                        (!scanBluetooth || scanBluetooth != 1) &&
-                                        <InputTextWithInfo 
-                                            label={' '}
-                                            containerStyle={{borderBottomLeftRadius: 0, borderTopLeftRadius: 0}}
-                                            labelError={(bloodPressureDiastolic && bloodPressureDiastolic > 200  || bloodPressureDiastolic && isNaN(bloodPressureDiastolic)) ? 'Presión arterial diastólica tiene que estar entre 0.1 - 200' : false}
-                                            textInfo={'mm Hg'}
-                                            value={bloodPressureDiastolic}
-                                            onChangeText={setBloodPressureDiastolic} 
-                                            placeholder={' '} 
-                                            keyboardType={'numeric'}
-                                        />
-                                    }
+                                    <InputTextWithInfo 
+                                        label={' '}
+                                        containerStyle={{borderBottomLeftRadius: 0, borderTopLeftRadius: 0}}
+                                        labelError={(bloodPressureDiastolic && bloodPressureDiastolic > 200  || bloodPressureDiastolic && isNaN(bloodPressureDiastolic)) ? 'Presión arterial diastólica tiene que estar entre 0.1 - 200' : false}
+                                        textInfo={'mm Hg'}
+                                        value={bloodPressureDiastolic}
+                                        editable={scanBluetooth !== 1}
+                                        selectTextOnFocus={scanBluetooth !== 1}
+                                        onChangeText={setBloodPressureDiastolic} 
+                                        placeholder={' '} 
+                                        keyboardType={'numeric'}
+                                    />
                                 </View>
                             </View>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <View style={{flex: 1}}>
-                                    <TouchableOpacity onPress={() => {(scanBluetooth === 3 && !connectedBluetooth) ? stopScanBluetooh() : VerifyDeviceAndConnect(3);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 3 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
-                                        <MaterialCommunityIcons name={scanBluetooth === 3 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
-                                    </TouchableOpacity>
-                                    { 
-                                        scanBluetooth === 3 &&
-                                        <View style={{flexDirection: 'row' ,height: 50, marginTop: 20, justifyContent: 'center', alignContent: 'center'}}> 
-                                            {
-                                                (scanBluetooth === 3 && !connectedBluetooth) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Conectando dispositivo...</Text>
-                                            }
-                                            {
-                                                (scanBluetooth === 3 && connectedBluetooth === 3) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Obteniendo valores...</Text>
-                                            }
-                                            <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}} />
-                                        </View>
-                                    }
-                                    {
-                                       (!scanBluetooth || scanBluetooth != 3) && 
-                                        <InputTextWithInfo 
-                                            label={'Frecuencia cardiaca'}
-                                            labelError={(heartRate && heartRate > 400 || heartRate && isNaN(heartRate)) ? 'Frecuencia cardiaca tiene que estar entre 0.1 - 400. ppm' : false}
-                                            textInfo={'ppm'}
-                                            value={heartRate}
-                                            onChangeText={setHeartRate} 
-                                            placeholder={' '} 
-                                            keyboardType={'numeric'}
-                                        />
-                                    }
+                                    <View style={{flexDirection: 'row'}}>
+                                        {
+                                            (scanBluetooth === 3 && !connectedBluetooth) &&
+                                            <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
+                                        }
+                                        <TouchableOpacity onPress={() => {(scanBluetooth === 3 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 3 ? {} : VerifyDeviceAndConnect(3);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 3 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                            <MaterialCommunityIcons name={scanBluetooth === 3 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <InputTextWithInfo 
+                                        label={'Frecuencia cardiaca'}
+                                        labelError={(heartRate && heartRate > 400 || heartRate && isNaN(heartRate)) ? 'Frecuencia cardiaca tiene que estar entre 0.1 - 400. ppm' : false}
+                                        textInfo={'ppm'}
+                                        value={heartRate}
+                                        editable={scanBluetooth !== 3}
+                                        selectTextOnFocus={scanBluetooth !== 3}
+                                        onChangeText={setHeartRate} 
+                                        placeholder={' '} 
+                                        keyboardType={'numeric'}
+                                    />
                                 </View>
                                 <View style={{flex:0.050}}/>
                                 <View style={{flex: 1}}>
@@ -575,35 +567,26 @@ export const HealthCheck = ({navigation}) => {
                             </View>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <View style={{flex: 1}}>
-                                    <TouchableOpacity onPress={() => {(scanBluetooth === 3 && !connectedBluetooth) ? stopScanBluetooh() : VerifyDeviceAndConnect(3);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 3 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
-                                        <MaterialCommunityIcons name={scanBluetooth === 3 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
-                                    </TouchableOpacity>
-                                    { 
-                                        scanBluetooth === 3 &&
-                                        <View style={{flexDirection: 'row' ,height: 50, marginTop: 20, justifyContent: 'center', alignContent: 'center'}}> 
-                                            {
-                                                (scanBluetooth === 3 && !connectedBluetooth) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Conectando dispositivo...</Text>
-                                            }
-                                            {
-                                                (scanBluetooth === 3 && connectedBluetooth === 3) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Obteniendo valores...</Text>
-                                            }
-                                            <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}} />
-                                        </View>
-                                    }
-                                    {
-                                       (!scanBluetooth || scanBluetooth != 3) && 
-                                       <InputTextWithInfo 
-                                            label={'Saturación O2'}
-                                            labelError={(o2Saturation && o2Saturation > 100 || o2Saturation && isNaN(o2Saturation)) ? 'Satuarcion debe ser menor o igual que 100%' : false}
-                                            textInfo={'%'}
-                                            value={o2Saturation}
-                                            onChangeText={setO2Saturation}
-                                            placeholder={' '} 
-                                            keyboardType={'numeric'} 
-                                        />
-                                    }
+                                    <View style={{flexDirection: 'row'}}>
+                                        {
+                                            (scanBluetooth === 3 && !connectedBluetooth) &&
+                                            <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
+                                        }
+                                        <TouchableOpacity onPress={() => {(scanBluetooth === 3 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 3 ? {} : VerifyDeviceAndConnect(3);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 3 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                            <MaterialCommunityIcons name={scanBluetooth === 3 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <InputTextWithInfo 
+                                        label={'Saturación O2'}
+                                        labelError={(o2Saturation && o2Saturation > 100 || o2Saturation && isNaN(o2Saturation)) ? 'Satuarcion debe ser menor o igual que 100%' : false}
+                                        textInfo={'%'}
+                                        editable={scanBluetooth !== 3}
+                                        selectTextOnFocus={scanBluetooth !== 3}
+                                        value={o2Saturation}
+                                        onChangeText={setO2Saturation}
+                                        placeholder={' '} 
+                                        keyboardType={'numeric'} 
+                                    />
                                 </View>
                                 <View style={{flex:0.050}}/>
                                 <View style={{flex: 1}}>
@@ -612,7 +595,7 @@ export const HealthCheck = ({navigation}) => {
                                             (scanBluetooth === 4 && !connectedBluetooth) &&
                                             <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
                                         }
-                                        <TouchableOpacity onPress={() => {(scanBluetooth === 4 && !connectedBluetooth) ? stopScanBluetooh() : VerifyDeviceAndConnect(4);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 4 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                        <TouchableOpacity onPress={() => {(scanBluetooth === 4 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 4 ? {} : VerifyDeviceAndConnect(4);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 4 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
                                             <MaterialCommunityIcons name={scanBluetooth === 4 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
                                         </TouchableOpacity>
                                     </View>
@@ -630,35 +613,26 @@ export const HealthCheck = ({navigation}) => {
                             </View>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <View style={{flex: 1}}>
-                                    <TouchableOpacity onPress={() => {(scanBluetooth === 5 && !connectedBluetooth) ? stopScanBluetooh() : VerifyDeviceAndConnect(5);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 5 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
-                                        <MaterialCommunityIcons name={scanBluetooth === 5 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
-                                    </TouchableOpacity>
-                                    { 
-                                        scanBluetooth === 5 &&
-                                        <View style={{flexDirection: 'row' ,height: 50, marginTop: 20, justifyContent: 'center', alignContent: 'center'}}> 
-                                            {
-                                                (scanBluetooth === 5 && !connectedBluetooth) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Conectando dispositivo...</Text>
-                                            }
-                                            {
-                                                (scanBluetooth === 5 && connectedBluetooth === 5) &&
-                                                <Text style={{fontWeight: 'bold', color: SECONDARY, marginRight: 8, marginTop: 10}}>Obteniendo valores...</Text>
-                                            }
-                                            <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent'}} />
-                                        </View>
-                                    }
-                                    {
-                                       (!scanBluetooth || scanBluetooth != 5) && 
-                                        <InputTextWithInfo 
-                                            label={'Peso'}
-                                            labelError={(weight && weight > 500 || weight && isNaN(weight)) ? 'Peso tiene que estar entre 0.1 - 500. kg.' : false}
-                                            textInfo={'Kg'}
-                                            value={weight}
-                                            onChangeText={setWeight}
-                                            placeholder={' '} 
-                                            keyboardType={'numeric'} 
-                                        />
-                                    }
+                                    <View style={{flexDirection: 'row'}}>
+                                        {
+                                            (scanBluetooth === 5 && !connectedBluetooth) &&
+                                            <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
+                                        }
+                                        <TouchableOpacity onPress={() => {(scanBluetooth === 5 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 5 ? {} : VerifyDeviceAndConnect(5);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 5 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                            <MaterialCommunityIcons name={scanBluetooth === 5 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <InputTextWithInfo 
+                                        label={'Peso'}
+                                        labelError={(weight && weight > 500 || weight && isNaN(weight)) ? 'Peso tiene que estar entre 0.1 - 500. kg.' : false}
+                                        textInfo={'Kg'}
+                                        value={weight}
+                                        editable={scanBluetooth !== 5}
+                                        selectTextOnFocus={scanBluetooth !== 5}
+                                        onChangeText={setWeight}
+                                        placeholder={' '} 
+                                        keyboardType={'numeric'} 
+                                    />
                                 </View>
                                 <View style={{flex:0.050}}/>
                                 <View style={{flex: 1}}>
