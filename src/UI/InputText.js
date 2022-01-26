@@ -1,13 +1,29 @@
 import React from 'react'
-import { StyleSheet, TextInput, View, Text } from 'react-native'
+import { StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native'
 import { Button } from 'react-native-elements';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { PRIMARY, SECONDARY, VERY_LIGHT, BLACK, WHITE, DANGER } from '../const/Colors';
+import Tooltip from 'react-native-walkthrough-tooltip';
 
 const InputText = (props) => {
     return (
         <View style={props.labelError && props.labelError.trim().length > 0  ? {...styles.container, ...{marginBottom: 60}} : styles.container}>
-            { (props.label) && <Text style={styles.label}>{props.label}</Text> }
+            <View style={{flexDirection: 'row'}}>
+                { (props.label) && <Text style={styles.label}>{props.label}</Text> }
+                {
+                    (props.alert) &&
+                    <Tooltip
+                        isVisible={props.toolTipVisible.[props.computedObject]}
+                        content={<Text>{props.labelAlert}</Text>}
+                        placement="top"
+                        onClose={() => props.setToolTipVisible({...props.toolTipVisible, [props.computedObject]: false})}
+                    >
+                        <TouchableOpacity onPress={() => { props.setToolTipVisible({...props.toolTipVisible, [props.computedObject]: true})}} style={{borderRadius: 50, backgroundColor: DANGER, top: -5, left: 5, zIndex: 100}}>
+                            <MaterialCommunityIcons name={"alert-circle-outline"} size={26} color={WHITE} />
+                        </TouchableOpacity>
+                    </Tooltip>
+                }
+            </View>
             <View style={(props.labelError) ? styles.containerInputError : styles.containerInput}>
                 <View style={{flex: 1, flexDirection: 'row'}}>
                     {(props.nameIcon != '') && <MaterialCommunityIcons name={props.nameIcon} size={35} style={styles.icon} color={SECONDARY}/>}
@@ -20,6 +36,7 @@ const InputText = (props) => {
                         editable={props.editable} 
                         selectTextOnFocus={props.selectTextOnFocus}
                         secureTextEntry={props.secureTextEntry}
+                        ref={props.refs} 
                     />
                     { props.buttonDelete &&
                         <Button

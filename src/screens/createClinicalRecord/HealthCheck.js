@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, PermissionsAndroid } from 'react-native'
+import { View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, PermissionsAndroid, Text, TouchableHighlight  } from 'react-native'
 import { Badge, Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { PRIMARY, SUCCESS, VERY_LIGHT, WHITE } from '../../const/Colors'
+import {  PRIMARY, SUCCESS, VERY_LIGHT, WHITE } from '../../const/Colors'
 import KeyboardScrollView from '../../UI/KeyboardScrollView';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import InputText from '../../UI/InputText';
@@ -43,8 +43,9 @@ export const HealthCheck = ({navigation}) => {
     const [appIsLocal, setAppIsLocal] = useState(false);
     const [scanBluetooth, setScanBluetooth] = useState();
     const [connectedBluetooth, setConnectedBluetooth] = useState();
+    const [toolTipVisible, setToolTipVisible] = useState({heartRate: false, bloodPressureSystolic: false, bloodPressureDiastolic: false, breathingFrequency: false, o2Saturation: false, temperature: false, bloodGlucose: false});
 
-     useEffect(() => {
+    useEffect(() => {
         getImagesLocal();
     }, []);
 
@@ -271,7 +272,6 @@ export const HealthCheck = ({navigation}) => {
             if (device === undefined) return; 
             device.monitorCharacteristicForService('0000fff0-0000-1000-8000-00805f9b34fb', '0000fff4-0000-1000-8000-00805f9b34fb', (error, characteristic) => {
                 if (error) {
-                    console.log(JSON.stringify(error, 'ERROR DENTRO MONITOR'));
                     if (i < 20) {
                         connectedSensorPressure(device, i++);
                         return;
@@ -478,6 +478,11 @@ export const HealthCheck = ({navigation}) => {
                                         onChangeText={setBloodPressureSystolic} 
                                         placeholder={' '} 
                                         keyboardType={'numeric'}
+                                        toolTipVisible={toolTipVisible}
+                                        setToolTipVisible={setToolTipVisible}
+                                        computedObject={'bloodPressureSystolic'}
+                                        alert={(bloodPressureSystolic && bloodPressureSystolic < 120 || bloodPressureSystolic && bloodPressureSystolic > 139) ? true : false}
+                                        labelAlert={'Presión Arterial, fuera del rango normal'}
                                     />
                                 </View>
                                 <View style={{flex: 1}}>
@@ -501,6 +506,11 @@ export const HealthCheck = ({navigation}) => {
                                         onChangeText={setBloodPressureDiastolic} 
                                         placeholder={' '} 
                                         keyboardType={'numeric'}
+                                        toolTipVisible={toolTipVisible}
+                                        setToolTipVisible={setToolTipVisible}
+                                        computedObject={'bloodPressureDiastolic'}
+                                        alert={(bloodPressureDiastolic && bloodPressureDiastolic < 80 || bloodPressureDiastolic && bloodPressureDiastolic > 89) ? true : false}
+                                        labelAlert={'Presión Arterial, fuera del rango normal'}
                                     />
                                 </View>
                             </View>
@@ -525,6 +535,11 @@ export const HealthCheck = ({navigation}) => {
                                         onChangeText={setHeartRate} 
                                         placeholder={' '} 
                                         keyboardType={'numeric'}
+                                        toolTipVisible={toolTipVisible}
+                                        setToolTipVisible={setToolTipVisible}
+                                        computedObject={'heartRate'}
+                                        alert={(heartRate && heartRate < 60 || heartRate && heartRate > 100) ? true : false}
+                                        labelAlert={'Frecuencia Cardiaca, fuera del rango normal'}
                                     />
                                 </View>
                                 <View style={{flex:0.050}}/>
@@ -536,6 +551,11 @@ export const HealthCheck = ({navigation}) => {
                                         onChangeText={setBreathingFrequency} 
                                         placeholder={' '} 
                                         keyboardType={'numeric'}
+                                        toolTipVisible={toolTipVisible}
+                                        setToolTipVisible={setToolTipVisible}
+                                        computedObject={'breathingFrequency'}
+                                        alert={(breathingFrequency && breathingFrequency < 12 || breathingFrequency && breathingFrequency > 20) ? true : false}
+                                        labelAlert={'Frecuencia Respiratoria, fuera del rango normal'}
                                     />
                                 </View>
                             </View>
@@ -549,7 +569,12 @@ export const HealthCheck = ({navigation}) => {
                                         value={bloodGlucose}
                                         onChangeText={setBloodGlucose}
                                         placeholder={' '} 
-                                        keyboardType={'numeric'} 
+                                        keyboardType={'numeric'}
+                                        toolTipVisible={toolTipVisible}
+                                        setToolTipVisible={setToolTipVisible}
+                                        computedObject={'bloodGlucose'}
+                                        alert={(bloodGlucose && bloodGlucose < 70 || bloodGlucose && bloodGlucose > 150) ? true : false}
+                                        labelAlert={'Glicemia, fuera del rango normal'}
                                     />
                                 </View>
                                 <View style={{flex: 1}}>
@@ -585,7 +610,12 @@ export const HealthCheck = ({navigation}) => {
                                         value={o2Saturation}
                                         onChangeText={setO2Saturation}
                                         placeholder={' '} 
-                                        keyboardType={'numeric'} 
+                                        keyboardType={'numeric'}
+                                        toolTipVisible={toolTipVisible}
+                                        setToolTipVisible={setToolTipVisible}
+                                        computedObject={'o2Saturation'}
+                                        alert={(o2Saturation && o2Saturation < 92) ? true : false}
+                                        labelAlert={'Saturación O2, fuera del rango normal'}
                                     />
                                 </View>
                                 <View style={{flex:0.050}}/>
@@ -606,7 +636,12 @@ export const HealthCheck = ({navigation}) => {
                                         value={temperature}
                                         onChangeText={setTemperature}
                                         placeholder={' '} 
-                                        keyboardType={'numeric'} 
+                                        keyboardType={'numeric'}
+                                        toolTipVisible={toolTipVisible}
+                                        setToolTipVisible={setToolTipVisible}
+                                        computedObject={'temperature'}
+                                        alert={(temperature && temperature > 37.5) ? true : false}
+                                        labelAlert={'Temperatura, fuera del rango normal'}
                                     />
                                     
                                 </View>

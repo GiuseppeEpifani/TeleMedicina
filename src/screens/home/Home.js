@@ -85,12 +85,12 @@ export const Home = ({navigation}) => {
 						{
 							(!typeSearch) &&
 							<View style={{alignItems: 'center'}}>
-								<InputText 
+								<InputText
 									onChangeText={(text) => (text.trim().length > 0) ? setInputRun(format(text)) : setInputRun('')}
 									value={inputRun}
-									editable={!loadingPatients} 
+									editable={true} 
 									placeholder={'Buscar por run'} 
-									keyboardType={'numeric'}
+									keyboardType={'default'}
 									nameIcon={"account-search"} 
 									styleWidth={{width: '90%'}}
 									buttonDelete
@@ -105,8 +105,8 @@ export const Home = ({navigation}) => {
 									<InputText 
 										onChangeText={(text) => (text.trim().length > 0) ? setInputName(text) : setInputName('')}
 										value={inputName}
-										editable={!loadingPatients} 
-										placeholder={'Buscar por nombres'} 
+										editable={true} 
+										placeholder={'Buscar por nombres'}
 										keyboardType={'default'}
 										nameIcon={"account-search"} 
 										styleWidth={{width: '90%'}}
@@ -119,7 +119,7 @@ export const Home = ({navigation}) => {
 									<InputText 
 										onChangeText={(text) => (text.trim().length > 0) ? setInputLastName(text) : setInputLastName('')}
 										value={inputLastName}
-										editable={!loadingPatients} 
+										editable={true} 
 										placeholder={'Buscar por apellido paterno'} 
 										keyboardType={'default'}
 										nameIcon={"account-search"} 
