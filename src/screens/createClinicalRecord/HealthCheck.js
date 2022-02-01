@@ -15,7 +15,7 @@ import { RecordContext } from '../../context/RecordFile/RecordContext';
 import TextArea from '../../UI/TextArea';
 import { modeApp } from '../../helpers/modeApp';
 import { getMultipleImageHealthCheck } from '../../helpers/recordsLocal/getMultipleImageHealthCheck';
-import { manager } from '../../helpers/bleManager';
+import { manager, restart, cancelConnection } from '../../helpers/bleManager';
 import base64js from 'base64-js';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 import RNAndroidLocationEnabler from 'react-native-android-location-enabler';
@@ -44,6 +44,8 @@ export const HealthCheck = ({navigation}) => {
     const [scanBluetooth, setScanBluetooth] = useState();
     const [connectedBluetooth, setConnectedBluetooth] = useState();
     const [toolTipVisible, setToolTipVisible] = useState({heartRate: false, bloodPressureSystolic: false, bloodPressureDiastolic: false, breathingFrequency: false, o2Saturation: false, temperature: false, bloodGlucose: false});
+    const [currentDevice, setCurrentDevice] = useState();
+    const [disabledButton, setDisabledButton] = useState();
 
     useEffect(() => {
         getImagesLocal();
@@ -158,13 +160,16 @@ export const HealthCheck = ({navigation}) => {
     }
 
     const startDeviceScan = async () => {
+
         manager.startDeviceScan(null, null, (error, device) => {
             if (error) {
                 setConnectedBluetooth();
                 setScanBluetooth();
-                Alert.alert('Notificación', 'Se apago el bluetooth o el GPS, vuelva a encenderlo', [ { text: 'Esta bien'} ]);
-                console.log(error, 'scan');
+                Alert.alert('Notificación', 'Algo salio mal con el sensor o se apago el bluetooth o el GPS, vuelva a intetarlo', [ { text: 'Esta bien'} ]);
+                console.log(JSON.stringify(error), 'scan');
             } else {
+                setCurrentDevice(device);
+
                 if (device.name === 'Medical') {
                     connectedSensorMedical(device); 
                 }
@@ -184,41 +189,60 @@ export const HealthCheck = ({navigation}) => {
         })
     }
 
-    const VerifyDeviceAndConnect = async (type) => {
-        setScanBluetooth(type);
+    const verifyDeviceAndConnect = async (type) => {
         await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
         const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
 
         if (granted) {
-              RNAndroidLocationEnabler.promptForEnableLocationIfNeeded({
-                interval: 10000,
-                fastInterval: 5000,
-              })
-                .then(async (data) => {
-                    const stateBluetooth = await BluetoothStateManager.getState();
+            setScanBluetooth(type);
+            RNAndroidLocationEnabler.promptForEnableLocationIfNeeded({
+            interval: 10000,
+            fastInterval: 5000,
+            })
+            .then(async (data) => {
+                const stateBluetooth = await BluetoothStateManager.getState();
 
-                    if (stateBluetooth === 'PoweredOn') {
+                if (stateBluetooth === 'PoweredOn') {
+                    startDeviceScan();
+                } else {
+                    await BluetoothStateManager.enable();
+                    setTimeout(() => {
                         startDeviceScan();
-                    } else {
-                        await BluetoothStateManager.enable();
-                        setTimeout(() => {
-                            startDeviceScan();
-                        }, 1000)
-                    }
-                })
-                .catch((err) => {
-                    setScanBluetooth();
-                    console.log(JSON.stringify(err));
-                });
+                    }, 1000)
+                }
+            })
+            .catch((err) => {
+                setScanBluetooth();
+                console.log(JSON.stringify(err));
+            });
         } else {
             Alert.alert('Notificación', 'Debe de darle permisos de ubicación a la aplicación', [ { text: 'Esta bien'} ]);
         }
     }
 
-    const stopScanBluetooh = () => {
-        manager.stopDeviceScan();
-        setConnectedBluetooth();
-        setScanBluetooth();
+    const stopScanBluetooh = (type = null) => {
+        if (type) {
+            setDisabledButton(type)
+            setTimeout(() => {
+                manager.stopDeviceScan();
+                setConnectedBluetooth();
+                setScanBluetooth();
+                setDisabledButton();
+            }, 2000);
+        } else {
+            manager.stopDeviceScan();
+            setConnectedBluetooth();
+            setScanBluetooth();
+        }
+    }
+
+    const stopBluetooh = () => {
+        if (currentDevice) {
+            console.log('pasa');
+            cancelConnection(currentDevice.id);
+        }
+        restart(); 
+        stopScanBluetooh();
     }
 
     const connectedSensorMedical = (device, i = 1) => {
@@ -257,33 +281,30 @@ export const HealthCheck = ({navigation}) => {
         })
     }
 
-    const connectedSensorPressure = (device, i = 1) => {
+    const connectedSensorPressure = (device) => {
         manager.stopDeviceScan();
-        device.connect()
+        device.connect({autoConnect: true})
         .then((device) => {
             setConnectedBluetooth(1);
             return device.discoverAllServicesAndCharacteristics()
         }, (error) => {
             console.log(JSON.stringify(error), 'error conexion');
-            setConnectedBluetooth();
-            setScanBluetooth();
+            stopScanBluetooh();
         }) 
         .then((device) => {
-            if (device === undefined) return; 
+            if (device === undefined) return;
+
             device.monitorCharacteristicForService('0000fff0-0000-1000-8000-00805f9b34fb', '0000fff4-0000-1000-8000-00805f9b34fb', (error, characteristic) => {
                 if (error) {
-                    if (i < 20) {
-                        connectedSensorPressure(device, i++);
-                        return;
-                    } else {
-                        setConnectedBluetooth();
-                        setScanBluetooth();
-                        return;
-                    }
+                    console.log(JSON.stringify(error), 'INTO MONITOR');
+                    stopBluetooh();
+                    return;
                 }
 
                 const arrayBytes = base64js.toByteArray(characteristic.value);
+                console.log(arrayBytes);
                 if (arrayBytes.length > 2) {
+
                     if (arrayBytes[1] > 0) {
                         setBloodPressureSystolic(arrayBytes[1].toString());
                     } else {
@@ -295,14 +316,17 @@ export const HealthCheck = ({navigation}) => {
                     } else {
                         setBloodPressureDiastolic(arrayBytes[4].toString());
                     }
-                    setConnectedBluetooth();
-                    setScanBluetooth();
+
+                    if (arrayBytes[8] > 0) {
+                        setHeartRate(arrayBytes[8].toString());
+                    }
+
+                    stopBluetooh();
                 }
             });
         }, (error) => {
             console.log(JSON.stringify(error), 'ERROR FUERA MONITOR');
-            setConnectedBluetooth();
-            setScanBluetooth();
+            stopBluetooh();
         })
     }
 
@@ -491,7 +515,7 @@ export const HealthCheck = ({navigation}) => {
                                             (scanBluetooth === 1 && !connectedBluetooth) &&
                                             <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
                                         }
-                                        <TouchableOpacity onPress={() => {(scanBluetooth === 1 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 1 ? {} : VerifyDeviceAndConnect(1);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 1 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                        <TouchableOpacity disabled={scanBluetooth && scanBluetooth !== 1 || disabledButton === 1} onPress={() => {(scanBluetooth === 1 && !connectedBluetooth) ? stopScanBluetooh(1) : connectedBluetooth === 1 ? {} : verifyDeviceAndConnect(1);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 1 ? SUCCESS : (scanBluetooth && scanBluetooth !== 1 || disabledButton === 1) ? VERY_LIGHT : PRIMARY, top: -4, zIndex: 100}}>
                                             <MaterialCommunityIcons name={scanBluetooth === 1 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
                                         </TouchableOpacity>
                                     </View>
@@ -521,7 +545,7 @@ export const HealthCheck = ({navigation}) => {
                                             (scanBluetooth === 3 && !connectedBluetooth) &&
                                             <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
                                         }
-                                        <TouchableOpacity onPress={() => {(scanBluetooth === 3 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 3 ? {} : VerifyDeviceAndConnect(3);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 3 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                        <TouchableOpacity disabled={scanBluetooth && scanBluetooth !== 3|| disabledButton === 3} onPress={() => {(scanBluetooth === 3 && !connectedBluetooth) ? stopScanBluetooh(3) : connectedBluetooth === 3 ? {} : verifyDeviceAndConnect(3);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 3 ? SUCCESS : (scanBluetooth && scanBluetooth !== 3 || disabledButton === 3) ? VERY_LIGHT : PRIMARY, top: -4, zIndex: 100}}>
                                             <MaterialCommunityIcons name={scanBluetooth === 3 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
                                         </TouchableOpacity>
                                     </View>
@@ -597,7 +621,7 @@ export const HealthCheck = ({navigation}) => {
                                             (scanBluetooth === 3 && !connectedBluetooth) &&
                                             <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
                                         }
-                                        <TouchableOpacity onPress={() => {(scanBluetooth === 3 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 3 ? {} : VerifyDeviceAndConnect(3);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 3 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                        <TouchableOpacity disabled={scanBluetooth && scanBluetooth !== 3 || disabledButton === 3} onPress={() => {(scanBluetooth === 3 && !connectedBluetooth) ? stopScanBluetooh(3) : connectedBluetooth === 3 ? {} : verifyDeviceAndConnect(3);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 3 ? SUCCESS : (scanBluetooth && scanBluetooth !== 3 || disabledButton === 3) ? VERY_LIGHT : PRIMARY, top: -4, zIndex: 100}}>
                                             <MaterialCommunityIcons name={scanBluetooth === 3 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
                                         </TouchableOpacity>
                                     </View>
@@ -625,7 +649,7 @@ export const HealthCheck = ({navigation}) => {
                                             (scanBluetooth === 4 && !connectedBluetooth) &&
                                             <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
                                         }
-                                        <TouchableOpacity onPress={() => {(scanBluetooth === 4 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 4 ? {} : VerifyDeviceAndConnect(4);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 4 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                        <TouchableOpacity disabled={scanBluetooth && scanBluetooth !== 4 || disabledButton === 4} onPress={() => {(scanBluetooth === 4 && !connectedBluetooth) ? stopScanBluetooh(4) : connectedBluetooth === 4 ? {} : verifyDeviceAndConnect(4);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 4 ? SUCCESS : (scanBluetooth && scanBluetooth !== 4 || disabledButton === 4) ? VERY_LIGHT : PRIMARY, top: -4, zIndex: 100}}>
                                             <MaterialCommunityIcons name={scanBluetooth === 4 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
                                         </TouchableOpacity>
                                     </View>
@@ -653,7 +677,7 @@ export const HealthCheck = ({navigation}) => {
                                             (scanBluetooth === 5 && !connectedBluetooth) &&
                                             <ActivityIndicator size="small" color={PRIMARY} style={{marginBottom: 10, backgroundColor: 'transparent', position: 'absolute', right: 40}} />
                                         }
-                                        <TouchableOpacity onPress={() => {(scanBluetooth === 5 && !connectedBluetooth) ? stopScanBluetooh() : connectedBluetooth === 5 ? {} : VerifyDeviceAndConnect(5);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 5 ? SUCCESS : PRIMARY, top: -4, zIndex: 100}}>
+                                        <TouchableOpacity disabled={scanBluetooth && scanBluetooth !== 5 || disabledButton === 5} onPress={() => {(scanBluetooth === 5 && !connectedBluetooth) ? stopScanBluetooh(5) : connectedBluetooth === 5 ? {} : verifyDeviceAndConnect(5);}} style={{position: 'absolute', right: 10, borderRadius: 50, backgroundColor: connectedBluetooth === 5 ? SUCCESS : (scanBluetooth && scanBluetooth !== 5 || disabledButton === 5) ? VERY_LIGHT : PRIMARY, top: -4, zIndex: 100}}>
                                             <MaterialCommunityIcons name={scanBluetooth === 5 && !connectedBluetooth ? "close-thick" : "bluetooth-audio"} size={26} color={WHITE} />
                                         </TouchableOpacity>
                                     </View>

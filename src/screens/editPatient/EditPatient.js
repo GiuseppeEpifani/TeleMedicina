@@ -183,7 +183,7 @@ export const EditPatient = ({navigation}) => {
                                             labelError={ validInputs ? rbd.value ? !isValidRun ? RUN_INVALID : false : FIELD_COMPLETE : false}
                                             onChangeText={(text) => handleInputChange(format(text), 'rbd')}
                                             value={rbd.value}
-                                            keyboardType={'numeric'}
+                                            keyboardType={'default'}
                                             placeholder={'Ingrese su run'}
                                             keyboardType={'default'} 
                                             nameIcon={"card-account-details"}

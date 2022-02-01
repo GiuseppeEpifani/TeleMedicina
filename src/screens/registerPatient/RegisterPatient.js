@@ -164,7 +164,7 @@ export const RegisterPatient = ({navigation}) => {
                                             onChangeText={(text) => handleInputChange(format(text), 'rbd')}
                                             value={rbd.value}
                                             placeholder={'Ingrese su run'}
-                                            keyboardType={'numeric'}
+                                            keyboardType={'default'}
                                             nameIcon={"card-account-details"}
                                         />
                                     </View>

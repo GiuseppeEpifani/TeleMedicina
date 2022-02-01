@@ -141,6 +141,7 @@ export const AuthProvider = ({ children }) => {
                                 }
                             }
                         }
+                        await AsyncStorage.removeItem('listPatientsLocal');
                     }
                     dispatch({type: 'setUploadBaseData', payLoad: false });
                 } catch (error) {

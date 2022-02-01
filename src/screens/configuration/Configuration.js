@@ -98,6 +98,7 @@ export const Configuration = ({navigation}) => {
                     const patientsLocal = await AsyncStorage.getItem('listPatientsLocal');
                     if (patientsLocal) {
                         const patientsLocalParse = JSON.parse(patientsLocal);
+
                         for (let i = 0; i < patientsLocalParse.length; i++) {
                             const patient = patientsLocalParse[i];
                             const { data } = await teleMedicinaApi.post('/set.create_update_clinical_patients', patient);
@@ -184,7 +185,7 @@ export const Configuration = ({navigation}) => {
                                         }
                                     }
 
-                                    const imageDimension= await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
+                                    const imageDimension = await AsyncStorage.getItem(`${currentRecord.clinical_record_new.id}_dimension_falls_and_bumps_to_create`);
                                     if (imageDimension) {
                                         const imageDimensionParse = JSON.parse(imageDimension);
                                         imageFallsAndBumps.file = imageDimensionParse.file;
@@ -195,11 +196,10 @@ export const Configuration = ({navigation}) => {
                                     await AsyncStorage.removeItem(`records_for_create_${user.rbd}`);
                                     await AsyncStorage.removeItem(`records_${user.rbd}`);
                                 }
-                                setPercentage(Math.round((i/(patientsLocalParse.length)) * 100));
                             }
                         }
+                        await AsyncStorage.removeItem('listPatientsLocal');
                     }
-
                 } catch (error) {
                     console.log(error);
                 }
@@ -225,13 +225,13 @@ export const Configuration = ({navigation}) => {
                     const patientsWithRecords = await AsyncStorage.getItem('list_patient_with_records');
                     const patientsWithRecordsParse = JSON.parse(patientsWithRecords);
                     if (patientsWithRecordsParse) {
-                        const cantPatientsWithRecords = patientsWithRecordsParse.length;
 
                         for (let i = 0; i < patientsWithRecordsParse.length; i++) {
                             const rbd = patientsWithRecordsParse[i];
                             const records = await AsyncStorage.getItem(`records_for_create_${rbd}`);
 
                             if (records) {
+                                setLoadingUploadDataBase(true);
                                 const recordParse = JSON.parse(records);
                         
                                 for (let x = 0; x < recordParse.length; x++) {
@@ -260,7 +260,6 @@ export const Configuration = ({navigation}) => {
                                     await AsyncStorage.removeItem(`records_for_create_${rbd}`);
                                     await AsyncStorage.removeItem(`records_${rbd}`);
                                 }
-                                setPercentage(Math.round((i/(cantPatientsWithRecords)) * 100));
                             }
                         }
                         await AsyncStorage.removeItem('list_patient_with_records');
@@ -380,9 +379,9 @@ export const Configuration = ({navigation}) => {
                     let arrayClinicalRecordLast = [];
                     let totalPageClinicalRecord = 0;
                     do {
-                        let { data: {data, lastPage} } = await teleMedicinaApi.post(`/get.last_clinical_file?page=${pageClinicalRecordLast}`, { pagination: 500 });
+                        let { data: {data, last_page} } = await teleMedicinaApi.post(`/get.last_clinical_file?page=${pageClinicalRecordLast}`, { pagination: 500 });
                         arrayClinicalRecordLast = [ ...arrayClinicalRecordLast, ...data];
-                        totalPageClinicalRecord = lastPage;
+                        totalPageClinicalRecord = last_page;
                         pageClinicalRecordLast++;
                     } while(pageClinicalRecordLast <= totalPageClinicalRecord);
                     await AsyncStorage.setItem('clinical_record_last', JSON.stringify(arrayClinicalRecordLast));
@@ -484,7 +483,7 @@ export const Configuration = ({navigation}) => {
                             <Text style={{fontWeight: 'bold', fontSize: 17, color: SECONDARY, marginRight: 6, marginTop: 5}}>Subir base de datos local:</Text>
                             <View>
                                 <Button 
-                                    title={ !loadingUploadDataBase ? "Subir" : `Subiendo... (${percentage}%)`} 
+                                    title={ !loadingUploadDataBase ? "Subir" : "Subiendo..." } 
                                     titleStyle={{fontSize: 14, fontWeight: 'bold', marginLeft: 10}}  
                                     containerStyle={{borderRadius: 20}}
                                     buttonStyle={ !loadingUploadDataBase ? {backgroundColor: PRIMARY, height: 40, width: 180, borderRadius: 20} : {backgroundColor: PRIMARY, height: 40, width: 200, borderRadius: 20}}
