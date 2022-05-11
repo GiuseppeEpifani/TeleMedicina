@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, PermissionsAndroid, Text, TouchableHighlight  } from 'react-native'
+import { View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, PermissionsAndroid, Text, TouchableHighlight } from 'react-native'
 import { Badge, Button } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {  PRIMARY, SUCCESS, VERY_LIGHT, WHITE } from '../../const/Colors'
@@ -237,207 +237,189 @@ export const HealthCheck = ({navigation}) => {
     }
 
     const stopBluetooh = () => {
-        if (currentDevice) {
-            console.log('pasa');
-            cancelConnection(currentDevice.id);
-        }
+        if (currentDevice) cancelConnection(currentDevice.id);
         restart(); 
         stopScanBluetooh();
     }
 
-    const connectedSensorMedical = (device, i = 1) => {
+    const connectedSensorMedical = async (device) => {
         manager.stopDeviceScan();
-        device.connect()
-        .then((device) => {
-            setConnectedBluetooth(3);
-            return device.discoverAllServicesAndCharacteristics()
-        }) 
-        .then((device) => {
-            device.monitorCharacteristicForService('CDEACB80-5235-4C07-8846-93A37EE6B86D', 'CDEACB81-5235-4C07-8846-93A37EE6B86D', (error, characteristic) => {
-                if (error) {
-                    console.log(JSON.stringify(error));
-                    if (i < 20) {
-                        connectedSensorMedical(device, i++);
-                        return;
-                    } else {
-                        setConnectedBluetooth();
-                        setScanBluetooth();
-                        return;
-                    }
-                }
+        try {
+            const deviceConnected = await device.connect({autoConnect: true})
+    
+            if (deviceConnected) {
+                setTimeout(async () => {
+                    setConnectedBluetooth(3);
+                    const servicesAndCharacteristics = await deviceConnected.discoverAllServicesAndCharacteristics();
+                    servicesAndCharacteristics.monitorCharacteristicForService('CDEACB80-5235-4C07-8846-93A37EE6B86D', 'CDEACB81-5235-4C07-8846-93A37EE6B86D', (error, characteristic) => {
+                        if (error) {
+                            console.log(JSON.stringify(error), 'INTO MONITOR');
+                            stopBluetooh();
+                            return;
+                        }
+        
+                        const arrayBytes = base64js.toByteArray(characteristic.value);
 
-                const arrayBytes = base64js.toByteArray(characteristic.value);
-                if (arrayBytes.length === 4) {
-                    if (arrayBytes[1] !== 255 && arrayBytes[2] !== 127 && arrayBytes[3] !== 0) {
-                        setHeartRate(arrayBytes[1].toString());
-                        setO2Saturation(arrayBytes[2].toString());
-                    }
-                }
-            });
-        }, (error) => {
-            console.log(JSON.stringify(error));
-            setConnectedBluetooth();
-            setScanBluetooth();
-        })
-    }
-
-    const connectedSensorPressure = (device) => {
-        manager.stopDeviceScan();
-        device.connect({autoConnect: true})
-        .then((device) => {
-            setConnectedBluetooth(1);
-            return device.discoverAllServicesAndCharacteristics()
-        }, (error) => {
-            console.log(JSON.stringify(error), 'error conexion');
+                        if (arrayBytes.length === 4) {
+                            if (arrayBytes[1] !== 255 && arrayBytes[2] !== 127 && arrayBytes[3] !== 0) {
+                                setHeartRate(arrayBytes[1].toString());
+                                setO2Saturation(arrayBytes[2].toString());
+                            }
+                        }
+                    });
+                }, 3000);
+            }
+        } catch (error) {
             stopScanBluetooh();
-        }) 
-        .then((device) => {
-            if (device === undefined) return;
-
-            device.monitorCharacteristicForService('0000fff0-0000-1000-8000-00805f9b34fb', '0000fff4-0000-1000-8000-00805f9b34fb', (error, characteristic) => {
-                if (error) {
-                    console.log(JSON.stringify(error), 'INTO MONITOR');
-                    stopBluetooh();
-                    return;
-                }
-
-                const arrayBytes = base64js.toByteArray(characteristic.value);
-                console.log(arrayBytes);
-                if (arrayBytes.length > 2) {
-
-                    if (arrayBytes[1] > 0) {
-                        setBloodPressureSystolic(arrayBytes[1].toString());
-                    } else {
-                        setBloodPressureSystolic(arrayBytes[2].toString());
-                    }
-
-                    if (arrayBytes[3] > 0) {
-                        setBloodPressureDiastolic(arrayBytes[3].toString());
-                    } else {
-                        setBloodPressureDiastolic(arrayBytes[4].toString());
-                    }
-
-                    if (arrayBytes[8] > 0) {
-                        setHeartRate(arrayBytes[8].toString());
-                    }
-
-                    stopBluetooh();
-                }
-            });
-        }, (error) => {
-            console.log(JSON.stringify(error), 'ERROR FUERA MONITOR');
-            stopBluetooh();
-        })
-    }
-
-    const connectedSensorThermometer = (device, i = 1) => {
-        manager.stopDeviceScan();
-        device.connect()
-        .then((device) => {
-            setConnectedBluetooth(4);
-            return device.discoverAllServicesAndCharacteristics()
-        }, (error) => {
-            console.log(JSON.stringify(error), 'error conexion');
-            setConnectedBluetooth();
-            setScanBluetooth();
-        }) 
-        .then((device) => {
-            if (device === undefined) return; 
-            device.monitorCharacteristicForService('1809', '2A1C', async (error, characteristic) => {
-                if (error) {
-                    console.log(JSON.stringify(error), 'error dentro');
-                    if (i < 20) {
-                        connectedSensorThermometer(device, i++);
-                        return;
-                    } else {
-                        setConnectedBluetooth();
-                        setScanBluetooth();
-                        return;
-                    }
-                }
-
-                const arrayBytes = base64js.toByteArray(characteristic.value);
-                const dataView = new DataView(arrayBytes.buffer);
-                const value = await getFloatValue(dataView, 1);
-                setTemperature(value.toFixed(1).toString());
-            });
-        }, (error) => {
-            console.log(JSON.stringify(error), 'error monitor');
-            setConnectedBluetooth();
-            setScanBluetooth();
-        })
-    }
-
-    const connectedSensorBalance = (device, i = 1) => {
-        manager.stopDeviceScan();
-        device.connect()
-        .then((device) => {
-            setConnectedBluetooth(5);
-            return device.discoverAllServicesAndCharacteristics()
-        }) 
-        .then((device) => {
-            device.monitorCharacteristicForService('FFF0', 'FFF3', async (error, characteristic) => {
-                if (error) {
-                    console.log(JSON.stringify(error));
-                    if (i < 20) {
-                        connectedSensorBalance(device, i++);
-                        return;
-                    } else {
-                        setConnectedBluetooth();
-                        setScanBluetooth();                    
-                        return;
-                    }
-                }
-
-                const arrayBytes = base64js.toByteArray(characteristic.value);
-
-                switch (arrayBytes[2]) {
-                    case 1:
-                        arrayBytes[4] = 1;
-                        break;
-                    case 2:
-                        arrayBytes[4] = 2;
-                        break;
-                    case 3:
-                        arrayBytes[4] = 3;
-                        break;
-                    case 4:
-                        arrayBytes[4] = 4;
-                        break;
-                    case 5:
-                        arrayBytes[4] = 5;
-                        break;
-                    case 6:
-                        arrayBytes[4] = 6;
-                      break;
-                    case 7:
-                        arrayBytes[4] = 7;
-                        break;
-                    case 8:
-                        arrayBytes[4] = 8;
-                        break;
-                    case 9:
-                        arrayBytes[4] = 9;
-                        break;
-                    case 10:
-                        arrayBytes[4] = 10;
-                        break;
-                }
-
-                if (arrayBytes[2] == arrayBytes[4]) {
-                    const dataView = new DataView(arrayBytes.buffer);
-                    const valueInt = await getFloatValue(dataView, 3);
-                    setWeight((valueInt / 1000).toString());
-                }
-            });
-        }, (error) => {
             console.log(JSON.stringify(error));
-            setConnectedBluetooth();
-            setScanBluetooth();
-        })
+        }
     }
 
-    const getFloatValue = async (value, offset) => {
+    const connectedSensorPressure = async (device) => {
+        manager.stopDeviceScan();
+        try {
+            const deviceConnected = await device.connect({autoConnect: true})
+    
+            if (deviceConnected) {
+                setTimeout(async () => {
+                    setConnectedBluetooth(1);
+                    const servicesAndCharacteristics = await deviceConnected.discoverAllServicesAndCharacteristics();
+                    servicesAndCharacteristics.monitorCharacteristicForService('0000fff0-0000-1000-8000-00805f9b34fb', '0000fff4-0000-1000-8000-00805f9b34fb', (error, characteristic) => {
+                        if (error) {
+                            console.log(JSON.stringify(error), 'INTO MONITOR');
+                            stopBluetooh();
+                            return;
+                        }
+        
+                        const arrayBytes = base64js.toByteArray(characteristic.value);
+
+                        if (arrayBytes.length > 2) {
+        
+                            if (arrayBytes[1] > 0) {
+                                setBloodPressureSystolic(arrayBytes[1].toString());
+                            } else {
+                                setBloodPressureSystolic(arrayBytes[2].toString());
+                            }
+        
+                            if (arrayBytes[3] > 0) {
+                                setBloodPressureDiastolic(arrayBytes[3].toString());
+                            } else {
+                                setBloodPressureDiastolic(arrayBytes[4].toString());
+                            }
+        
+                            if (arrayBytes[8] > 0) {
+                                setHeartRate(arrayBytes[8].toString());
+                            }
+        
+                            stopBluetooh();
+                        }
+                    });
+                }, 3000);
+            }
+        } catch (error) {
+            stopScanBluetooh();
+            console.log(JSON.stringify(error));
+        }
+    }
+
+    const connectedSensorThermometer = async (device) => {
+        manager.stopDeviceScan();
+        try {
+            const deviceConnected = await device.connect({autoConnect: true})
+    
+            if (deviceConnected) {
+                setTimeout(async () => {
+                    setConnectedBluetooth(4);
+                    const servicesAndCharacteristics = await deviceConnected.discoverAllServicesAndCharacteristics();
+                    servicesAndCharacteristics.monitorCharacteristicForService('1809', '2A1C', (error, characteristic) => {
+                        if (error) {
+                            console.log(JSON.stringify(error), 'INTO MONITOR');
+                            stopBluetooh();
+                            return;
+                        }
+        
+                        const arrayBytes = base64js.toByteArray(characteristic.value);
+                        const dataView = new DataView(arrayBytes.buffer);
+                        const value = getFloatValue(dataView, 1);
+                        console.log(value)
+                        setTemperature(value.toFixed(1).toString());
+
+                    });
+                }, 1000);
+            }
+        } catch (error) {
+            stopScanBluetooh();
+            console.log(JSON.stringify(error));
+        }
+    }
+
+    const connectedSensorBalance = async (device) => {
+        manager.stopDeviceScan();
+        try {
+            const deviceConnected = await device.connect({autoConnect: true})
+    
+            if (deviceConnected) {
+                setTimeout(async () => {
+                    setConnectedBluetooth(5);
+                    const servicesAndCharacteristics = await deviceConnected.discoverAllServicesAndCharacteristics();
+                    servicesAndCharacteristics.monitorCharacteristicForService('FFF0', 'FFF3', (error, characteristic) => {
+                        if (error) {
+                            console.log(JSON.stringify(error), 'INTO MONITOR');
+                            stopBluetooh();
+                            return;
+                        }
+        
+                        const arrayBytes = base64js.toByteArray(characteristic.value);
+
+                        switch (arrayBytes[2]) {
+                            case 1:
+                                arrayBytes[4] = 1;
+                                break;
+                            case 2:
+                                arrayBytes[4] = 2;
+                                break;
+                            case 3:
+                                arrayBytes[4] = 3;
+                                break;
+                            case 4:
+                                arrayBytes[4] = 4;
+                                break;
+                            case 5:
+                                arrayBytes[4] = 5;
+                                break;
+                            case 6:
+                                arrayBytes[4] = 6;
+                              break;
+                            case 7:
+                                arrayBytes[4] = 7;
+                                break;
+                            case 8:
+                                arrayBytes[4] = 8;
+                                break;
+                            case 9:
+                                arrayBytes[4] = 9;
+                                break;
+                            case 10:
+                                arrayBytes[4] = 10;
+                                break;
+                        }
+        
+                        if (arrayBytes[2] == arrayBytes[4]) {
+                            const dataView = new DataView(arrayBytes.buffer);
+                            const valueInt = getFloatValue(dataView, 3);
+                            setWeight((valueInt / 1000).toString());
+                        }
+
+                    });
+                }, 500);
+            }
+        } catch (error) {
+            stopScanBluetooh();
+            console.log(JSON.stringify(error));
+        }
+    }
+
+    const getFloatValue = (value, offset) => {
         const negative = value.getInt8(offset + 2) >>> 31;
     
         const [b0, b1, b2, exponent] = [

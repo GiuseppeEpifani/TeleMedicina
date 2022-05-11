@@ -201,8 +201,8 @@ export const DigestiveProblems = ({navigation}) => {
                     <CardWithText padding={10} title={'Problemas digestivos'}>
                         <ScrollView>
                             <Text style={{fontSize: 22, fontWeight: 'bold', color: SECONDARY, marginLeft: 10, marginBottom: 10}}>Encuesta para identificar problemas digestivos</Text>
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                <View style={{flex: 1}}>
+                            <View style={{flexDirection: 'row'}}>
+                                <View>
                                     <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>Problemas digestivos</Text>
                                     <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                         <TouchableOpacity onPress={() => {setWithDigestiveProblems('Si')}}>
@@ -213,7 +213,8 @@ export const DigestiveProblems = ({navigation}) => {
                                         </TouchableOpacity>
                                     </View>
                                 </View>
-                                <View style={{flex: 1}}>
+                                <View style={{width: 20}} />
+                                <View>
                                     <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>Náuseas</Text>
                                     <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                         <TouchableOpacity onPress={() => {setSickness('Si')}}>
@@ -224,21 +225,19 @@ export const DigestiveProblems = ({navigation}) => {
                                         </TouchableOpacity>
                                     </View>
                                 </View>
-                                <View style={{flex: 1}}>
-                                    <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>Náuseas</Text>
-                                    <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
-                                        <TouchableOpacity onPress={() => {setVomiting('Si')}}>
-                                            <RadioButton selected={vomiting == 'Si'} labelRadio={'Si'}/>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => {setVomiting('No')}}>
-                                            <RadioButton selected={vomiting == 'No'} labelRadio={'No'}/>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
+                            </View>
+                            <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>Vómitos</Text>
+                            <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
+                                <TouchableOpacity onPress={() => {setVomiting('Si')}}>
+                                    <RadioButton selected={vomiting == 'Si'} labelRadio={'Si'}/>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {setVomiting('No')}}>
+                                    <RadioButton selected={vomiting == 'No'} labelRadio={'No'}/>
+                                </TouchableOpacity>
                             </View>
                             <PickerSingleSelect setItems={setHowOften} items={howOften} setValue={(value) => handleSetValue(value, setHowOftenSelected, howOftenSelected)} value={howOftenSelected} label={"¿Cuántas veces?"} />
                             <PickerSingleSelect setItems={setAppearanceOfVomit} items={appearanceOfVomit} setValue={(value) => handleSetValue(value, setAppearanceOfVomitSelected, appearanceOfVomitSelected)} value={appearanceOfVomitSelected} label={"¿Qué aspecto tiene el vomito?"} />
-                            <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>Náuseas</Text>
+                            <Text style={{fontWeight: 'bold', fontSize: 16, color: SECONDARY, marginLeft: 10, marginBottom: 12}}>Diarrea</Text>
                             <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20}}>
                                 <TouchableOpacity onPress={() => {setDiarrhea('Si')}}>
                                     <RadioButton selected={diarrhea == 'Si'} labelRadio={'Si'}/>
