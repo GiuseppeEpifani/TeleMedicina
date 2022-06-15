@@ -1,1 +1,1 @@
-export const URL = 'http://54.227.176.51'
+export const URL = 'http://rhtelemedicina.cyberiv.cl'
